@@ -4011,16 +4011,6 @@ cssstyle@^2.2.0:
   dependencies:
     cssom "~0.3.6"
 
-csstype@^2.5.2:
-  version "2.6.17"
-  resolved "https://registry.yarnpkg.com/csstype/-/csstype-2.6.17.tgz#4cf30eb87e1d1a005d8b6510f95292413f6a1c0e"
-  integrity sha512-u1wmTI1jJGzCJzWndZo8mk4wnPTZd1eOIYTYvuEyOQGfmDl3TrabCCfKnOC86FZwW/9djqTl933UF/cS425i9A==
-
-csstype@^3.0.2:
-  version "3.0.8"
-  resolved "https://registry.yarnpkg.com/csstype/-/csstype-3.0.8.tgz#d2266a792729fb227cd216fb572f43728e1ad340"
-  integrity sha512-jXKhWqXPmlUeoQnF/EhTtTl4C9SnrxSH/jZUih3jmO6lBKr99rP3/+FmrMj4EFpOXzMtXHAZkd3x0E6h6Fgflw==
-
 custom-error-instance@2.1.1:
   version "2.1.1"
   resolved "https://registry.yarnpkg.com/custom-error-instance/-/custom-error-instance-2.1.1.tgz#3cf6391487a6629a6247eb0ca0ce00081b7e361a"
@@ -10272,10 +10262,10 @@ sjcl@^1.0.8:
   resolved "https://registry.yarnpkg.com/sjcl/-/sjcl-1.0.8.tgz#f2ec8d7dc1f0f21b069b8914a41a8f236b0e252a"
   integrity sha512-LzIjEQ0S0DpIgnxMEayM1rq9aGwGRG4OnZhCdjx7glTaJtf4zRfpg87ImfjSJjoW9vKpagd82McDOwbRT5kQKQ==
 
-skynet-js@^4.0.12-beta:
-  version "4.0.12-beta"
-  resolved "https://registry.yarnpkg.com/skynet-js/-/skynet-js-4.0.12-beta.tgz#fc612b6b5f4e0b6708cd9310a7abb95feaf914ac"
-  integrity sha512-VmsXsdbqAM1LZH2Jv0IuyFmxLT6n3DqKrVoSQTRGDuOCHiRYzPNWtjGUjMjUSvHifIMqPJh3nCjfQwIP4TSOqg==
+skynet-js@^4.0.11-beta:
+  version "4.0.11-beta"
+  resolved "https://registry.yarnpkg.com/skynet-js/-/skynet-js-4.0.11-beta.tgz#ec313d586f8e026e0b3b4b608f2f3b4a449e8a71"
+  integrity sha512-/fpxBeegGJeK+VWE8svUhBc2tVX0kJAZod5K172kKPO1g/GECeQLLSuWL2yvCMbSSTyH0dIFr5gemwGNsZHlMQ==
   dependencies:
     axios "^0.21.0"
     base32-decode "^1.0.0"
@@ -11372,7 +11362,7 @@ url-parse@1.4.7:
     querystringify "^2.1.1"
     requires-port "^1.0.0"
 
-url-parse@^1.4.3, url-parse@^1.4.7:
+url-parse@^1.4.3, url-parse@^1.4.7, url-parse@^1.5.1:
   version "1.5.1"
   resolved "https://registry.npmjs.org/url-parse/-/url-parse-1.5.1.tgz"
   integrity sha512-HOfCOUJt7iSYzEx/UqgtwKRMC6EU91NFhsCHMv9oM03VJcVo2Qrp8T8kI9D7amFf1cu+/3CEhgb3rF9zL7k85Q==
