@@ -31,30 +31,37 @@ export default function CreateMenu (props) {
         adjustMenuPosition();
     });
     const adjustMenuPosition = () => {
-        const sideToolRef = sideTool.current;
-        const {selection} = props.editor;
+        const sideToolRef = sideTool.current; //get copy of current sideTool reference
+        const {selection} = props.editor; //editor current selection
+        //find current position in window of the cursor
         const domSelection = window.getSelection();
         const domRange = domSelection.getRangeAt(0);
         const rect = domRange.getBoundingClientRect();
         const editorElement = document.getElementById('editor');
         const createContainer = document.getElementById('create-container');
+        //hide the menu if the window is too narrow
         if (createContainer.getBoundingClientRect().width == window.innerWidth) {
             sideToolRef.removeAttribute('style');
             return
         } else if (sideToolRef && selection) {
+            //position to the left of the current cursor line
             sideToolRef.style.top = `${rect.top+window.pageYOffset- sideToolRef.offsetHeight/2 + rect.height/2}px`
             sideToolRef.style.left = `${editorElement.getBoundingClientRect().left - sideToolRef.offsetWidth - 6}px`
         }
     }
+    //anchor the menu on + icon click
     const handleMenuClick = (event) => {
         setMenuAnchor(event.currentTarget);
     }
+    //remove anchor to close the menu
     const handleClose = () => {
         setMenuAnchor(null);
     }
+    //focus the file input on image icon click
     const handleImageClick = () => {
         inputImage.current.click();
     }
+    //image selected, now insert it to the editor using a function passed as a prop
     const handleImageSelect = (event) => {
         console.log(event.target.files)
         props.addImageElement(props.editor, URL.createObjectURL(event.target.files[0]));
