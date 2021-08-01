@@ -7,6 +7,10 @@ import AddCircleOutline from "@material-ui/icons/AddCircleOutline";
 import ImageOutlined from "@material-ui/icons/ImageOutlined";
 import SettingsEthernet from "@material-ui/icons/SettingsEthernet";
 import InsertLink from "@material-ui/icons/InsertLink";
+import FormatListBulletedIcon from "@material-ui/icons/FormatListBulleted";
+import FormatListNumberedIcon from "@material-ui/icons/FormatListNumbered";
+import { Transforms } from "slate";
+import { ReactEditor } from "slate-react";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -77,10 +81,17 @@ export default function CreateMenu(props) {
     imageFormRef.current.reset();
     handleClose();
   };
+  const handleToggleCode = () => {
+    props.formatBlock(props.editor, "code");
+    handleClose();
+  };
+  const handleToggleBullets = () => {};
+  const handleToggleNumbers = () => {};
+
   return (
     <div ref={sideTool} className={classes.root}>
       <IconButton
-        onClick={handleMenuClick}
+        onMouseDown={handleMenuClick}
         edge="end"
         aria-label="create"
         color="inherit"
@@ -100,8 +111,14 @@ export default function CreateMenu(props) {
         <MenuItem onClick={handleClose}>
           <InsertLink style={{ color: "lightGray" }} />
         </MenuItem>
-        <MenuItem onClick={handleClose}>
+        <MenuItem onClick={handleToggleCode}>
           <SettingsEthernet style={{ color: "lightGray" }} />
+        </MenuItem>
+        <MenuItem onClick={handleToggleBullets}>
+          <FormatListBulletedIcon style={{ color: "lightGray" }} />
+        </MenuItem>
+        <MenuItem onClick={handleToggleNumbers}>
+          <FormatListNumberedIcon style={{ color: "lightGray" }} />
         </MenuItem>
       </Menu>
       <form ref={imageFormRef}>

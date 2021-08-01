@@ -154,7 +154,9 @@ export default function Create(props) {
       <Slate
         editor={editor}
         value={blogBody}
-        onChange={(newValue) => setBlogBody(newValue)}
+        onChange={(newValue) => {
+          setBlogBody(newValue);
+        }}
       >
         <HoveringToolbar />
         <Editable
@@ -192,13 +194,17 @@ export default function Create(props) {
             }
           }}
           onKeyUp={(event) => {
-            if (event.key === "Enter") {
+            if (event.key === "Enter" && !isTypeActive(editor, "code")) {
               formatBlock(editor, "paragraph");
             }
           }}
         />
       </Slate>
-      <CreateMenu addImageElement={addImageElement} editor={editor} />
+      <CreateMenu
+        addImageElement={addImageElement}
+        formatBlock={formatBlock}
+        editor={editor}
+      />
     </Container>
   );
 }
@@ -206,9 +212,9 @@ export default function Create(props) {
 //render function for 'code' element type
 const CodeElement = (props) => {
   return (
-    <pre {...props.attributes}>
-      <code>{props.children}</code>
-    </pre>
+    <div style={{ paddingLeft: 4, borderLeft: "4px solid #EBEFEE" }}>
+      <code {...props.attributes}>{props.children}</code>
+    </div>
   );
 };
 //render function for default element type
@@ -393,6 +399,7 @@ const titleFormatSelector = (editor) => {
 //change the type of a block
 //possible types: 'paragraph', 'code', 'title', 'subtitle', 'image'
 const formatBlock = (editor, formatType) => {
+  console.log("format block");
   const isActive = isTypeActive(editor, formatType);
   Transforms.setNodes(
     editor,
@@ -406,7 +413,7 @@ const isTypeActive = (editor, formatType) => {
   const [match] = Editor.nodes(editor, {
     match: (n) => n.type === formatType,
   });
-
+  console.log("MATCH", !!match);
   return !!match;
 };
 //returns if the given format is active or not
@@ -473,7 +480,7 @@ const HoveringToolbar = () => {
   return (
     <div ref={ref} className={classes.formatMenu}>
       {!showLinkInput ? (
-        <ButtonGroup>
+        <ButtonGroup style={{ backgroundColor: "white" }}>
           <IconButton onMouseDown={(event) => toggleFormat(editor, "bold")}>
             <FormatBoldIcon
               color={isFormatActive(editor, "bold") ? "primary" : "gray"}
