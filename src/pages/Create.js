@@ -8,6 +8,8 @@ export default function Create(props) {
   //states to track store the blog text
   const [title, setTitle] = useState(); //blog title
   const [subtitle, setSubtitle] = useState(); //blog subtitle
+  const [blogMD, setBlogMD] = useState(null);
+  const mdEditor = useRef();
 
   //handle the title input change
   const handleTitleChange = (event) => {
@@ -25,7 +27,7 @@ export default function Create(props) {
   return (
     <Container
       id={"create-container"}
-      maxWidth={"sm"}
+      maxWidth={"md"}
       style={{ marginTop: 14 }}
     >
       <Grid container direction={"row"} alignItems={"center"}>
@@ -49,6 +51,7 @@ export default function Create(props) {
           InputProps={{ style: { fontSize: 30, marginBottom: 12 } }}
         />
       </Grid>
+      <MarkdownEditor mdEditor={mdEditor} setBlogMD={setBlogMD} />
     </Container>
   );
 }
