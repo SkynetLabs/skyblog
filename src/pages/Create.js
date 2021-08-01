@@ -9,6 +9,7 @@ import Container from "@material-ui/core/Container";
 import TextField from "@material-ui/core/TextField";
 import Grid from "@material-ui/core/Grid";
 import { makeStyles } from "@material-ui/core/styles";
+import SlateEditor from "../components/SlateEditor";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -88,6 +89,7 @@ export default function Create(props) {
           InputProps={{ style: { fontSize: 30, marginBottom: 12 } }}
         />
       </Grid>
+      <SlateEditor />
     </Container>
   );
 }

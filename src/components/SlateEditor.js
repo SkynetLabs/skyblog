@@ -63,7 +63,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function Create(props) {
+export default function SlateEditor(props) {
   const classes = useStyles();
   const [blogBody, setBlogBody] = useState([
     {
