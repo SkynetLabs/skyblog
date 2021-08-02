@@ -1,50 +1,8 @@
-import React, {
-  useState,
-  useEffect,
-  useMemo,
-  useCallback,
-  useRef,
-} from "react";
-import Container from "@material-ui/core/Container";
-import TextField from "@material-ui/core/TextField";
-import Grid from "@material-ui/core/Grid";
-import { makeStyles } from "@material-ui/core/styles";
+import React, { useState } from "react";
+
 import MDEditor from "@uiw/react-md-editor";
 
-const useStyles = makeStyles((theme) => ({
-  root: {
-    "& .MuiTextField-root": {
-      margin: theme.spacing(1),
-      width: "25ch",
-    },
-  },
-  titleField: {
-    fontSize: 40,
-    outline: "none",
-    border: "none",
-  },
-  subtitleField: {
-    fontSize: 30,
-    outline: "none",
-    border: "none",
-  },
-  bodyField: {
-    fontSize: 20,
-    outline: "none",
-    border: "none",
-  },
-  formatMenu: {
-    position: "absolute",
-    opacity: 0,
-    zIndex: 1,
-    top: -10000,
-    left: -10000,
-  },
-}));
-
 export default function MarkdownEditor(props) {
-  const classes = useStyles();
-
   //states to track store the blog text
   const [blogBody, setBlogBody] = useState();
 
