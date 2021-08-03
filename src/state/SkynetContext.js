@@ -47,14 +47,17 @@ const SkynetProvider = ({ children }) => {
       const mySky = await client.loadMySky(hostApp);
 
       //load in user profile, feed, and social DACs
-      await mySky.loadDacs([userProfile, feedDAC, socialDAC]);
+      //const dacsArray = [userProfile, feedDAC, socialDAC];
+      await mySky.loadDacs(userProfile);
 
       const checkLogIn = await mySky.checkLogin();
       setMySky(mySky);
 
       if (checkLogIn) {
+        console.log("LOGGED IN");
         loginActions(mySky);
       } else {
+        console.log("LOGGED OUT");
         setMySkyLoading(false);
       }
     } catch (e) {
@@ -82,8 +85,8 @@ const SkynetProvider = ({ children }) => {
     setUserID(userID);
     setMySkyLoading(false); //mySky done loading, change state
     //fetch feed after profile loaded
-    const feed = await getUserFeed(userID);
-    setUserFeed(feed);
+    //const feed = await getUserFeed(userID);
+    //setUserFeed(feed);
   };
 
   //get the current user's global preferences to set DarkMode
