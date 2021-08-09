@@ -4,6 +4,8 @@ import { SkynetClient } from "skynet-js";
 // To import DAC, uncomment here, and 2 spots below.
 // import { ContentRecordDAC } from '@skynetlabs/content-record-library';
 import { UserProfileDAC } from "@skynethub/userprofile-library";
+import { FeedDAC } from "feed-dac-library";
+import { SocialDAC } from "social-dac-library";
 
 const SkynetContext = createContext(undefined);
 
@@ -12,6 +14,9 @@ const SkynetContext = createContext(undefined);
 const portal =
   window.location.hostname === "localhost" ? "https://siasky.net" : undefined;
 
+//host skapp
+const hostApp = "skyblog.hns";
+
 // Initiate the SkynetClient
 const client = new SkynetClient(portal);
 
@@ -19,56 +24,95 @@ const client = new SkynetClient(portal);
 // const contentRecord = new ContentRecordDAC();
 const contentRecord = null;
 const userProfile = new UserProfileDAC();
+const feedDAC = new FeedDAC();
+const socialDAC = new SocialDAC();
 
 const dataDomain =
-  window.location.hostname === "localhost" ? "localhost" : "appName.hns";
+  window.location.hostname === "localhost" ? "localhost" : "skyblog.hns";
 
 const SkynetProvider = ({ children }) => {
-  const [skynetState, setSkynetState] = useState({
-    client,
-    mySky: null,
-    contentRecord,
-    userProfile,
-    dataDomain,
-  });
+  const [isMySkyLoading, setMySkyLoading] = useState(true); // state to inidicate whether MySky has loaded
+
+  const [userID, setUserID] = useState(null);
+  const [mySky, setMySky] = useState(null);
+  const [profile, setProfile] = useState(null);
+  const [userPreferences, setUserPreferences] = useState(null);
+  const [userFeed, setUserFeed] = useState(null);
 
   useEffect(() => {
-    // define async setup function
-    async function initMySky() {
-      try {
-        // load invisible iframe and define app's data domain
-        // needed for permissions write
-        const mySky = await client.loadMySky(dataDomain, {
-          debug: true,
-          // dev: true,
-        });
+    initMySky();
+  }, []);
 
-        // load necessary DACs and permissions
-        // Uncomment line below to load DACs
-        // await mySky.loadDacs(contentRecord);
-        await mySky.loadDacs(userProfile);
+  //initialization of mySky and DACs, check log in status
+  const initMySky = async () => {
+    try {
+      const mySky = await client.loadMySky(hostApp);
 
-        // replace mySky in state object
-        setSkynetState({ ...skynetState, mySky });
-      } catch (e) {
-        console.error(e);
+      //load in user profile, feed, and social DACs
+      const dacsArray = [userProfile, feedDAC];
+      await mySky.loadDacs(...dacsArray);
+
+      const checkLogIn = await mySky.checkLogin();
+      setMySky(mySky);
+
+      if (checkLogIn) {
+        console.log("LOGGED IN");
+        loginActions(mySky);
+      } else {
+        console.log("LOGGED OUT");
+        setMySkyLoading(false);
       }
+    } catch (e) {
+      console.log(e);
+      setMySkyLoading(false);
     }
+  };
 
-    // call async setup function
-    if (!skynetState.mySky) {
-      initMySky();
-    }
-
-    return () => {
-      if (skynetState.mySky) {
-        skynetState.mySky.destroy();
+  //function to call on login button press
+  const initiateLogin = async () => {
+    mySky.requestLoginAccess().then((response) => {
+      if (response) {
+        setMySkyLoading(true);
+        loginActions(mySky);
       }
-    };
-  }, [skynetState]);
+    });
+  };
+
+  //actions to perform on successful login check or initial user login
+  const loginActions = async (mySky) => {
+    const userID = await mySky.userID();
+    setUserID(userID);
+    setMySkyLoading(false); //mySky done loading, change state
+  };
+
+  //get a specified user's profile information from the profile DAC
+  const getUserProfile = async (userID) => {
+    const prof = await userProfile.getProfile(userID);
+    return prof;
+  };
+
+  const mySkyLogout = () => {
+    mySky.logout();
+    setUserID("");
+    setProfile(null);
+    setUserFeed(null);
+  };
 
   return (
-    <SkynetContext.Provider value={skynetState}>
+    <SkynetContext.Provider
+      value={{
+        isMySkyLoading,
+        userID,
+        mySky,
+        profile,
+        userPreferences,
+        userFeed,
+        client,
+        getUserProfile,
+        initiateLogin,
+        mySkyLogout,
+      }}
+    >
       {children}
     </SkynetContext.Provider>
   );

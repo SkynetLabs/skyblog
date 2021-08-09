@@ -1,5 +1,3 @@
-# SkyBlog
+# SkyBlog using Feed DAC
 
-Blog built on Skynet using MySky, Feed DAC, UserProfile DAC.
-
-## Implementation Explanation (coming soon)
+Post and discover blogs on Skynet using MySky.
