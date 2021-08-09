@@ -4,7 +4,7 @@ import MDEditor from "@uiw/react-md-editor";
 
 export default function MarkdownEditor(props) {
   //states to track store the blog text
-  const [blogBody, setBlogBody] = useState();
+  const [blogBody, setBlogBody] = useState("");
 
   const handleEditorChange = (e) => {
     setBlogBody(e);

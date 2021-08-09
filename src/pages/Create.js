@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import Container from "@material-ui/core/Container";
 import TextField from "@material-ui/core/TextField";
 import Grid from "@material-ui/core/Grid";
+import MarkdownEditor from "../components/MarkdownEditor";
 
 //Create page component, used to create MD blog posts, returns JSX layout
 export default function Create(props) {
