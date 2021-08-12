@@ -47,8 +47,8 @@ const SkynetProvider = ({ children }) => {
       const mySky = await client.loadMySky(hostApp);
 
       //load in user profile, feed, and social DACs
-      //const dacsArray = [userProfile, feedDAC, socialDAC];
-      await mySky.loadDacs(userProfile);
+      const dacsArray = [userProfile, feedDAC];
+      await mySky.loadDacs(...dacsArray);
 
       const checkLogIn = await mySky.checkLogin();
       setMySky(mySky);
@@ -79,14 +79,9 @@ const SkynetProvider = ({ children }) => {
   //actions to perform on successful login check or initial user login
   const loginActions = async (mySky) => {
     const userID = await mySky.userID();
-    getUserPreferences(userID);
-    const profile = await getUserProfile(userID);
-    setProfile(profile);
     setUserID(userID);
     setMySkyLoading(false); //mySky done loading, change state
-    //fetch feed after profile loaded
-    //const feed = await getUserFeed(userID);
-    //setUserFeed(feed);
+    //will add in userprofile, social and feed dac usage
   };
 
   //get the current user's global preferences to set DarkMode
@@ -103,8 +98,9 @@ const SkynetProvider = ({ children }) => {
 
   //function to load a specified user's feed of posts
   const getUserFeed = async (userID) => {
-    const feed = await feedDAC.loadPostsForUser(userID);
-    return feed;
+    const postsLoader = await feedDAC.loadPostsForUser(userID);
+    const firstPage = await postsLoader.next();
+    return firstPage;
   };
 
   //function to upload blog post to the feedDAC
@@ -142,6 +138,7 @@ const SkynetProvider = ({ children }) => {
         profile,
         userPreferences,
         userFeed,
+        client,
         getUserProfile,
         getUserFeed,
         createBlogPost,
