@@ -41,10 +41,15 @@ export default function MarkdownEditor(props) {
       console.log("IMAGE CLICK");
     },
   };
-  const handleImageSelect = (event) => {
+  const handleImageSelect = async (event) => {
     const api = imageVars;
+    console.log("RAW FILE: ", event.target.files[0]);
     let modifyText = `![](${URL.createObjectURL(event.target.files[0])})\n`;
     api.replaceSelection(modifyText);
+    try {
+    } catch (e) {
+      console.log(e);
+    }
     imageFormRef.current.reset();
   };
 
