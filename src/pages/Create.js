@@ -3,6 +3,7 @@ import Container from "@material-ui/core/Container";
 import TextField from "@material-ui/core/TextField";
 import Grid from "@material-ui/core/Grid";
 import MarkdownEditor from "../components/MarkdownEditor";
+import Button from "@material-ui/core/Button";
 
 //Create page component, used to create MD blog posts, returns JSX layout
 export default function Create(props) {
@@ -20,6 +21,12 @@ export default function Create(props) {
   //handle the subtitle input change
   const handleSubtitleChange = (event) => {
     setSubtitle(event.target.value);
+  };
+
+  const handlePublish = () => {
+    console.log("TITLE: ", title);
+    console.log("Subtitle: ", subtitle);
+    console.log("Body: \n", blogMD);
   };
 
   //return JSX for create page
@@ -53,6 +60,16 @@ export default function Create(props) {
         />
       </Grid>
       <MarkdownEditor mdEditor={mdEditor} setBlogMD={setBlogMD} />
+      {title != null && title != "" && blogMD != null && blogMD != "" ? (
+        <Button
+          onClick={handlePublish}
+          fullWidth={true}
+          variant="contained"
+          color="primary"
+        >
+          Publish
+        </Button>
+      ) : null}
     </Container>
   );
 }

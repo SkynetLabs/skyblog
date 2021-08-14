@@ -1,11 +1,13 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useContext } from "react";
 
 import MDEditor, {
   commands,
   ICommand,
   TextState,
   TextApi,
+  selectWord,
 } from "@uiw/react-md-editor";
+import { SkynetContext } from "../state/SkynetContext";
 
 export default function MarkdownEditor(props) {
   //states to track store the blog text
@@ -13,6 +15,7 @@ export default function MarkdownEditor(props) {
   const inputImage = useRef(null);
   const imageFormRef = useRef(null);
   const [imageVars, setImageVars] = useState(null);
+  const { client } = useContext(SkynetContext);
 
   const handleEditorChange = (e) => {
     setBlogBody(e);
@@ -36,17 +39,26 @@ export default function MarkdownEditor(props) {
       </svg>
     ),
     execute: (state: TextState, api: TextAreaTextApi) => {
-      setImageVars(api);
+      setImageVars({ state: state, api: api });
       inputImage.current.click();
       console.log("IMAGE CLICK");
     },
   };
   const handleImageSelect = async (event) => {
-    const api = imageVars;
+    const { state, api } = imageVars;
     console.log("RAW FILE: ", event.target.files[0]);
-    let modifyText = `![](${URL.createObjectURL(event.target.files[0])})\n`;
+    let modifyText = `![](${URL.createObjectURL(event.target.files[0])})`;
     api.replaceSelection(modifyText);
     try {
+      const { skylink } = await client.uploadFile(event.target.files[0]);
+      console.log("SKYLINK: ", skylink);
+      const newRange = {
+        start: state.selection.start,
+        end: state.selection.start + modifyText.length,
+      };
+      const skyLinkText = `![](https://siasky.net/${skylink.substring(6)})\n`;
+      api.setSelectionRange(newRange);
+      api.replaceSelection(skyLinkText);
     } catch (e) {
       console.log(e);
     }
