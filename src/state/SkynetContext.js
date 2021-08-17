@@ -81,45 +81,12 @@ const SkynetProvider = ({ children }) => {
     const userID = await mySky.userID();
     setUserID(userID);
     setMySkyLoading(false); //mySky done loading, change state
-    //will add in userprofile, social and feed dac usage
-  };
-
-  //get the current user's global preferences to set DarkMode
-  const getUserPreferences = async (userID) => {
-    const preferences = userProfile.getPreferences(userID);
-    setUserPreferences(preferences);
   };
 
   //get a specified user's profile information from the profile DAC
   const getUserProfile = async (userID) => {
     const prof = await userProfile.getProfile(userID);
     return prof;
-  };
-
-  //function to load a specified user's feed of posts
-  const getUserFeed = async (userID) => {
-    const postsLoader = await feedDAC.loadPostsForUser(userID);
-    const firstPage = await postsLoader.next();
-    return firstPage;
-  };
-
-  //function to upload blog post to the feedDAC
-  //Assumes postJSON is in SkyStandard Post format (for blog post)
-  //Embedded images already uploaded to skynet and links within the markdown
-  const createBlogPost = async (postJSON) => {
-    const res = await feedDAC.createPost(postJSON);
-    return res;
-  };
-
-  //get the following list for a user using the Social DAC
-  const getFollowingList = async (userID) => {
-    const followingList = await socialDAC.getFollowingForUser(userID);
-    return followingList;
-  };
-  //follow a user with id, userID
-  const followUser = async (userID) => {
-    const res = await socialDAC.follow(userID);
-    return res;
   };
 
   const mySkyLogout = () => {
@@ -140,10 +107,6 @@ const SkynetProvider = ({ children }) => {
         userFeed,
         client,
         getUserProfile,
-        getUserFeed,
-        createBlogPost,
-        getFollowingList,
-        followUser,
         initiateLogin,
         mySkyLogout,
       }}
