@@ -1,6 +1,6 @@
 import "./App.css";
 import { SkynetProvider } from "./state/SkynetContext";
-import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
+import { HashRouter as Router, Switch, Route } from "react-router-dom";
 import NavigationBar from "./components/NavigationBar";
 import React from "react";
 import Home from "./pages/Home";

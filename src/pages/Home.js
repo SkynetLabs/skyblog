@@ -10,11 +10,6 @@ import { Link } from "react-router-dom";
 export default function Home(props) {
   const { userID, initiateLogin } = useContext(SkynetContext); //use SkynetContext to determine Login status
 
-  //Function to open Skynet homepage in new tab
-  const openSkynetHomePage = () => {
-    window.open("https://siasky.net", "_blank");
-  };
-
   //Render basic information for user on homepage
   return (
     <Container maxWidth={false} style={{ padding: 20 }}>
@@ -75,7 +70,8 @@ export default function Home(props) {
           color={"primary"}
           variant={"contained"}
           style={{ width: "30%" }}
-          onClick={openSkynetHomePage}
+          target={"_blank"}
+          href={"https://siasky.net/"}
         >
           Learn More
         </Button>
