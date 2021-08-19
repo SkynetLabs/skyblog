@@ -54,7 +54,5 @@ function App() {
         </Router>
       </ThemeProvider>
     </SkynetProvider>
-  );
-}
 
 export default App;

@@ -1,8 +1,6 @@
 import { createContext, useState, useEffect } from "react";
 import { SkynetClient } from "skynet-js";
 
-// To import DAC, uncomment here, and 2 spots below.
-// import { ContentRecordDAC } from '@skynetlabs/content-record-library';
 import { UserProfileDAC } from "@skynethub/userprofile-library";
 import { FeedDAC } from "feed-dac-library";
 import { SocialDAC } from "social-dac-library";
