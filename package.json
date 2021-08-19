@@ -2,6 +2,7 @@
   "name": "skyblog",
   "version": "0.1.0",
   "private": true,
+  "homepage": ".",
   "dependencies": {
     "@fontsource/sora": "^4.5.0",
     "@fontsource/source-code-pro": "^4.5.0",
