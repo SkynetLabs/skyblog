@@ -6,6 +6,7 @@ import React from "react";
 import Home from "./pages/Home";
 import Create from "./pages/Create";
 import Blog from "./pages/Blog";
+import Profile from "./pages/Profile";
 import { ThemeProvider, createTheme } from "@material-ui/core/styles";
 
 //app theme colors for default light theme
@@ -46,7 +47,10 @@ function App() {
             <Route path={"/create"}>
               <Create />
             </Route>
-            <Route path={"/blog"}>
+            <Route path={"/profile/:id"}>
+              <Profile />
+            </Route>
+            <Route path={"/:ref/:dac/:domain/:posts/:file/:id"}>
               <Blog />
             </Route>
             <Route path={"/"}>
