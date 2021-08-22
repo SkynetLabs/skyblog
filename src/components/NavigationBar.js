@@ -40,68 +40,66 @@ export default function NavigationBar(props) {
 
   return (
     <div className={classes.root}>
-      <ElevationScroll {...props}>
-        <AppBar position={"static"}>
-          <Toolbar>
-            <div className={classes.root}>
-              <ButtonBase component={Link} to={"/"}>
-                <Typography variant="h6" className={classes.root}>
-                  SkyBlog
-                </Typography>
-              </ButtonBase>
-            </div>
-            <div>
-              {!isMySkyLoading && (userID == null || userID == "") ? (
-                <Button variant={"contained"} onClick={initiateLogin}>
-                  Login
-                </Button>
-              ) : !isMySkyLoading ? (
-                <>
-                  <IconButton
+      <AppBar position={"static"}>
+        <Toolbar>
+          <div className={classes.root}>
+            <ButtonBase component={Link} to={"/"}>
+              <Typography variant="h6" className={classes.root}>
+                SkyBlog
+              </Typography>
+            </ButtonBase>
+          </div>
+          <div>
+            {!isMySkyLoading && (userID == null || userID == "") ? (
+              <Button variant={"contained"} onClick={initiateLogin}>
+                Login
+              </Button>
+            ) : !isMySkyLoading ? (
+              <>
+                <IconButton
+                  component={Link}
+                  to={"/create"}
+                  edge="end"
+                  aria-label="create"
+                  color="inherit"
+                >
+                  <Add />
+                </IconButton>
+                <IconButton
+                  onClick={handleMenuOpen}
+                  edge="end"
+                  aria-label="account"
+                  aria-haspopup="true"
+                  color="inherit"
+                >
+                  <AccountCircle />
+                </IconButton>
+                <Menu
+                  id="account-menu"
+                  anchorEl={anchorEl}
+                  keepMounted
+                  getContentAnchorEl={null}
+                  anchorOrigin={{
+                    vertical: "bottom",
+                    horizontal: "right",
+                  }}
+                  open={Boolean(anchorEl)}
+                  onClose={handleClose}
+                >
+                  <MenuItem
                     component={Link}
-                    to={"/create"}
-                    edge="end"
-                    aria-label="create"
-                    color="inherit"
+                    to={`/profile/ed25519-${userID}`}
+                    onClick={handleClose}
                   >
-                    <Add />
-                  </IconButton>
-                  <IconButton
-                    onClick={handleMenuOpen}
-                    edge="end"
-                    aria-label="account"
-                    aria-haspopup="true"
-                    color="inherit"
-                  >
-                    <AccountCircle />
-                  </IconButton>
-                  <Menu
-                    id="account-menu"
-                    anchorEl={anchorEl}
-                    keepMounted
-                    getContentAnchorEl={null}
-                    anchorOrigin={{
-                      vertical: "bottom",
-                      horizontal: "right",
-                    }}
-                    open={Boolean(anchorEl)}
-                    onClose={handleClose}
-                  >
-                    <MenuItem
-                      component={Link}
-                      to={`/profile/ed25519-${userID}`}
-                      onClick={handleClose}
-                    >
-                      My Blogs
-                    </MenuItem>
-                    <MenuItem onClick={mySkyLogout}>Logout</MenuItem>
-                  </Menu>
-                </>
-              ) : null}
-            </div>
-          </Toolbar>
-        </AppBar>
-      </ElevationScroll>
+                    My Blogs
+                  </MenuItem>
+                  <MenuItem onClick={mySkyLogout}>Logout</MenuItem>
+                </Menu>
+              </>
+            ) : null}
+          </div>
+        </Toolbar>
+      </AppBar>
     </div>
   );
 }
