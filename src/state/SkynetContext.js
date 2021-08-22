@@ -106,6 +106,7 @@ const SkynetProvider = ({ children }) => {
         userPreferences,
         userFeed,
         client,
+        feedDAC,
         getUserProfile,
         initiateLogin,
         mySkyLogout,
