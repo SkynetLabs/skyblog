@@ -8,12 +8,14 @@ import AccountCircle from "@material-ui/icons/AccountCircle";
 import Add from "@material-ui/icons/Add";
 import { Link } from "react-router-dom";
 
-const useStyles = makeStyles((theme) => ({
+//style values for material-ui JSX components
+const useStyles = makeStyles(() => ({
   root: {
     flexGrow: 1,
   },
 }));
 
+//Navigation bar component, displayed along top of screen, used to navigate through Skapp
 export default function NavigationBar(props) {
   const classes = useStyles();
 

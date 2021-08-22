@@ -8,6 +8,7 @@ import Create from "./pages/Create";
 import Blog from "./pages/Blog";
 import { ThemeProvider, createTheme } from "@material-ui/core/styles";
 
+//app theme colors for default light theme
 const theme = createTheme({
   palette: {
     primary: {
@@ -19,6 +20,7 @@ const theme = createTheme({
     },
   },
 });
+//app theme colors for dark mode
 const themeDark = createTheme({
   palette: {
     type: "dark",

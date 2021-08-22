@@ -3,6 +3,7 @@ import Container from "@material-ui/core/Container";
 import TextField from "@material-ui/core/TextField";
 import Grid from "@material-ui/core/Grid";
 
+//Create page component, used to create MD blog posts, returns JSX layout
 export default function Create(props) {
   //states to track store the blog text
   const [title, setTitle] = useState(); //blog title

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Container from "@material-ui/core/Container";
 
+//Blog page component, used to create view blog posts, returns JSX layout for rendering blogs
 export default function Blog(props) {
   return (
     <Container maxWidth={"md"}>

@@ -7,6 +7,7 @@ import Box from "@material-ui/core/Box";
 import { SkynetContext } from "../state/SkynetContext";
 import { Link } from "react-router-dom";
 
+//Home page component, returns JSX to display
 export default function Home(props) {
   const { userID, initiateLogin } = useContext(SkynetContext); //use SkynetContext to determine Login status
 
