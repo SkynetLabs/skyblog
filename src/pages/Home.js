@@ -9,7 +9,7 @@ import { Link } from "react-router-dom";
 
 //Home page component, returns JSX to display
 export default function Home(props) {
-  const { userID, initiateLogin } = useContext(SkynetContext); //use SkynetContext to determine Login status
+  const { userID, initiateLogin, isMySkyLoading } = useContext(SkynetContext); //use SkynetContext to determine Login status
 
   //Render basic information for user on homepage
   return (
@@ -31,7 +31,7 @@ export default function Home(props) {
           >
             Get started
           </Button>
-        ) : (
+        ) : !isMySkyLoading ? (
           <Button
             size={"large"}
             color={"primary"}
@@ -41,7 +41,7 @@ export default function Home(props) {
           >
             Login with MySky
           </Button>
-        )}
+        ) : null}
       </Box>
 
       <Divider style={{ margin: 28 }} />
