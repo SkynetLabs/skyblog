@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useContext } from "react";
 import { SkynetContext } from "../state/SkynetContext";
 import Typography from "@material-ui/core/Typography";
 import AppBar from "@material-ui/core/AppBar";
@@ -22,22 +22,22 @@ const useStyles = makeStyles(() => ({
 
 //Navigation bar component, displayed along top of screen, used to navigate through Skapp
 export default function NavigationBar(props) {
-  const classes = useStyles();
-  let history = useHistory();
+  const classes = useStyles(); //const to access useStyles()
+  let history = useHistory(); //react router hook const
   const { userID, initiateLogin, mySkyLogout, isMySkyLoading } =
-    useContext(SkynetContext);
-  const [anchorEl, setAnchorEl] = useState(null);
+    useContext(SkynetContext); //states from Skynet context
+  const [anchorEl, setAnchorEl] = useState(null); // user menu anchor state
 
+  //set anchor point to user profile icon button
   const handleMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
   };
+  //close the menu
   const handleClose = () => {
     setAnchorEl(null);
   };
-  const goHome = () => {
-    history.push("/");
-  };
 
+  //JSX components to render navigation bar
   return (
     <div className={classes.root}>
       <AppBar position={"static"}>

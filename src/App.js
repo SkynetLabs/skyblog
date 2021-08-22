@@ -35,7 +35,7 @@ const themeDark = createTheme({
   },
 });
 
-const currentTheme = theme;
+const currentTheme = theme; //set theme to const for MVP
 
 function App() {
   return (
