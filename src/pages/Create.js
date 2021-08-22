@@ -6,7 +6,11 @@ import Grid from "@material-ui/core/Grid";
 import MarkdownEditor from "../components/MarkdownEditor";
 import Button from "@material-ui/core/Button";
 import { createBlogPost, loadBlogPost } from "../data/feedLibrary";
-import { Link, useHistory } from "react-router-dom";
+import { useHistory } from "react-router-dom";
+import Backdrop from "@material-ui/core/Backdrop";
+import CircularProgress from "@material-ui/core/CircularProgress";
+import Paper from "@material-ui/core/Paper";
+import Typography from "@material-ui/core/Typography";
 
 //Create page component, used to create MD blog posts, returns JSX layout
 export default function Create(props) {
@@ -14,12 +18,10 @@ export default function Create(props) {
   const [title, setTitle] = useState(); //blog title
   const [subtitle, setSubtitle] = useState(); //blog subtitle
   const [blogMD, setBlogMD] = useState(null);
+  const [isPublishLoading, setPublishLoading] = useState(false);
   const mdEditor = useRef();
-  const { feedDAC } = useContext(SkynetContext);
+  const { feedDAC, userID, isMySkyLoading } = useContext(SkynetContext);
   let history = useHistory();
-  const [ref, setRef] = useState(
-    "ed25519-f5cdd930247372dca7b757ee63c9702f8a2eeaf4c519eb75551dadd129424e8e/feed-dac.hns/localhost/posts/page_0.json/5"
-  );
 
   //handle the title input change
   const handleTitleChange = (event) => {
@@ -32,6 +34,7 @@ export default function Create(props) {
   };
 
   const handlePublish = async () => {
+    setPublishLoading(true);
     console.log("TITLE: ", title);
     console.log("Subtitle: ", subtitle);
     console.log("Body: \n", blogMD);
@@ -39,20 +42,9 @@ export default function Create(props) {
     if (res.success) {
       const newRoute = `${res.ref.substring(6)}`;
       console.log("NEW ROUTE", newRoute.replace("#", "/"));
+      setPublishLoading(false);
       history.push(newRoute.replace("#", "/"));
     }
-  };
-
-  const handleLoad = async () => {
-    const ref =
-      "sky://ed25519-f5cdd930247372dca7b757ee63c9702f8a2eeaf4c519eb75551dadd129424e8e/feed-dac.hns/localhost/posts/page_0.json#4";
-    const res = await loadBlogPost(ref, feedDAC);
-  };
-  const handleRoute = () => {
-    const newRoute =
-      "ed25519-f5cdd930247372dca7b757ee63c9702f8a2eeaf4c519eb75551dadd129424e8e/feed-dac.hns/localhost/posts/page_0.json/5";
-    console.log("NEW ROUTE", newRoute);
-    history.push(newRoute);
   };
 
   //return JSX for create page
@@ -64,46 +56,69 @@ export default function Create(props) {
       maxWidth={"md"}
       style={{ marginTop: 14 }}
     >
-      <Grid container direction={"row"} alignItems={"center"}>
-        <TextField
-          label={"Title"}
-          fullWidth={true}
-          autoFocus={true}
-          multiline={true}
-          rowsMax={3}
-          onChange={handleTitleChange}
-          InputProps={{ style: { fontSize: 40, marginBottom: 12 } }}
-        />
-      </Grid>
-      <Grid container direction={"row"} alignItems={"center"}>
-        <TextField
-          label={"Subtitle"}
-          fullWidth={true}
-          multiline={true}
-          rowsMax={4}
-          onChange={handleSubtitleChange}
-          InputProps={{ style: { fontSize: 30, marginBottom: 12 } }}
-        />
-      </Grid>
-      <MarkdownEditor mdEditor={mdEditor} setBlogMD={setBlogMD} />
-      {title != null && title != "" && blogMD != null && blogMD != "" ? (
-        <Button
-          onClick={handlePublish}
-          fullWidth={true}
-          variant="contained"
-          color="primary"
-        >
-          Publish
-        </Button>
-      ) : null}
-      <Button
-        onClick={handleRoute}
-        fullWidth={true}
-        variant="contained"
-        color="primary"
-      >
-        Redirect
-      </Button>
+      {isMySkyLoading ? (
+        <Backdrop style={{ zIndex: 10 }} open={true}>
+          <CircularProgress color={"inherit"} />
+        </Backdrop>
+      ) : userID == null || userID == "" ? (
+        <Container maxWidth={"sm"}>
+          <Paper
+            elevation={2}
+            style={{
+              padding: 20,
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+            }}
+          >
+            <Typography align={"center"} variant={"h4"} gutterBottom={true}>
+              Login using MySky to tell your story on SkyBlog.
+            </Typography>
+            <Button variant={"contained"} color={"primary"}>
+              Login with MySky
+            </Button>
+          </Paper>
+        </Container>
+      ) : (
+        <>
+          <Grid container direction={"row"} alignItems={"center"}>
+            <TextField
+              label={"Title"}
+              fullWidth={true}
+              autoFocus={true}
+              multiline={true}
+              maxRows={3}
+              onChange={handleTitleChange}
+              InputProps={{ style: { fontSize: 40, marginBottom: 12 } }}
+            />
+          </Grid>
+          <Grid container direction={"row"} alignItems={"center"}>
+            <TextField
+              label={"Subtitle"}
+              fullWidth={true}
+              multiline={true}
+              maxRows={4}
+              onChange={handleSubtitleChange}
+              InputProps={{ style: { fontSize: 30, marginBottom: 12 } }}
+            />
+          </Grid>
+          <MarkdownEditor mdEditor={mdEditor} setBlogMD={setBlogMD} />
+          {title != null && title != "" && blogMD != null && blogMD != "" ? (
+            <Button
+              onClick={handlePublish}
+              disabled={isPublishLoading}
+              fullWidth={true}
+              variant="contained"
+              color="primary"
+            >
+              Publish
+            </Button>
+          ) : null}
+        </>
+      )}
+      <Backdrop style={{ zIndex: 10 }} open={isPublishLoading}>
+        <CircularProgress color={"inherit"} />
+      </Backdrop>
     </Container>
   );
 }

@@ -10,7 +10,8 @@ import MenuItem from "@material-ui/core/MenuItem";
 import { makeStyles } from "@material-ui/core/styles";
 import AccountCircle from "@material-ui/icons/AccountCircle";
 import Add from "@material-ui/icons/Add";
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
+import ButtonBase from "@material-ui/core/ButtonBase";
 
 //style values for material-ui JSX components
 const useStyles = makeStyles(() => ({
@@ -22,6 +23,7 @@ const useStyles = makeStyles(() => ({
 //Navigation bar component, displayed along top of screen, used to navigate through Skapp
 export default function NavigationBar(props) {
   const classes = useStyles();
+  let history = useHistory();
   const { userID, initiateLogin, mySkyLogout, isMySkyLoading } =
     useContext(SkynetContext);
   const [anchorEl, setAnchorEl] = useState(null);
@@ -32,15 +34,22 @@ export default function NavigationBar(props) {
   const handleClose = () => {
     setAnchorEl(null);
   };
+  const goHome = () => {
+    history.push("/");
+  };
 
   return (
     <div className={classes.root}>
       <ElevationScroll {...props}>
         <AppBar position={"static"}>
           <Toolbar>
-            <Typography variant="h6" className={classes.root}>
-              SkyBlog
-            </Typography>
+            <div className={classes.root}>
+              <ButtonBase component={Link} to={"/"}>
+                <Typography variant="h6" className={classes.root}>
+                  SkyBlog
+                </Typography>
+              </ButtonBase>
+            </div>
             <div>
               {!isMySkyLoading && (userID == null || userID == "") ? (
                 <Button variant={"contained"} onClick={initiateLogin}>
@@ -81,6 +90,7 @@ export default function NavigationBar(props) {
                     <MenuItem
                       component={Link}
                       to={`/profile/ed25519-${userID}`}
+                      onClick={handleClose}
                     >
                       My Blogs
                     </MenuItem>

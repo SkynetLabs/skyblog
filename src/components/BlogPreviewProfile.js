@@ -1,14 +1,13 @@
-import React, { useState, useEffect, useContext } from "react";
-import { SkynetContext } from "../state/SkynetContext";
+import React from "react";
 import Container from "@material-ui/core/Container";
-import Card from "@material-ui/core/Card";
-import CardContent from "@material-ui/core/CardContent";
 import Typography from "@material-ui/core/Typography";
-import Skeleton from "@material-ui/lab/Skeleton";
 import Divider from "@material-ui/core/Divider";
+import ButtonBase from "@material-ui/core/ButtonBase";
+import { useHistory } from "react-router-dom";
 
 export default function BlogPreviewProfile(props) {
-  const { post } = props;
+  const { post, id } = props;
+  const history = useHistory();
 
   const getDateDisplay = (ts) => {
     const d = new Date(ts);
@@ -19,9 +18,20 @@ export default function BlogPreviewProfile(props) {
     console.log("TEXT: ", text);
     return "Example body preview";
   };
+  const postRoute = () => {
+    const newRoute =
+      "/" + id + "/feed-dac.hns/localhost/posts/page_0.json/" + post.id;
+    console.log("NEW ROUTE", newRoute);
+    history.push(newRoute);
+  };
 
   return (
-    <Container maxWidth={"sm"} style={{ marginTop: 30 }}>
+    <ButtonBase
+      component={Container}
+      onClick={postRoute}
+      maxWidth={"sm"}
+      style={{ marginTop: 30 }}
+    >
       <Typography variant={"caption"} color={"primary"}>
         Published on {getDateDisplay(post.ts)}
       </Typography>
@@ -32,6 +42,6 @@ export default function BlogPreviewProfile(props) {
         </Typography>
       ) : null}
       <Divider />
-    </Container>
+    </ButtonBase>
   );
 }
