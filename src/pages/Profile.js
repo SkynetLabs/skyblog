@@ -19,13 +19,21 @@ import Facebook from "@material-ui/icons/Facebook";
 
 //Profile page component, used to view a users blogs in a feed
 export default function Profile(props) {
-  const { id } = useParams(); //get params from route, id = 'ed25519-' + user's MySky userID
-  const [postFeed, setPostFeed] = useState([]); //feed array of blog posts
-  const [profile, setProfile] = useState(); //user profile object state
-  const [postsLoader, setPostsLoader] = useState(); //post loader state, to be used for paging
-  const [isLoading, setLoading] = useState(true); //loading state
+  /*
+  id -> get params from route, id = 'ed25519-' + user's MySky userID
+  postFeed -> feed array of blog posts
+  profile -> user profile object state
+  postsLoader -> post loader state, to be used for paging
+  isLoading -> loading state
+  feedDAC, getUserProfile, isMySkyLoading, cliet -> values from Skynet context used
+   */
+  const { id } = useParams();
+  const [postFeed, setPostFeed] = useState([]);
+  const [profile, setProfile] = useState();
+  const [postsLoader, setPostsLoader] = useState();
+  const [isLoading, setLoading] = useState(true);
   const { feedDAC, getUserProfile, isMySkyLoading, client } =
-    useContext(SkynetContext); //values from Skynet context used
+    useContext(SkynetContext);
 
   //execute this effect on entry and when the feedDAC connection status is valid
   useEffect(() => {
@@ -60,7 +68,7 @@ export default function Profile(props) {
         </Typography>
         {!isLoading ? (
           <Container style={{ padding: 0 }}>
-            {profile.connections[2].github != "" ? (
+            {profile.connections[2].github ? (
               <IconButton
                 target={"_blank"}
                 href={profile.connections[2].github}
@@ -69,7 +77,7 @@ export default function Profile(props) {
                 <GitHub />
               </IconButton>
             ) : null}
-            {profile.connections[4].telegram != "" ? (
+            {profile.connections[4].telegram ? (
               <IconButton
                 target={"_blank"}
                 href={profile.connections[4].telegram}
@@ -78,7 +86,7 @@ export default function Profile(props) {
                 <Telegram />
               </IconButton>
             ) : null}
-            {profile.connections[0].twitter != "" ? (
+            {profile.connections[0].twitter ? (
               <IconButton
                 target={"_blank"}
                 href={profile.connections[0].twitter}
@@ -87,7 +95,7 @@ export default function Profile(props) {
                 <Twitter />
               </IconButton>
             ) : null}
-            {profile.connections[3].reddit != "" ? (
+            {profile.connections[3].reddit ? (
               <IconButton
                 target={"_blank"}
                 href={profile.connections[3].reddit}
@@ -96,7 +104,7 @@ export default function Profile(props) {
                 <Reddit />
               </IconButton>
             ) : null}
-            {profile.connections[1].facebook != "" ? (
+            {profile.connections[1].facebook ? (
               <IconButton
                 target={"_blank"}
                 href={profile.connections[1].facebook}
@@ -120,18 +128,8 @@ export default function Profile(props) {
               <Avatar
                 style={{ height: 175, width: 175 }}
                 aria-label={"Author"}
-                src={
-                  profile.avatar[0].url != "" && profile.avatar[0].url != null
-                    ? profile.avatar[0].url
-                    : null
-                }
-              >
-                <Typography variant={"h2"}>
-                  {profile.avatar[0].url == "" || profile.avatar[0].url == null
-                    ? displayName(profile, id.substring(8)).substring(0, 1)
-                    : null}
-                </Typography>
-              </Avatar>
+                src={profile.avatar ? profile.avatar[0].url : null}
+              />
             ) : null}
           </Grid>
           <Grid item xs={6}>
