@@ -48,8 +48,6 @@ export default function Blog(props) {
   const history = useHistory();
   const classes = useStyles();
 
-
-
   //execute this effect on entry and when the feedDAC connection status is valid
   useEffect(() => {
     if (ref != null && feedDAC.connector) {

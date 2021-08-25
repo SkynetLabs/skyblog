@@ -20,7 +20,7 @@ export default function Home(props) {
         </Typography>
       </Box>
       <Box display={"flex"} justifyContent={"center"}>
-        {userID !== null && userID !== "" ? (
+        {userID ? (
           <Button
             size={"large"}
             color={"primary"}

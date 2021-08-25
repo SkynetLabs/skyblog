@@ -49,7 +49,7 @@ export default function NavigationBar(props) {
             </ButtonBase>
           </div>
           <div>
-            {!isMySkyLoading && (userID === null || userID === "") ? (
+            {!isMySkyLoading && !userID ? (
               <Button variant={"contained"} onClick={initiateLogin}>
                 Login
               </Button>
