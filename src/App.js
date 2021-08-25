@@ -21,19 +21,6 @@ const theme = createTheme({
     },
   },
 });
-//app theme colors for dark mode
-const themeDark = createTheme({
-  palette: {
-    type: "dark",
-    primary: {
-      main: "#00C65E",
-    },
-    secondary: {
-      dark: "#0D0D0D",
-      main: "#EBEFEE",
-    },
-  },
-});
 
 const currentTheme = theme; //set theme to const for MVP
 

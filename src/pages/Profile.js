@@ -23,35 +23,35 @@ export default function Profile(props) {
   id -> get params from route, id = 'ed25519-' + user's MySky userID
   postFeed -> feed array of blog posts
   profile -> user profile object state
-  postsLoader -> post loader state, to be used for paging
   isLoading -> loading state
   feedDAC, getUserProfile, isMySkyLoading, cliet -> values from Skynet context used
    */
   const { id } = useParams();
   const [postFeed, setPostFeed] = useState([]);
   const [profile, setProfile] = useState();
-  const [postsLoader, setPostsLoader] = useState();
+  const [setPostsLoader] = useState();
   const [isLoading, setLoading] = useState(true);
-  const { feedDAC, getUserProfile, isMySkyLoading, client } =
+  const { feedDAC, getUserProfile, isMySkyLoading } =
     useContext(SkynetContext);
+
 
   //execute this effect on entry and when the feedDAC connection status is valid
   useEffect(() => {
     if (!isMySkyLoading && feedDAC.connector) {
+      //handle retrieval of profile DAC data and feed array
+      const getProfileData = async () => {
+        const profile = await getUserProfile(id.substring(8));
+        setProfile(profile);
+        const postsLoader = await loadBlogProfile(id.substring(8), feedDAC);
+        setPostsLoader(postsLoader);
+        const page0 = await postsLoader.next();
+        setPostFeed(page0.value);
+        setLoading(false);
+      };
       getProfileData();
     }
-  }, [isMySkyLoading, feedDAC.connector]);
+  }, [isMySkyLoading, feedDAC, getUserProfile, id, setPostsLoader]);
 
-  //handle retrieval of profile DAC data and feed array
-  const getProfileData = async () => {
-    const profile = await getUserProfile(id.substring(8));
-    setProfile(profile);
-    const postsLoader = await loadBlogProfile(id.substring(8), feedDAC);
-    setPostsLoader(postsLoader);
-    const page0 = await postsLoader.next();
-    setPostFeed(page0.value);
-    setLoading(false);
-  };
 
   return (
     <Container maxWidth={false}>

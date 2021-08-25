@@ -48,36 +48,37 @@ export default function Blog(props) {
   const history = useHistory();
   const classes = useStyles();
 
+
+
   //execute this effect on entry and when the feedDAC connection status is valid
   useEffect(() => {
     if (ref != null && feedDAC.connector) {
+      //handle using parameters to assemble post data including author and blog post data
+      const getPostData = async () => {
+        const val =
+          "sky://" +
+          ref +
+          "/" +
+          dac +
+          "/" +
+          domain +
+          "/" +
+          posts +
+          "/" +
+          file +
+          "#" +
+          id;
+        const res = await loadBlogPost(val, feedDAC);
+        setPostData(res);
+        const profile = await getUserProfile(ref.substring(8));
+        setAuthor(profile);
+        const d = new Date(res.ts);
+        setDate(d.toDateString());
+        setLoading(false);
+      };
       getPostData();
     }
-  }, [ref, feedDAC.connector]);
-
-  //handle using parameters to assemble post data including author and blog post data
-  const getPostData = async () => {
-    const val =
-      "sky://" +
-      ref +
-      "/" +
-      dac +
-      "/" +
-      domain +
-      "/" +
-      posts +
-      "/" +
-      file +
-      "#" +
-      id;
-    const res = await loadBlogPost(val, feedDAC);
-    setPostData(res);
-    const profile = await getUserProfile(ref.substring(8));
-    setAuthor(profile);
-    const d = new Date(res.ts);
-    setDate(d.toDateString());
-    setLoading(false);
-  };
+  }, [ref, feedDAC.connector, dac, domain, feedDAC, file, getUserProfile, id, posts]);
 
   //return first letter of display name
   const getLetter = () => {
@@ -172,7 +173,7 @@ export default function Blog(props) {
             img({ node, inline, className, children, ...props }) {
               return (
                 <Grid container justify={"center"}>
-                  <img src={props.src} />
+                  <img alt="" src={props.src} />
                 </Grid>
               );
             },

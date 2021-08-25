@@ -10,7 +10,7 @@ import MenuItem from "@material-ui/core/MenuItem";
 import { makeStyles } from "@material-ui/core/styles";
 import AccountCircle from "@material-ui/icons/AccountCircle";
 import Add from "@material-ui/icons/Add";
-import { Link, useHistory } from "react-router-dom";
+import { Link } from "react-router-dom";
 import ButtonBase from "@material-ui/core/ButtonBase";
 
 //style values for material-ui JSX components
@@ -23,7 +23,6 @@ const useStyles = makeStyles(() => ({
 //Navigation bar component, displayed along top of screen, used to navigate through Skapp
 export default function NavigationBar(props) {
   const classes = useStyles(); //const to access useStyles()
-  let history = useHistory(); //react router hook const
   const { userID, initiateLogin, mySkyLogout, isMySkyLoading } =
     useContext(SkynetContext); //states from Skynet context
   const [anchorEl, setAnchorEl] = useState(null); // user menu anchor state
@@ -50,7 +49,7 @@ export default function NavigationBar(props) {
             </ButtonBase>
           </div>
           <div>
-            {!isMySkyLoading && (userID == null || userID == "") ? (
+            {!isMySkyLoading && (userID === null || userID === "") ? (
               <Button variant={"contained"} onClick={initiateLogin}>
                 Login
               </Button>
