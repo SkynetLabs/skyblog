@@ -3,39 +3,19 @@ import Container from "@material-ui/core/Container";
 import Typography from "@material-ui/core/Typography";
 import Divider from "@material-ui/core/Divider";
 import ButtonBase from "@material-ui/core/ButtonBase";
+import { getDateDisplay } from "../data/dateDisplay";
+import { postRoute } from "../data/pageRouting";
 import { useHistory } from "react-router-dom";
-
-const dataDomain =
-  window.location.hostname === "localhost" ? "localhost" : "skyblog.hns"; //domain for post route
 
 //BlogPreviewProfile component is a preview of blog posts for display in a feed
 export default function BlogPreviewProfile(props) {
   const { post, id } = props; //post data and post id
-  const history = useHistory(); //react router hook
-
-  //handle date conversion for display
-  const getDateDisplay = (ts) => {
-    const d = new Date(ts);
-    return d.toDateString();
-  };
-
-  //handle routing to blog view page
-  const postRoute = () => {
-    const newRoute =
-      "/" +
-      id +
-      "/feed-dac.hns/" +
-      dataDomain +
-      "/posts/page_0.json/" +
-      post.id;
-    console.log("NEW ROUTE", newRoute);
-    history.push(newRoute);
-  };
+  const history = useHistory();
 
   return (
     <ButtonBase
       component={Container}
-      onClick={postRoute}
+      onClick={() => postRoute(id, post, history)}
       maxWidth={"sm"}
       style={{ marginTop: 30 }}
     >

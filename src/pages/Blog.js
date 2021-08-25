@@ -29,14 +29,24 @@ const useStyles = makeStyles((theme) => ({
 
 //Blog page component, used to create view blog posts, returns JSX layout for rendering blogs
 export default function Blog(props) {
-  const { getUserProfile, feedDAC } = useContext(SkynetContext); //values to use from Skynet context
-  let { ref, dac, domain, posts, file, id } = useParams(); //get parameters from the route
-  const [postData, setPostData] = useState(); //state for blog post data
-  const [isLoading, setLoading] = useState(true); //state to render loading indicators
-  const [date, setDate] = useState(null); //display date
-  const [author, setAuthor] = useState(null); //author of the blog, userProfile DAC profile object
-  const history = useHistory(); //react router hook
-  const classes = useStyles(); //const to useStyles in JSX
+  /*
+  getUserProfile, feedDAC -> values to use from Skynet context
+  ref, dac, domain, posts, file, id -> get parameters from the route
+  postData -> state for blog post data
+  isLoading -> state to render loading indicators
+  date -> display date
+  author -> author of the blog, userProfile DAC profile object
+  history -> react router hook
+  classes -> const to useStyles in JSX
+   */
+  const { getUserProfile, feedDAC } = useContext(SkynetContext);
+  let { ref, dac, domain, posts, file, id } = useParams();
+  const [postData, setPostData] = useState();
+  const [isLoading, setLoading] = useState(true);
+  const [date, setDate] = useState(null);
+  const [author, setAuthor] = useState(null);
+  const history = useHistory();
+  const classes = useStyles();
 
   //execute this effect on entry and when the feedDAC connection status is valid
   useEffect(() => {
@@ -45,7 +55,7 @@ export default function Blog(props) {
     }
   }, [ref, feedDAC.connector]);
 
-  //handle using parameters to assemle post data including author and blog post data
+  //handle using parameters to assemble post data including author and blog post data
   const getPostData = async () => {
     const val =
       "sky://" +
@@ -102,15 +112,9 @@ export default function Blog(props) {
             !isLoading ? (
               <Avatar
                 aria-label={"Author"}
-                src={
-                  author.avatar[0].url != "" && author.avatar[0].url != null
-                    ? author.avatar[0].url
-                    : null
-                }
+                src={author.avatar ? author.avatar[0].url : null}
               >
-                {author.avatar[0].url == "" || author.avatar[0].url == null
-                  ? getLetter()
-                  : null}
+                {!author.avatar ? getLetter() : null}
               </Avatar>
             ) : (
               <Skeleton
@@ -124,7 +128,7 @@ export default function Blog(props) {
           action={
             !isLoading ? (
               <>
-                {author.connections[2].github != "" ? (
+                {author.connections[2].github ? (
                   <IconButton
                     target={"_blank"}
                     href={author.connections[2].github}
@@ -133,7 +137,7 @@ export default function Blog(props) {
                     <GitHub />
                   </IconButton>
                 ) : null}
-                {author.connections[4].telegram != "" ? (
+                {author.connections[4].telegram ? (
                   <IconButton
                     target={"_blank"}
                     href={author.connections[4].telegram}
@@ -142,7 +146,7 @@ export default function Blog(props) {
                     <Telegram />
                   </IconButton>
                 ) : null}
-                {author.connections[0].twitter != "" ? (
+                {author.connections[0].twitter ? (
                   <IconButton
                     target={"_blank"}
                     href={author.connections[0].twitter}

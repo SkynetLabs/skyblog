@@ -14,13 +14,22 @@ import Typography from "@material-ui/core/Typography";
 
 //Create page component, used to create MD blog posts, returns JSX layout
 export default function Create(props) {
-  const [title, setTitle] = useState(); //blog title
-  const [subtitle, setSubtitle] = useState(); //blog subtitle
-  const [blogMD, setBlogMD] = useState(null); //blog markdown state
-  const [isPublishLoading, setPublishLoading] = useState(false); //state to handle publish loading feedback
-  const mdEditor = useRef(); //markdown editor reference
-  const { feedDAC, userID, isMySkyLoading } = useContext(SkynetContext); //value to use from SkynetContext
-  let history = useHistory(); //react router hook
+  /*
+  title -> blog title
+  subtitle -> blog subtitle
+  blogMD -> blog markdown state
+  isPublishLoading -> state to handle publish loading feedback
+  mdEditor -> markdown editor reference
+  feedDAC, userID, isMySkyLoading -> value to use from SkynetContext
+  history -> react router hook
+   */
+  const [title, setTitle] = useState();
+  const [subtitle, setSubtitle] = useState();
+  const [blogMD, setBlogMD] = useState(null);
+  const [isPublishLoading, setPublishLoading] = useState(false);
+  const mdEditor = useRef();
+  const { feedDAC, userID, isMySkyLoading } = useContext(SkynetContext);
+  let history = useHistory();
 
   //handle the title input change
   const handleTitleChange = (event) => {
