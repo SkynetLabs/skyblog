@@ -28,6 +28,7 @@ const socialDAC = new SocialDAC();
 const dataDomain =
   window.location.hostname === "localhost" ? "localhost" : "skyblog.hns";
 
+//SkynetProvider handles mySky states and initialization
 const SkynetProvider = ({ children }) => {
   const [isMySkyLoading, setMySkyLoading] = useState(true); // state to inidicate whether MySky has loaded
 
@@ -89,6 +90,7 @@ const SkynetProvider = ({ children }) => {
     return prof;
   };
 
+  //handle logout from mySky
   const mySkyLogout = () => {
     mySky.logout();
     setUserID("");
