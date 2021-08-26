@@ -12,7 +12,7 @@ const portal =
   window.location.hostname === "localhost" ? "https://siasky.net" : undefined;
 
 //host skapp
-const hostApp = "skyblog.hns";
+const hostApp = "skynetblog.hns";
 
 // Initiate the SkynetClient
 const client = new SkynetClient(portal);
@@ -30,8 +30,6 @@ const SkynetProvider = ({ children }) => {
   const [profile, setProfile] = useState(null);
   const [userPreferences] = useState(null);
   const [userFeed, setUserFeed] = useState(null);
-
-
 
   useEffect(() => {
     //initialization of mySky and DACs, check log in status
@@ -57,9 +55,9 @@ const SkynetProvider = ({ children }) => {
         console.log(e);
         setMySkyLoading(false);
       }
-    }; initMySky();
-  }, );
-
+    };
+    initMySky();
+  }, []);
   //function to call on login button press
   const initiateLogin = async () => {
     mySky.requestLoginAccess().then((response) => {

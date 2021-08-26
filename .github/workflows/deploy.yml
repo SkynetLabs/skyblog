@@ -20,7 +20,7 @@ jobs:
         run: CI=false npm run build
 
       - name: Deploy to Skynet
-        uses: SkynetLabs/deploy-to-skynet-action@v1
+        uses: SkynetLabs/deploy-to-skynet-action@v2
         with:
           upload-dir: build
           github-token: ${{ secrets.GITHUB_TOKEN }}

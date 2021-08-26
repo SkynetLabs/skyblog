@@ -29,11 +29,8 @@ export default function Profile(props) {
   const { id } = useParams();
   const [postFeed, setPostFeed] = useState([]);
   const [profile, setProfile] = useState();
-  const [setPostsLoader] = useState();
   const [isLoading, setLoading] = useState(true);
-  const { feedDAC, getUserProfile, isMySkyLoading } =
-    useContext(SkynetContext);
-
+  const { feedDAC, getUserProfile, isMySkyLoading } = useContext(SkynetContext);
 
   //execute this effect on entry and when the feedDAC connection status is valid
   useEffect(() => {
@@ -43,15 +40,13 @@ export default function Profile(props) {
         const profile = await getUserProfile(id.substring(8));
         setProfile(profile);
         const postsLoader = await loadBlogProfile(id.substring(8), feedDAC);
-        setPostsLoader(postsLoader);
         const page0 = await postsLoader.next();
         setPostFeed(page0.value);
         setLoading(false);
       };
       getProfileData();
     }
-  }, [isMySkyLoading, feedDAC, getUserProfile, id, setPostsLoader]);
-
+  }, [isMySkyLoading, feedDAC, getUserProfile, id]);
 
   return (
     <Container maxWidth={false}>
