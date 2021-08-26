@@ -76,7 +76,17 @@ export default function Blog(props) {
       };
       getPostData();
     }
-  }, [ref, feedDAC.connector, dac, domain, feedDAC, file, getUserProfile, id, posts]);
+  }, [
+    ref,
+    feedDAC.connector,
+    dac,
+    domain,
+    feedDAC,
+    file,
+    getUserProfile,
+    id,
+    posts,
+  ]);
 
   //return first letter of display name
   const getLetter = () => {

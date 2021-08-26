@@ -1,6 +1,6 @@
 //domain for post route
 const dataDomain =
-  window.location.hostname === "localhost" ? "localhost" : "skyblog.hns";
+  window.location.hostname === "localhost" ? "localhost" : "skynetblog.hns";
 
 //dac domain
 const dacDomain = "/feed-dac.hns/";
