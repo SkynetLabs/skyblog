@@ -3,7 +3,6 @@ import { SkynetClient } from "skynet-js";
 
 import { UserProfileDAC } from "@skynethub/userprofile-library";
 import { FeedDAC } from "feed-dac-library";
-import { SocialDAC } from "social-dac-library";
 
 const SkynetContext = createContext(undefined);
 
@@ -19,14 +18,8 @@ const hostApp = "skyblog.hns";
 const client = new SkynetClient(portal);
 
 // For now, we won't use any DACs -- uncomment to create
-// const contentRecord = new ContentRecordDAC();
-const contentRecord = null;
 const userProfile = new UserProfileDAC();
 const feedDAC = new FeedDAC();
-const socialDAC = new SocialDAC();
-
-const dataDomain =
-  window.location.hostname === "localhost" ? "localhost" : "skyblog.hns";
 
 //SkynetProvider handles mySky states and initialization
 const SkynetProvider = ({ children }) => {
@@ -35,37 +28,37 @@ const SkynetProvider = ({ children }) => {
   const [userID, setUserID] = useState(null);
   const [mySky, setMySky] = useState(null);
   const [profile, setProfile] = useState(null);
-  const [userPreferences, setUserPreferences] = useState(null);
+  const [userPreferences] = useState(null);
   const [userFeed, setUserFeed] = useState(null);
 
+
+
   useEffect(() => {
-    initMySky();
-  }, []);
+    //initialization of mySky and DACs, check log in status
+    const initMySky = async () => {
+      try {
+        const mySky = await client.loadMySky(hostApp);
 
-  //initialization of mySky and DACs, check log in status
-  const initMySky = async () => {
-    try {
-      const mySky = await client.loadMySky(hostApp);
+        //load in user profile, feed, and social DACs
+        const dacsArray = [userProfile, feedDAC];
+        await mySky.loadDacs(...dacsArray);
 
-      //load in user profile, feed, and social DACs
-      const dacsArray = [userProfile, feedDAC];
-      await mySky.loadDacs(...dacsArray);
+        const checkLogIn = await mySky.checkLogin();
+        setMySky(mySky);
 
-      const checkLogIn = await mySky.checkLogin();
-      setMySky(mySky);
-
-      if (checkLogIn) {
-        console.log("LOGGED IN");
-        loginActions(mySky);
-      } else {
-        console.log("LOGGED OUT");
+        if (checkLogIn) {
+          console.log("LOGGED IN");
+          loginActions(mySky);
+        } else {
+          console.log("LOGGED OUT");
+          setMySkyLoading(false);
+        }
+      } catch (e) {
+        console.log(e);
         setMySkyLoading(false);
       }
-    } catch (e) {
-      console.log(e);
-      setMySkyLoading(false);
-    }
-  };
+    }; initMySky();
+  }, );
 
   //function to call on login button press
   const initiateLogin = async () => {

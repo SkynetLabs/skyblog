@@ -63,7 +63,7 @@ export default function Create(props) {
         <Backdrop style={{ zIndex: 10 }} open={true}>
           <CircularProgress color={"inherit"} />
         </Backdrop>
-      ) : userID == null || userID == "" ? (
+      ) : !userID ? (
         <Container maxWidth={"sm"}>
           <Paper
             elevation={2}
@@ -106,7 +106,7 @@ export default function Create(props) {
             />
           </Grid>
           <MarkdownEditor mdEditor={mdEditor} setBlogMD={setBlogMD} />
-          {title != null && title != "" && blogMD != null && blogMD != "" ? (
+          {title && blogMD ? (
             <Button
               onClick={handlePublish}
               disabled={isPublishLoading}

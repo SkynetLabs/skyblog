@@ -20,7 +20,7 @@ export default function Home(props) {
         </Typography>
       </Box>
       <Box display={"flex"} justifyContent={"center"}>
-        {userID != null && userID != "" ? (
+        {userID ? (
           <Button
             size={"large"}
             color={"primary"}
@@ -48,6 +48,7 @@ export default function Home(props) {
 
       <Box display={"flex"} justifyContent={"center"} style={{ margin: 20 }}>
         <img
+          alt="Build With Skynet"
           src={
             "https://siasky.net/NABosXa1JcBQngZeA4e43JgSfQti1nadqjMKPibH6cgcNg"
           }
