@@ -1,7 +1,3 @@
-//domain for post route
-const dataDomain =
-  window.location.hostname === "localhost" ? "localhost" : "skynetblog.hns";
-
 //dac domain
 const dacDomain = "/feed-dac.hns/";
 
@@ -13,6 +9,11 @@ const dacDomain = "/feed-dac.hns/";
  */
 export const postRoute = (userID, post, history) => {
   const newRoute =
-    "/" + userID + dacDomain + dataDomain + "/posts/page_0.json/" + post.id;
+    "/" +
+    userID +
+    dacDomain +
+    post.content.ext.hostApp +
+    "/posts/page_0.json/" +
+    post.id;
   history.push(newRoute);
 };
