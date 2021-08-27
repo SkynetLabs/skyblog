@@ -1,5 +1,8 @@
 import React, { useContext } from "react";
 import Container from "@material-ui/core/Container";
+import Card from "@material-ui/core/Card";
+import CardActions from '@material-ui/core/CardActions';
+import CardContent from '@material-ui/core/CardContent';
 import Typography from "@material-ui/core/Typography";
 import Button from "@material-ui/core/Button";
 import Divider from "@material-ui/core/Divider";
@@ -13,10 +16,10 @@ export default function Home(props) {
 
   //Render basic information for user on homepage
   return (
-    <Container maxWidth={false} style={{ padding: 20 }}>
-      <Box display={"flex"} justifyContent={"center"}>
-        <Typography variant={"h3"} gutterBottom={true}>
-          Share your story using the new decentralized internet.
+    <Container maxWidth={false} style={{ width: "80%", margin: "0px auto", paddingTop: "50px" }}>
+      <Box display={"flex"} justifyContent={"center"} style={{ margin: "20px", padding: "50px", border: "solid rgba(0, 0, 0, 0.12)", borderRadius: "3px"}}>
+        <Typography variant={"h2"} gutterBottom={true} style={{ textAlign: "center"}}>
+          Share Your Story Using the New Decentralized Internet.
         </Typography>
       </Box>
       <Box display={"flex"} justifyContent={"center"}>
@@ -42,42 +45,41 @@ export default function Home(props) {
             Login with MySky
           </Button>
         ) : null}
-      </Box>
-
-      <Divider style={{ margin: 28 }} />
-
-      <Box display={"flex"} justifyContent={"center"} style={{ margin: 20 }}>
-        <img
-          alt="Build With Skynet"
-          src={
-            "https://siasky.net/NABosXa1JcBQngZeA4e43JgSfQti1nadqjMKPibH6cgcNg"
-          }
-          style={{ maxHeight: window.innerHeight * 0.15 }}
-        />
-      </Box>
-
-      <Box display={"flex"} justifyContent={"center"}>
-        <Typography variant={"h3"}>
-          Learn more about how your blog is hosted on Skynet.
-        </Typography>
-      </Box>
-      <Box display={"flex"} justifyContent={"center"}>
-        <Typography variant={"h6"} style={{ color: "gray" }}>
-          Skynet prioritizes privacy and security to empower users.
-        </Typography>
-      </Box>
-      <Box display={"flex"} justifyContent={"center"} style={{ margin: 20 }}>
         <Button
           size={"large"}
-          color={"primary"}
+          color={"secondary"}
           variant={"contained"}
-          style={{ width: "30%" }}
+          style={{ width: "30%", marginLeft: "10px" }}
           target={"_blank"}
           href={"https://siasky.net/"}
         >
-          Learn More
+          ... or Learn More
         </Button>
       </Box>
+      <Divider style={{ margin: 28 }} />
+      <Box display={"flex"} justifyContent={"center"}>
+        <Typography variant={"h3"} gutterBottom={true}>
+          Featured
+        </Typography>
+      </Box>
+      <Box display={"flex"} justifyContent={"center"}>
+        <Card>
+          <CardContent>
+            <Typography variant={"h5"} gutterBottom={true}>
+              Manasi's Blog
+            </Typography>
+            <Typography color="textSecondary" gutterBottom>
+              As Web3 gains traction, we need more resources for onboarding Web2 to Web3. There are a ton of projects providing different pieces of the Web3 stack but it is sometimes hard to find a clear place to start. Additionally, Web3 projects can benefit from more easily accessible guides to decentralizing different pieces of their stack. Often, Web3 projects or “dapps” retain certain points of centralization that can be resolved if provided a streamlined solution.
+            </Typography>
+          </CardContent>
+          <CardActions>
+            <Button size="small">Read More</Button>
+          </CardActions>
+        </Card>
+      </Box>
+    <br/>
+    <br/>
+    <br/>
     </Container>
   );
 }
