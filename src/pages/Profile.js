@@ -41,6 +41,7 @@ export default function Profile(props) {
         setProfile(profile);
         const postsLoader = await loadBlogProfile(id.substring(8), feedDAC);
         const page0 = await postsLoader.next();
+        console.log("page0:", page0);
         setPostFeed(page0.value);
         setLoading(false);
       };
