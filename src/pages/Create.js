@@ -28,7 +28,8 @@ export default function Create(props) {
   const [blogMD, setBlogMD] = useState(null);
   const [isPublishLoading, setPublishLoading] = useState(false);
   const mdEditor = useRef();
-  const { feedDAC, userID, isMySkyLoading } = useContext(SkynetContext);
+  const { feedDAC, userID, isMySkyLoading, initiateLogin } =
+    useContext(SkynetContext);
   let history = useHistory();
 
   //handle the title input change
@@ -77,7 +78,11 @@ export default function Create(props) {
             <Typography align={"center"} variant={"h4"} gutterBottom={true}>
               Login using MySky to tell your story on SkyBlog.
             </Typography>
-            <Button variant={"contained"} color={"primary"}>
+            <Button
+              variant={"contained"}
+              color={"primary"}
+              onClick={initiateLogin}
+            >
               Login with MySky
             </Button>
           </Paper>

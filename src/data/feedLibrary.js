@@ -13,10 +13,10 @@ export async function createBlogPost(title, subtitle, blogMD, feedDAC) {
     text: blogMD,
     ext: {
       subtitle: subtitle,
+      hostApp: window.location.hostname,
     },
   };
   const res = await feedDAC.createPost(postJSON);
-  console.log("RESPONSE: ", res);
   return res;
 }
 
