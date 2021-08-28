@@ -17,6 +17,7 @@ import { displayName } from "../data/displayName";
 import { useHistory } from "react-router-dom";
 import CardActionArea from "@material-ui/core/CardActionArea";
 import { makeStyles } from "@material-ui/core/styles";
+import ErrorDisplay from "../components/ErrorDisplay";
 
 //style for removing hover shading
 const useStyles = makeStyles((theme) => ({
@@ -36,6 +37,7 @@ export default function Blog(props) {
   isLoading -> state to render loading indicators
   date -> display date
   author -> author of the blog, userProfile DAC profile object
+  showError -> show error if the post cannot be loaded or doesn't exist
   history -> react router hook
   classes -> const to useStyles in JSX
    */
@@ -45,6 +47,7 @@ export default function Blog(props) {
   const [isLoading, setLoading] = useState(true);
   const [date, setDate] = useState(null);
   const [author, setAuthor] = useState(null);
+  const [showError, setShowError] = useState(false);
   const history = useHistory();
   const classes = useStyles();
 
@@ -67,12 +70,16 @@ export default function Blog(props) {
           "#" +
           id;
         const res = await loadBlogPost(val, feedDAC);
-        setPostData(res);
-        const profile = await getUserProfile(ref.substring(8));
-        setAuthor(profile);
-        const d = new Date(res.ts);
-        setDate(d.toDateString());
-        setLoading(false);
+        if (res) {
+          setPostData(res);
+          const profile = await getUserProfile(ref.substring(8));
+          setAuthor(profile);
+          const d = new Date(res.ts);
+          setDate(d.toDateString());
+          setLoading(false);
+        } else {
+          setShowError(true);
+        }
       };
       getPostData();
     }
@@ -101,94 +108,117 @@ export default function Blog(props) {
 
   return (
     <Container maxWidth={"sm"}>
-      <Typography variant={"h3"} style={{ marginTop: 10 }}>
-        {!isLoading ? postData.content.title : <Skeleton animation={"wave"} />}
-      </Typography>
-      <Typography variant={"h5"} color={"textSecondary"} gutterBottom={true}>
-        {!isLoading ? (
-          postData.content.ext.subtitle
-        ) : (
-          <Skeleton animation={"wave"} />
-        )}
-      </Typography>
-      <CardActionArea
-        classes={{ focusHighlight: classes.focus }}
-        onClick={profileRoute}
-      >
-        <CardHeader
-          style={{ padding: 0 }}
-          avatar={
-            !isLoading ? (
-              <Avatar
-                aria-label={"Author"}
-                src={author.avatar ? author.avatar[0].url : null}
-              >
-                {!author.avatar ? getLetter() : null}
-              </Avatar>
+      {!showError ? (
+        <>
+          <Typography variant={"h3"} style={{ marginTop: 10 }}>
+            {!isLoading ? (
+              postData.content.title
             ) : (
-              <Skeleton
-                variant={"circle"}
-                animation={"wave"}
-                height={50}
-                width={50}
-              />
-            )
-          }
-          action={
-            !isLoading ? (
-              <>
-                {author.connections[2].github ? (
-                  <IconButton
-                    target={"_blank"}
-                    href={author.connections[2].github}
-                    aria-label="github"
+              <Skeleton animation={"wave"} />
+            )}
+          </Typography>
+          <Typography
+            variant={"h5"}
+            color={"textSecondary"}
+            gutterBottom={true}
+          >
+            {!isLoading ? (
+              postData.content.ext.subtitle
+            ) : (
+              <Skeleton animation={"wave"} />
+            )}
+          </Typography>
+          <CardActionArea
+            classes={{ focusHighlight: classes.focus }}
+            onClick={profileRoute}
+          >
+            <CardHeader
+              style={{ padding: 0 }}
+              avatar={
+                !isLoading ? (
+                  <Avatar
+                    aria-label={"Author"}
+                    src={author.avatar ? author.avatar[0].url : null}
                   >
-                    <GitHub />
-                  </IconButton>
-                ) : null}
-                {author.connections[4].telegram ? (
-                  <IconButton
-                    target={"_blank"}
-                    href={author.connections[4].telegram}
-                    aria-label="telegram"
-                  >
-                    <Telegram />
-                  </IconButton>
-                ) : null}
-                {author.connections[0].twitter ? (
-                  <IconButton
-                    target={"_blank"}
-                    href={author.connections[0].twitter}
-                    aria-label="twitter"
-                  >
-                    <Twitter />
-                  </IconButton>
-                ) : null}
-              </>
-            ) : null
-          }
-          title={
-            !isLoading ? displayName(author, ref.substring(8)) : <Skeleton />
-          }
-          subheader={!isLoading ? date : <Skeleton />}
-        />
-      </CardActionArea>
+                    {!author.avatar ? getLetter() : null}
+                  </Avatar>
+                ) : (
+                  <Skeleton
+                    variant={"circle"}
+                    animation={"wave"}
+                    height={50}
+                    width={50}
+                  />
+                )
+              }
+              action={
+                !isLoading ? (
+                  <>
+                    {author.connections[2].github ? (
+                      <IconButton
+                        target={"_blank"}
+                        href={author.connections[2].github}
+                        aria-label="github"
+                      >
+                        <GitHub />
+                      </IconButton>
+                    ) : null}
+                    {author.connections[4].telegram ? (
+                      <IconButton
+                        target={"_blank"}
+                        href={author.connections[4].telegram}
+                        aria-label="telegram"
+                      >
+                        <Telegram />
+                      </IconButton>
+                    ) : null}
+                    {author.connections[0].twitter ? (
+                      <IconButton
+                        target={"_blank"}
+                        href={author.connections[0].twitter}
+                        aria-label="twitter"
+                      >
+                        <Twitter />
+                      </IconButton>
+                    ) : null}
+                  </>
+                ) : null
+              }
+              title={
+                !isLoading ? (
+                  displayName(author, ref.substring(8))
+                ) : (
+                  <Skeleton />
+                )
+              }
+              subheader={!isLoading ? date : <Skeleton />}
+            />
+          </CardActionArea>
 
-      {!isLoading ? (
-        <ReactMarkdown
-          children={postData.content.text}
-          components={{
-            img({ node, inline, className, children, ...props }) {
-              return (
-                <Grid container justify={"center"}>
-                  <img alt="" src={props.src} />
-                </Grid>
-              );
-            },
-          }}
-        />
+          {!isLoading ? (
+            <ReactMarkdown
+              children={postData.content.text}
+              components={{
+                img({ node, inline, className, children, ...props }) {
+                  return (
+                    <Grid container justify={"center"}>
+                      <img alt="" src={props.src} />
+                    </Grid>
+                  );
+                },
+              }}
+            />
+          ) : (
+            <Skeleton height={window.innerHeight * 0.75} animation={"wave"} />
+          )}
+        </>
       ) : (
-        <Skeleton height={window.innerHeight * 0.75} animation={"wave"} />
+        <ErrorDisplay
+          title={"This post could not be loaded."}
+          subtitle={
+            "It either does not exist or is the result of a bad connection."
+          }
+        />
       )}
     </Container>
   );
