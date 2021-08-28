@@ -13,7 +13,6 @@ export async function createBlogPost(title, subtitle, blogMD, feedDAC) {
     text: blogMD,
     ext: {
       subtitle: subtitle,
-      hostApp: window.location.hostname,
     },
   };
   const res = await feedDAC.createPost(postJSON);
@@ -41,6 +40,7 @@ export async function loadBlogPost(ref, feedDAC) {
  * @return {object} post object data in SkyStandards format
  */
 export async function loadBlogProfile(userID, feedDAC) {
-  const postsLoader = await feedDAC.loadPostsForUser(userID);
+  const blogSkapps = ["skynetblog.hns"]; //skapps paths to load posts from
+  const postsLoader = await feedDAC.loadPostsForUser(userID, blogSkapps);
   return postsLoader;
 }

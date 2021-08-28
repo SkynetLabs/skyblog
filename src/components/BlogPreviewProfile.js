@@ -9,13 +9,13 @@ import { useHistory } from "react-router-dom";
 
 //BlogPreviewProfile component is a preview of blog posts for display in a feed
 export default function BlogPreviewProfile(props) {
-  const { post, id } = props; //post data and post id
+  const { post } = props; //post data and post id
   const history = useHistory();
 
   return (
     <ButtonBase
       component={Container}
-      onClick={() => postRoute(id, post, history)}
+      onClick={() => postRoute(post, history)}
       maxWidth={"sm"}
       style={{ marginTop: 30 }}
     >

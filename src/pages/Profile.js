@@ -130,7 +130,7 @@ export default function Profile(props) {
           <Grid item xs={6}>
             {!isLoading ? (
               postFeed.map((item, index) => (
-                <BlogPreviewProfile key={item.id} post={item} id={id} />
+                <BlogPreviewProfile key={item.id} post={item} />
               ))
             ) : (
               <Skeleton height={window.innerHeight * 0.75} animation={"wave"} />
