@@ -28,7 +28,7 @@ export default function Create(props) {
   const [blogMD, setBlogMD] = useState(null);
   const [isPublishLoading, setPublishLoading] = useState(false);
   const mdEditor = useRef();
-  const { feedDAC, userID, isMySkyLoading, initiateLogin } =
+  const { feedDAC, userID, isMySkyLoading, initiateLogin, client, mySky } =
     useContext(SkynetContext);
   let history = useHistory();
 
@@ -45,7 +45,14 @@ export default function Create(props) {
   //handle the publishing of a blog and re-route to blog viewing page on success
   const handlePublish = async () => {
     setPublishLoading(true);
-    const res = await createBlogPost(title, subtitle, blogMD, feedDAC);
+    const res = await createBlogPost(
+      title,
+      subtitle,
+      blogMD,
+      feedDAC,
+      client,
+      mySky
+    );
     if (res.success) {
       const newRoute = `${res.ref.substring(6)}`;
       setPublishLoading(false);

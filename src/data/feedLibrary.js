@@ -8,7 +8,22 @@ import { skynetBlogHNS } from "./consts";
  * @return {object} response object containing success key and ref key with blog
  * reference id
  */
-export async function createBlogPost(title, subtitle, blogMD, feedDAC) {
+export async function createBlogPost(
+  title,
+  subtitle,
+  blogMD,
+  feedDAC,
+  client,
+  mySky
+) {
+  //upload blog body to skylink, setDataLink and get resolver skylink
+  const blob = new Blob([blogMD]);
+  const url = URL.createObjectURL(blob);
+  console.log("Blob", blob);
+  console.log("url", url);
+  //const { skylink } = await client.uploadFile(blogMD);
+  //console.log('SKYLINK', skylink)
+
   const postJSON = {
     title: title,
     text: blogMD,
@@ -16,8 +31,9 @@ export async function createBlogPost(title, subtitle, blogMD, feedDAC) {
       subtitle: subtitle,
     },
   };
-  const res = await feedDAC.createPost(postJSON);
-  return res;
+  return { skylink: blob };
+  //const res = await feedDAC.createPost(postJSON);
+  //return res;
 }
 
 /**
