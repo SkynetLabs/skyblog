@@ -1,8 +1,8 @@
 import React, { useContext } from "react";
 import Container from "@material-ui/core/Container";
 import Card from "@material-ui/core/Card";
-import CardActions from '@material-ui/core/CardActions';
-import CardContent from '@material-ui/core/CardContent';
+import CardActions from "@material-ui/core/CardActions";
+import CardContent from "@material-ui/core/CardContent";
 import Typography from "@material-ui/core/Typography";
 import Button from "@material-ui/core/Button";
 import Divider from "@material-ui/core/Divider";
@@ -16,9 +16,25 @@ export default function Home(props) {
 
   //Render basic information for user on homepage
   return (
-    <Container maxWidth={false} style={{ width: "80%", margin: "0px auto", paddingTop: "50px" }}>
-      <Box display={"flex"} justifyContent={"center"} style={{ margin: "20px", padding: "50px", border: "solid rgba(0, 0, 0, 0.12)", borderRadius: "3px"}}>
-        <Typography variant={"h2"} gutterBottom={true} style={{ textAlign: "center"}}>
+    <Container
+      maxWidth={false}
+      style={{ width: "80%", margin: "0px auto", paddingTop: "50px" }}
+    >
+      <Box
+        display={"flex"}
+        justifyContent={"center"}
+        style={{
+          margin: "20px",
+          padding: "50px",
+          border: "solid rgba(0, 0, 0, 0.12)",
+          borderRadius: "3px",
+        }}
+      >
+        <Typography
+          variant={"h2"}
+          gutterBottom={true}
+          style={{ textAlign: "center" }}
+        >
           Share Your Story Using the New Decentralized Internet.
         </Typography>
       </Box>
@@ -69,7 +85,14 @@ export default function Home(props) {
               Manasi's Blog
             </Typography>
             <Typography color="textSecondary" gutterBottom>
-              As Web3 gains traction, we need more resources for onboarding Web2 to Web3. There are a ton of projects providing different pieces of the Web3 stack but it is sometimes hard to find a clear place to start. Additionally, Web3 projects can benefit from more easily accessible guides to decentralizing different pieces of their stack. Often, Web3 projects or “dapps” retain certain points of centralization that can be resolved if provided a streamlined solution.
+              As Web3 gains traction, we need more resources for onboarding Web2
+              to Web3. There are a ton of projects providing different pieces of
+              the Web3 stack but it is sometimes hard to find a clear place to
+              start. Additionally, Web3 projects can benefit from more easily
+              accessible guides to decentralizing different pieces of their
+              stack. Often, Web3 projects or “dapps” retain certain points of
+              centralization that can be resolved if provided a streamlined
+              solution.
             </Typography>
           </CardContent>
           <CardActions>
@@ -77,9 +100,9 @@ export default function Home(props) {
           </CardActions>
         </Card>
       </Box>
-    <br/>
-    <br/>
-    <br/>
+      <br />
+      <br />
+      <br />
     </Container>
   );
 }
