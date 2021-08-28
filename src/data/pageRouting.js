@@ -5,6 +5,6 @@
  * @param {hook} history react router history hook
  */
 export const postRoute = (post, history) => {
-  const newRoute = post.ref.replace("#", "/");
+  const newRoute = post.ref.replace("#", "/").substring(5);
   history.push(newRoute);
 };
