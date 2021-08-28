@@ -1,4 +1,4 @@
-import { blogSkapps } from "./consts";
+import { skynetBlogHNS } from "./consts";
 /**
  * createBlogPost() uses the feed DAC to publish a post in the correct format
  * @param {string} title Title string
@@ -41,6 +41,6 @@ export async function loadBlogPost(ref, feedDAC) {
  * @return {object} post object data in SkyStandards format
  */
 export async function loadBlogProfile(userID, feedDAC) {
-  const postsLoader = await feedDAC.loadPostsForUser(userID, blogSkapps);
+  const postsLoader = await feedDAC.loadPostsForUser(userID, skynetBlogHNS);
   return postsLoader;
 }
