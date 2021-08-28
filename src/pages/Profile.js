@@ -17,6 +17,7 @@ import Telegram from "@material-ui/icons/Telegram";
 import Reddit from "@material-ui/icons/Reddit";
 import Facebook from "@material-ui/icons/Facebook";
 import ErrorDisplay from "../components/ErrorDisplay";
+import ShareButton from "../components/ShareButton";
 
 //Profile page component, used to view a users blogs in a feed
 export default function Profile(props) {
@@ -122,6 +123,7 @@ export default function Profile(props) {
                     <Facebook />
                   </IconButton>
                 ) : null}
+                <ShareButton />
               </Container>
             ) : null}
           </Container>

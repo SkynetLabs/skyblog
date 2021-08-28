@@ -18,6 +18,7 @@ import { useHistory } from "react-router-dom";
 import CardActionArea from "@material-ui/core/CardActionArea";
 import { makeStyles } from "@material-ui/core/styles";
 import ErrorDisplay from "../components/ErrorDisplay";
+import ShareButton from "../components/ShareButton";
 
 //style for removing hover shading
 const useStyles = makeStyles((theme) => ({
@@ -156,6 +157,10 @@ export default function Blog(props) {
                   <>
                     {author.connections[2].github ? (
                       <IconButton
+                        onMouseDown={(event) => event.stopPropagation()}
+                        onClick={(event) => {
+                          event.stopPropagation();
+                        }}
                         target={"_blank"}
                         href={author.connections[2].github}
                         aria-label="github"
@@ -165,6 +170,10 @@ export default function Blog(props) {
                     ) : null}
                     {author.connections[4].telegram ? (
                       <IconButton
+                        onMouseDown={(event) => event.stopPropagation()}
+                        onClick={(event) => {
+                          event.stopPropagation();
+                        }}
                         target={"_blank"}
                         href={author.connections[4].telegram}
                         aria-label="telegram"
@@ -174,6 +183,10 @@ export default function Blog(props) {
                     ) : null}
                     {author.connections[0].twitter ? (
                       <IconButton
+                        onMouseDown={(event) => event.stopPropagation()}
+                        onClick={(event) => {
+                          event.stopPropagation();
+                        }}
                         target={"_blank"}
                         href={author.connections[0].twitter}
                         aria-label="twitter"
@@ -181,6 +194,7 @@ export default function Blog(props) {
                         <Twitter />
                       </IconButton>
                     ) : null}
+                    <ShareButton />
                   </>
                 ) : null
               }
