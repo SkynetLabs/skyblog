@@ -1,15 +1,19 @@
-import React, { useState, useRef, useContext } from "react";
+import React, { useState, useRef, useContext, useEffect } from "react";
 
 import MDEditor, { commands, TextState } from "@uiw/react-md-editor";
 import { SkynetContext } from "../state/SkynetContext";
 
 //MarkdownEditor component to handle blog body creation and formatting
 export default function MarkdownEditor(props) {
-  const [blogBody, setBlogBody] = useState(""); //state for value of markdown editor
+  const [blogBody, setBlogBody] = useState(); //state for value of markdown editor
   const inputImage = useRef(null); //file input ref
   const imageFormRef = useRef(null); //form ref for file input
   const [imageVars, setImageVars] = useState(null); //state to store image variables for skylink replacement handling
   const { client } = useContext(SkynetContext); //client used from Skynet Context
+
+  useEffect(() => {
+    setBlogBody(props.blogMD);
+  }, [props]);
 
   //handle change of markdown editor, set blogBody in parent component
   const handleEditorChange = (e) => {
