@@ -1,5 +1,5 @@
 import { createContext, useState, useEffect } from "react";
-import { SkynetClient } from "skynet-js";
+import { SkynetClient, Permission, PermCategory, PermType } from "skynet-js";
 
 import { UserProfileDAC } from "@skynethub/userprofile-library";
 import { FeedDAC } from "feed-dac-library";
@@ -36,10 +36,26 @@ const SkynetProvider = ({ children }) => {
     const initMySky = async () => {
       try {
         const mySky = await client.loadMySky(hostApp);
-
         //load in user profile, feed, and social DACs
         const dacsArray = [userProfile, feedDAC];
         await mySky.loadDacs(...dacsArray);
+        const reqDomain = await client.extractDomain(window.location.hostname);
+        await mySky.addPermissions(
+          new Permission(
+            reqDomain,
+            hostApp,
+            PermCategory.Discoverable,
+            PermType.Write
+          )
+        );
+        await mySky.addPermissions(
+          new Permission(
+            reqDomain,
+            hostApp,
+            PermCategory.Discoverable,
+            PermType.Read
+          )
+        );
 
         const checkLogIn = await mySky.checkLogin();
         setMySky(mySky);

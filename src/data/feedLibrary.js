@@ -36,6 +36,7 @@ export async function createBlogPost(title, subtitle, blogMD, feedDAC, mySky) {
     return res;
   } catch (e) {
     console.log("ERROR: ", e);
+    return { success: false };
   }
 }
 

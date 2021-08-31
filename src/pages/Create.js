@@ -11,6 +11,8 @@ import Backdrop from "@material-ui/core/Backdrop";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import Paper from "@material-ui/core/Paper";
 import Typography from "@material-ui/core/Typography";
+import Snackbar from "@material-ui/core/Snackbar";
+import MuiAlert from "@material-ui/lab/Alert";
 
 //Create page component, used to create MD blog posts, returns JSX layout
 export default function Create(props) {
@@ -20,6 +22,7 @@ export default function Create(props) {
   blogMD -> blog markdown state
   isEditing -> state to determine whether user is editing or creating a post
   isPublishLoading -> state to handle publish loading feedback
+  open -> state for handling the showing of error snackbar
   mdEditor -> markdown editor reference
   feedDAC, userID, isMySkyLoading, initiateLogin, mySky -> value to use from SkynetContext
   history -> react router hook
@@ -30,6 +33,7 @@ export default function Create(props) {
   const [blogMD, setBlogMD] = useState("");
   const [isEditing, setEditing] = useState(false);
   const [isPublishLoading, setPublishLoading] = useState(false);
+  const [open, setOpen] = useState(false);
   const mdEditor = useRef();
   const { feedDAC, userID, isMySkyLoading, initiateLogin, mySky } =
     useContext(SkynetContext);
@@ -75,7 +79,14 @@ export default function Create(props) {
       const newRoute = `${res.ref.substring(6)}`;
       setPublishLoading(false);
       history.push(newRoute.replace("#", "/"));
+    } else {
+      setPublishLoading(false);
+      setOpen(true);
     }
+  };
+  //close the failed to post snackbar
+  const handleClose = () => {
+    setOpen(false);
   };
 
   //return JSX for create page
@@ -158,6 +169,24 @@ export default function Create(props) {
       <Backdrop style={{ zIndex: 10 }} open={isPublishLoading}>
         <CircularProgress color={"inherit"} />
       </Backdrop>
+      <Snackbar
+        anchorOrigin={{
+          vertical: "bottom",
+          horizontal: "left",
+        }}
+        open={open}
+        autoHideDuration={4000}
+        onClose={handleClose}
+      >
+        <MuiAlert
+          elevation={6}
+          variant={"filled"}
+          onClose={handleClose}
+          severity="error"
+        >
+          Failed to {isEditing ? "edit" : "create"} post.
+        </MuiAlert>
+      </Snackbar>
     </Container>
   );
 }
