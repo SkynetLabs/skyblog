@@ -30,7 +30,7 @@ export default function Profile(props) {
   const [profile, setProfile] = useState();
   const [isLoading, setLoading] = useState(true);
   const [showError, setShowError] = useState(false);
-  const { feedDAC, getUserProfile, isMySkyLoading, userID } =
+  const { feedDAC, getUserProfile, isMySkyLoading, client } =
     useContext(SkynetContext);
 
   //execute this effect on entry and when the feedDAC connection status is valid
@@ -40,10 +40,13 @@ export default function Profile(props) {
       const getProfileData = async () => {
         setShowError(false);
         const profile = await getUserProfile(id.substring(8));
-        console.log("PROFILE", profile);
         if (!profile.error) {
           setProfile(profile);
-          const postsLoader = await loadBlogProfile(id.substring(8), feedDAC);
+          const postsLoader = await loadBlogProfile(
+            id.substring(8),
+            feedDAC,
+            client
+          );
           const page0 = await postsLoader.next();
           setPostFeed(page0.value);
           setLoading(false);

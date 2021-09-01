@@ -93,10 +93,15 @@ export async function loadBlogPost(ref, feedDAC, client) {
  * post feed
  * @param {string} userID user's MySky ID
  * @param feedDAC feedDAC as initialized in SkynetContext
+ * @param client skynet client instance
  * @return {function} asyncGenerator function to load pages
  */
-export async function loadBlogProfile(userID, feedDAC) {
-  const postsLoader = await feedDAC.loadPostsForUser(userID, [dataDomain]);
+export async function loadBlogProfile(userID, feedDAC, client) {
+  const hostDomain = await client.extractDomain(window.location.hostname);
+  const postsLoader = await feedDAC.loadPostsForUser(userID, [
+    dataDomain,
+    hostDomain,
+  ]);
   return postsLoader;
 }
 
