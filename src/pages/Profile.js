@@ -34,6 +34,7 @@ export default function Profile(props) {
   const [profile, setProfile] = useState();
   const [isLoading, setLoading] = useState(true);
   const [showError, setShowError] = useState(false);
+  const [profileExists, setProfileExists] = useState(false);
   const { feedDAC, getUserProfile, isMySkyLoading } = useContext(SkynetContext);
 
   //execute this effect on entry and when the feedDAC connection status is valid
@@ -43,11 +44,19 @@ export default function Profile(props) {
       const getProfileData = async () => {
         setShowError(false);
         const profile = await getUserProfile(id.substring(8));
+        console.log("PROFILE", profile);
         if (!profile.error) {
           setProfile(profile);
           const postsLoader = await loadBlogProfile(id.substring(8), feedDAC);
           const page0 = await postsLoader.next();
           setPostFeed(page0.value);
+          if (
+            profile.username !== "anonymous" &&
+            profile.version != 1 &&
+            profile.connections.length > 0
+          ) {
+            setProfileExists(true);
+          }
           setLoading(false);
         } else {
           setShowError(true);
@@ -62,105 +71,109 @@ export default function Profile(props) {
       {!showError ? (
         <>
           <Container style={{ marginTop: 40 }}>
-            <Typography variant={"h3"}>
-              {!isLoading ? (
-                displayName(profile, id.substring(8))
-              ) : (
-                <Skeleton animation={"wave"} />
-              )}
-            </Typography>
-            <Typography
-              variant={"h6"}
-              gutterBottom={true}
-              color={"textSecondary"}
-            >
-              {!isLoading ? profile.aboutMe : <Skeleton animation={"wave"} />}
-            </Typography>
-            {!isLoading ? (
-              <Container style={{ padding: 0 }}>
-                {profile.connections[2].github ? (
-                  <IconButton
-                    target={"_blank"}
-                    href={profile.connections[2].github}
-                    aria-label="github"
-                  >
-                    <GitHub />
-                  </IconButton>
-                ) : null}
-                {profile.connections[4].telegram ? (
-                  <IconButton
-                    target={"_blank"}
-                    href={profile.connections[4].telegram}
-                    aria-label="telegram"
-                  >
-                    <Telegram />
-                  </IconButton>
-                ) : null}
-                {profile.connections[0].twitter ? (
-                  <IconButton
-                    target={"_blank"}
-                    href={profile.connections[0].twitter}
-                    aria-label="twitter"
-                  >
-                    <Twitter />
-                  </IconButton>
-                ) : null}
-                {profile.connections[3].reddit ? (
-                  <IconButton
-                    target={"_blank"}
-                    href={profile.connections[3].reddit}
-                    aria-label="twitter"
-                  >
-                    <Reddit />
-                  </IconButton>
-                ) : null}
-                {profile.connections[1].facebook ? (
-                  <IconButton
-                    target={"_blank"}
-                    href={profile.connections[1].facebook}
-                    aria-label="twitter"
-                  >
-                    <Facebook />
-                  </IconButton>
-                ) : null}
-                <ShareButton />
-              </Container>
-            ) : null}
-          </Container>
-          <Divider variant="middle" style={{ marginTop: 30 }} />
-          <Container>
-            <Grid container spacing={3}>
-              <Grid
-                item
-                xs
-                style={{
-                  marginTop: 20,
-                  display: "flex",
-                  justifyContent: "center",
-                }}
-              >
+            <Grid container spacing={2}>
+              <Grid item>
                 {!isLoading ? (
                   <Avatar
                     style={{ height: 175, width: 175 }}
                     aria-label={"Author"}
-                    src={profile.avatar ? profile.avatar[0].url : null}
+                    src={
+                      profile.avatar.length >= 1 ? profile.avatar[0].url : null
+                    }
                   />
                 ) : null}
               </Grid>
-              <Grid item xs={6}>
-                {!isLoading ? (
-                  postFeed.map((item, index) => (
-                    <BlogPreviewProfile key={item.id} post={item} />
-                  ))
-                ) : (
-                  <Skeleton
-                    height={window.innerHeight * 0.75}
-                    animation={"wave"}
-                  />
-                )}
+              <Grid
+                item
+                xs={12}
+                sm
+                container
+                style={{
+                  marginLeft: 14,
+                  display: "flex",
+                  alignItems: "center",
+                }}
+              >
+                <Typography variant={"h3"}>
+                  {!isLoading ? (
+                    displayName(profile, id.substring(8))
+                  ) : (
+                    <Skeleton animation={"wave"} />
+                  )}
+                </Typography>
+                <Typography
+                  variant={"h6"}
+                  gutterBottom={true}
+                  color={"textSecondary"}
+                >
+                  {!isLoading ? (
+                    profile.aboutMe
+                  ) : (
+                    <Skeleton animation={"wave"} />
+                  )}
+                </Typography>
+                {!isLoading && profileExists ? (
+                  <Container style={{ padding: 0 }}>
+                    {profile.connections[2].github ? (
+                      <IconButton
+                        target={"_blank"}
+                        href={profile.connections[2].github}
+                        aria-label="github"
+                      >
+                        <GitHub />
+                      </IconButton>
+                    ) : null}
+                    {profile.connections[4].telegram ? (
+                      <IconButton
+                        target={"_blank"}
+                        href={profile.connections[4].telegram}
+                        aria-label="telegram"
+                      >
+                        <Telegram />
+                      </IconButton>
+                    ) : null}
+                    {profile.connections[0].twitter ? (
+                      <IconButton
+                        target={"_blank"}
+                        href={profile.connections[0].twitter}
+                        aria-label="twitter"
+                      >
+                        <Twitter />
+                      </IconButton>
+                    ) : null}
+                    {profile.connections[3].reddit ? (
+                      <IconButton
+                        target={"_blank"}
+                        href={profile.connections[3].reddit}
+                        aria-label="twitter"
+                      >
+                        <Reddit />
+                      </IconButton>
+                    ) : null}
+                    {profile.connections[1].facebook ? (
+                      <IconButton
+                        target={"_blank"}
+                        href={profile.connections[1].facebook}
+                        aria-label="twitter"
+                      >
+                        <Facebook />
+                      </IconButton>
+                    ) : null}
+                    <ShareButton />
+                  </Container>
+                ) : null}
               </Grid>
-              <Grid item xs></Grid>
             </Grid>
+          </Container>
+          <Divider variant="middle" style={{ marginTop: 30 }} />
+          <Container>
+            {!isLoading ? (
+              postFeed.map((item, index) => (
+                <BlogPreviewProfile key={item.id} post={item} />
+              ))
+            ) : (
+              <Skeleton height={window.innerHeight * 0.75} animation={"wave"} />
+            )}
           </Container>
         </>
       ) : (
