@@ -18,6 +18,8 @@ import Reddit from "@material-ui/icons/Reddit";
 import Facebook from "@material-ui/icons/Facebook";
 import ErrorDisplay from "../components/ErrorDisplay";
 import ShareButton from "../components/ShareButton";
+import OpenInNewIcon from "@material-ui/icons/OpenInNew";
+import Button from "@material-ui/core/Button";
 
 //Profile page component, used to view a users blogs in a feed
 export default function Profile(props) {
@@ -34,8 +36,8 @@ export default function Profile(props) {
   const [profile, setProfile] = useState();
   const [isLoading, setLoading] = useState(true);
   const [showError, setShowError] = useState(false);
-  const [profileExists, setProfileExists] = useState(false);
-  const { feedDAC, getUserProfile, isMySkyLoading } = useContext(SkynetContext);
+  const { feedDAC, getUserProfile, isMySkyLoading, userID } =
+    useContext(SkynetContext);
 
   //execute this effect on entry and when the feedDAC connection status is valid
   useEffect(() => {
@@ -50,13 +52,6 @@ export default function Profile(props) {
           const postsLoader = await loadBlogProfile(id.substring(8), feedDAC);
           const page0 = await postsLoader.next();
           setPostFeed(page0.value);
-          if (
-            profile.username !== "anonymous" &&
-            profile.version != 1 &&
-            profile.connections.length > 0
-          ) {
-            setProfileExists(true);
-          }
           setLoading(false);
         } else {
           setShowError(true);
@@ -81,7 +76,14 @@ export default function Profile(props) {
                       profile.avatar.length >= 1 ? profile.avatar[0].url : null
                     }
                   />
-                ) : null}
+                ) : (
+                  <Skeleton
+                    variant={"circle"}
+                    animation={"wave"}
+                    height={175}
+                    width={175}
+                  />
+                )}
               </Grid>
               <Grid
                 item
@@ -94,26 +96,29 @@ export default function Profile(props) {
                   alignItems: "center",
                 }}
               >
-                <Typography variant={"h3"}>
-                  {!isLoading ? (
-                    displayName(profile, id.substring(8))
-                  ) : (
-                    <Skeleton animation={"wave"} />
-                  )}
-                </Typography>
-                <Typography
-                  variant={"h6"}
-                  gutterBottom={true}
-                  color={"textSecondary"}
-                >
-                  {!isLoading ? (
-                    profile.aboutMe
-                  ) : (
-                    <Skeleton animation={"wave"} />
-                  )}
-                </Typography>
-                {!isLoading && profileExists ? (
-                  <Container style={{ padding: 0 }}>
+                <Container>
+                  <Typography variant={"h3"}>
+                    {!isLoading ? (
+                      displayName(profile, id.substring(8))
+                    ) : (
+                      <Skeleton animation={"wave"} />
+                    )}
+                  </Typography>
+                  <Typography
+                    variant={"h6"}
+                    gutterBottom={true}
+                    color={"textSecondary"}
+                  >
+                    {!isLoading ? (
+                      profile.aboutMe
+                    ) : (
+                      <Skeleton animation={"wave"} />
+                    )}
+                  </Typography>
+                </Container>
+
+                {!isLoading && profile.connections.length > 0 ? (
+                  <Container>
                     {profile.connections[2].github ? (
                       <IconButton
                         target={"_blank"}
@@ -161,16 +166,38 @@ export default function Profile(props) {
                     ) : null}
                     <ShareButton />
                   </Container>
+                ) : !isLoading && userID === id.substring(8) ? (
+                  <Container>
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      href={"https://skyprofile.hns.siasky.net/"}
+                      target={"_blank"}
+                      endIcon={<OpenInNewIcon />}
+                    >
+                      Create your MySky Profile
+                    </Button>
+                  </Container>
                 ) : null}
               </Grid>
             </Grid>
           </Container>
           <Divider variant="middle" style={{ marginTop: 30 }} />
           <Container>
-            {!isLoading ? (
+            {!isLoading && postFeed.length !== 0 ? (
               postFeed.map((item, index) => (
                 <BlogPreviewProfile key={item.id} post={item} />
               ))
+            ) : !isLoading ? (
+              <Typography
+                variant={"h6"}
+                align={"center"}
+                style={{ margin: 30 }}
+                gutterBottom={true}
+                color={"textSecondary"}
+              >
+                No posts to show.
+              </Typography>
             ) : (
               <Skeleton height={window.innerHeight * 0.75} animation={"wave"} />
             )}
