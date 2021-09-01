@@ -158,7 +158,9 @@ export default function Blog(props) {
               action={
                 !isLoading ? (
                   <>
-                    {!isLoading && userID === ref.substring(8) ? (
+                    {!isLoading &&
+                    userID === ref.substring(8) &&
+                    postData.content.ext.postPath ? (
                       <EditButton
                         postRef={fullRef}
                         title={postData.content.title}

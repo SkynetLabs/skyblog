@@ -1,4 +1,4 @@
-import { skynetBlogHNS, dataDomain } from "./consts";
+import { dataDomain } from "./consts";
 /**
  * createBlogPost() uses the feed DAC to publish a post in the correct format
  * @param {string} title Title string
@@ -96,7 +96,7 @@ export async function loadBlogPost(ref, feedDAC, client) {
  * @return {function} asyncGenerator function to load pages
  */
 export async function loadBlogProfile(userID, feedDAC) {
-  const postsLoader = await feedDAC.loadPostsForUser(userID, skynetBlogHNS);
+  const postsLoader = await feedDAC.loadPostsForUser(userID, [dataDomain]);
   return postsLoader;
 }
 
