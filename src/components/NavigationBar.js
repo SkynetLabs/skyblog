@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { SkynetContext } from "../state/SkynetContext";
 import Typography from "@material-ui/core/Typography";
 import AppBar from "@material-ui/core/AppBar";
@@ -10,7 +10,7 @@ import MenuItem from "@material-ui/core/MenuItem";
 import { makeStyles } from "@material-ui/core/styles";
 import AccountCircle from "@material-ui/icons/AccountCircle";
 import Add from "@material-ui/icons/Add";
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import ButtonBase from "@material-ui/core/ButtonBase";
 
 //style values for material-ui JSX components
@@ -26,6 +26,11 @@ export default function NavigationBar(props) {
   const { userID, initiateLogin, mySkyLogout, isMySkyLoading } =
     useContext(SkynetContext); //states from Skynet context
   const [anchorEl, setAnchorEl] = useState(null); // user menu anchor state
+  const history = useHistory();
+
+  useEffect(() => {
+    setAnchorEl(null);
+  }, [userID]);
 
   //set anchor point to user profile icon button
   const handleMenuOpen = (event) => {
@@ -34,6 +39,13 @@ export default function NavigationBar(props) {
   //close the menu
   const handleClose = () => {
     setAnchorEl(null);
+  };
+
+  const handleLogout = async () => {
+    const success = await mySkyLogout();
+    if (success) {
+      history.push("/");
+    }
   };
 
   //JSX components to render navigation bar
@@ -92,7 +104,7 @@ export default function NavigationBar(props) {
                   >
                     My Blogs
                   </MenuItem>
-                  <MenuItem onClick={mySkyLogout}>Logout</MenuItem>
+                  <MenuItem onClick={handleLogout}>Logout</MenuItem>
                 </Menu>
               </>
             ) : null}

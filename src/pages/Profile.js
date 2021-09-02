@@ -10,16 +10,10 @@ import { displayName } from "../data/displayName";
 import Divider from "@material-ui/core/Divider";
 import Grid from "@material-ui/core/Grid";
 import Avatar from "@material-ui/core/Avatar";
-import IconButton from "@material-ui/core/IconButton";
-import Twitter from "@material-ui/icons/Twitter";
-import GitHub from "@material-ui/icons/GitHub";
-import Telegram from "@material-ui/icons/Telegram";
-import Reddit from "@material-ui/icons/Reddit";
-import Facebook from "@material-ui/icons/Facebook";
 import ErrorDisplay from "../components/ErrorDisplay";
-import ShareButton from "../components/ShareButton";
 import OpenInNewIcon from "@material-ui/icons/OpenInNew";
 import Button from "@material-ui/core/Button";
+import SocialIcons from "../components/SocialIcons";
 
 //Profile page component, used to view a users blogs in a feed
 export default function Profile(props) {
@@ -118,54 +112,7 @@ export default function Profile(props) {
                 </Container>
 
                 {!isLoading && profile.connections.length > 0 ? (
-                  <Container>
-                    {profile.connections[2].github ? (
-                      <IconButton
-                        target={"_blank"}
-                        href={profile.connections[2].github}
-                        aria-label="github"
-                      >
-                        <GitHub />
-                      </IconButton>
-                    ) : null}
-                    {profile.connections[4].telegram ? (
-                      <IconButton
-                        target={"_blank"}
-                        href={profile.connections[4].telegram}
-                        aria-label="telegram"
-                      >
-                        <Telegram />
-                      </IconButton>
-                    ) : null}
-                    {profile.connections[0].twitter ? (
-                      <IconButton
-                        target={"_blank"}
-                        href={profile.connections[0].twitter}
-                        aria-label="twitter"
-                      >
-                        <Twitter />
-                      </IconButton>
-                    ) : null}
-                    {profile.connections[3].reddit ? (
-                      <IconButton
-                        target={"_blank"}
-                        href={profile.connections[3].reddit}
-                        aria-label="twitter"
-                      >
-                        <Reddit />
-                      </IconButton>
-                    ) : null}
-                    {profile.connections[1].facebook ? (
-                      <IconButton
-                        target={"_blank"}
-                        href={profile.connections[1].facebook}
-                        aria-label="twitter"
-                      >
-                        <Facebook />
-                      </IconButton>
-                    ) : null}
-                    <ShareButton />
-                  </Container>
+                  <SocialIcons connectionsArr={profile.connections} />
                 ) : !isLoading && userID === id.substring(8) ? (
                   <Container>
                     <Button
