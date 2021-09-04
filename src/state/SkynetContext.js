@@ -82,11 +82,17 @@ const SkynetProvider = ({ children }) => {
   };
 
   //handle logout from mySky
-  const mySkyLogout = () => {
-    mySky.logout();
-    setUserID("");
-    setProfile(null);
-    setUserFeed(null);
+  const mySkyLogout = async () => {
+    try {
+      await mySky.logout();
+      setUserID("");
+      setProfile(null);
+      setUserFeed(null);
+      return true;
+    } catch (e) {
+      console.log(e);
+      return false;
+    }
   };
 
   return (

@@ -8,10 +8,6 @@ import Grid from "@material-ui/core/Grid";
 import Typography from "@material-ui/core/Typography";
 import CardHeader from "@material-ui/core/CardHeader";
 import Avatar from "@material-ui/core/Avatar";
-import IconButton from "@material-ui/core/IconButton";
-import Twitter from "@material-ui/icons/Twitter";
-import GitHub from "@material-ui/icons/GitHub";
-import Telegram from "@material-ui/icons/Telegram";
 import Skeleton from "@material-ui/lab/Skeleton";
 import { displayName } from "../data/displayName";
 import { useHistory } from "react-router-dom";
@@ -139,9 +135,11 @@ export default function Blog(props) {
                 !isLoading ? (
                   <Avatar
                     aria-label={"Author"}
-                    src={author.avatar ? author.avatar[0].url : null}
+                    src={
+                      author.avatar.length >= 1 ? author.avatar[0].url : null
+                    }
                   >
-                    {!author.avatar ? getLetter() : null}
+                    {author.avatar.length === 0 ? getLetter() : null}
                   </Avatar>
                 ) : (
                   <Skeleton
@@ -155,45 +153,6 @@ export default function Blog(props) {
               action={
                 !isLoading ? (
                   <>
-                    {author.connections[2].github ? (
-                      <IconButton
-                        onMouseDown={(event) => event.stopPropagation()}
-                        onClick={(event) => {
-                          event.stopPropagation();
-                        }}
-                        target={"_blank"}
-                        href={author.connections[2].github}
-                        aria-label="github"
-                      >
-                        <GitHub />
-                      </IconButton>
-                    ) : null}
-                    {author.connections[4].telegram ? (
-                      <IconButton
-                        onMouseDown={(event) => event.stopPropagation()}
-                        onClick={(event) => {
-                          event.stopPropagation();
-                        }}
-                        target={"_blank"}
-                        href={author.connections[4].telegram}
-                        aria-label="telegram"
-                      >
-                        <Telegram />
-                      </IconButton>
-                    ) : null}
-                    {author.connections[0].twitter ? (
-                      <IconButton
-                        onMouseDown={(event) => event.stopPropagation()}
-                        onClick={(event) => {
-                          event.stopPropagation();
-                        }}
-                        target={"_blank"}
-                        href={author.connections[0].twitter}
-                        aria-label="twitter"
-                      >
-                        <Twitter />
-                      </IconButton>
-                    ) : null}
                     <ShareButton />
                   </>
                 ) : null
