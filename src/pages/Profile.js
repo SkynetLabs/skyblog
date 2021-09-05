@@ -30,7 +30,7 @@ export default function Profile(props) {
   const [profile, setProfile] = useState();
   const [isLoading, setLoading] = useState(true);
   const [showError, setShowError] = useState(false);
-  const { feedDAC, getUserProfile, isMySkyLoading, client } =
+  const { feedDAC, getUserProfile, isMySkyLoading, client, userID } =
     useContext(SkynetContext);
 
   //execute this effect on entry and when the feedDAC connection status is valid
@@ -56,7 +56,7 @@ export default function Profile(props) {
       };
       getProfileData();
     }
-  }, [isMySkyLoading, feedDAC, getUserProfile, id]);
+  }, [isMySkyLoading, feedDAC, getUserProfile, id, client]);
 
   return (
     <Container maxWidth={false}>

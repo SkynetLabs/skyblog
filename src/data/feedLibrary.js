@@ -98,10 +98,10 @@ export async function loadBlogPost(ref, feedDAC, client) {
  */
 export async function loadBlogProfile(userID, feedDAC, client) {
   const hostDomain = await client.extractDomain(window.location.hostname);
-  const postsLoader = await feedDAC.loadPostsForUser(userID, [
-    dataDomain,
-    hostDomain,
-  ]);
+  const postsLoader = await feedDAC.loadPostsForUser(
+    userID,
+    hostDomain !== dataDomain ? [dataDomain, hostDomain] : [dataDomain]
+  );
   return postsLoader;
 }
 
