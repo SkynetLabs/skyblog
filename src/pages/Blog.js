@@ -141,7 +141,11 @@ export default function Blog(props) {
                   <Avatar
                     aria-label={"Author"}
                     src={
-                      author.avatar.length >= 1 ? author.avatar[0].url : null
+                      author.avatar.length >= 1
+                        ? `https://siasky.net${author.avatar[0].url.substring(
+                            5
+                          )}`
+                        : null
                     }
                   >
                     {author.avatar.length === 0 ? getLetter() : null}

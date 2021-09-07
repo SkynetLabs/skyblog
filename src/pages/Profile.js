@@ -70,7 +70,11 @@ export default function Profile(props) {
                     style={{ height: 175, width: 175 }}
                     aria-label={"Author"}
                     src={
-                      profile.avatar.length >= 1 ? profile.avatar[0].url : null
+                      profile.avatar.length >= 1
+                        ? `https://siasky.net${profile.avatar[0].url.substring(
+                            5
+                          )}`
+                        : null
                     }
                   />
                 ) : (
