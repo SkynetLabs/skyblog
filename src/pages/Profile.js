@@ -30,7 +30,7 @@ export default function Profile(props) {
   const [profile, setProfile] = useState();
   const [isLoading, setLoading] = useState(true);
   const [showError, setShowError] = useState(false);
-  const { feedDAC, getUserProfile, isMySkyLoading, userID } =
+  const { feedDAC, getUserProfile, isMySkyLoading, client, userID } =
     useContext(SkynetContext);
 
   //execute this effect on entry and when the feedDAC connection status is valid
@@ -40,10 +40,13 @@ export default function Profile(props) {
       const getProfileData = async () => {
         setShowError(false);
         const profile = await getUserProfile(id.substring(8));
-        console.log("PROFILE", profile);
         if (!profile.error) {
           setProfile(profile);
-          const postsLoader = await loadBlogProfile(id.substring(8), feedDAC);
+          const postsLoader = await loadBlogProfile(
+            id.substring(8),
+            feedDAC,
+            client
+          );
           const page0 = await postsLoader.next();
           setPostFeed(page0.value);
           setLoading(false);
@@ -53,7 +56,7 @@ export default function Profile(props) {
       };
       getProfileData();
     }
-  }, [isMySkyLoading, feedDAC, getUserProfile, id]);
+  }, [isMySkyLoading, feedDAC, getUserProfile, id, client]);
 
   return (
     <Container maxWidth={false}>
@@ -67,7 +70,11 @@ export default function Profile(props) {
                     style={{ height: 175, width: 175 }}
                     aria-label={"Author"}
                     src={
-                      profile.avatar.length >= 1 ? profile.avatar[0].url : null
+                      profile.avatar.length >= 1
+                        ? `https://siasky.net${profile.avatar[0].url.substring(
+                            5
+                          )}`
+                        : null
                     }
                   />
                 ) : (

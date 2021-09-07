@@ -15,6 +15,7 @@ import CardActionArea from "@material-ui/core/CardActionArea";
 import { makeStyles } from "@material-ui/core/styles";
 import ErrorDisplay from "../components/ErrorDisplay";
 import ShareButton from "../components/ShareButton";
+import EditButton from "../components/EditButton";
 
 //style for removing hover shading
 const useStyles = makeStyles((theme) => ({
@@ -28,23 +29,25 @@ const useStyles = makeStyles((theme) => ({
 //Blog page component, used to create view blog posts, returns JSX layout for rendering blogs
 export default function Blog(props) {
   /*
-  getUserProfile, feedDAC -> values to use from Skynet context
+  getUserProfile, feedDAC, client, userID -> values to use from Skynet context
   ref, dac, domain, posts, file, id -> get parameters from the route
   postData -> state for blog post data
   isLoading -> state to render loading indicators
   date -> display date
   author -> author of the blog, userProfile DAC profile object
   showError -> show error if the post cannot be loaded or doesn't exist
+  fullRef -> full post reference from route
   history -> react router hook
   classes -> const to useStyles in JSX
    */
-  const { getUserProfile, feedDAC } = useContext(SkynetContext);
+  const { getUserProfile, feedDAC, client, userID } = useContext(SkynetContext);
   let { ref, dac, domain, posts, file, id } = useParams();
   const [postData, setPostData] = useState();
   const [isLoading, setLoading] = useState(true);
   const [date, setDate] = useState(null);
   const [author, setAuthor] = useState(null);
   const [showError, setShowError] = useState(false);
+  const [fullRef, setFullRef] = useState(null);
   const history = useHistory();
   const classes = useStyles();
 
@@ -66,7 +69,8 @@ export default function Blog(props) {
           file +
           "#" +
           id;
-        const res = await loadBlogPost(val, feedDAC);
+        setFullRef(val);
+        const res = await loadBlogPost(val, feedDAC, client);
         if (res) {
           setPostData(res);
           const profile = await getUserProfile(ref.substring(8));
@@ -90,6 +94,7 @@ export default function Blog(props) {
     getUserProfile,
     id,
     posts,
+    client,
   ]);
 
   //return first letter of display name
@@ -136,7 +141,11 @@ export default function Blog(props) {
                   <Avatar
                     aria-label={"Author"}
                     src={
-                      author.avatar.length >= 1 ? author.avatar[0].url : null
+                      author.avatar.length >= 1
+                        ? `https://siasky.net${author.avatar[0].url.substring(
+                            5
+                          )}`
+                        : null
                     }
                   >
                     {author.avatar.length === 0 ? getLetter() : null}
@@ -153,6 +162,17 @@ export default function Blog(props) {
               action={
                 !isLoading ? (
                   <>
+                    {!isLoading &&
+                    userID === ref.substring(8) &&
+                    postData.content.ext.postPath ? (
+                      <EditButton
+                        postRef={fullRef}
+                        title={postData.content.title}
+                        postPath={postData.content.ext.postPath}
+                        subtitle={postData.content.ext.subtitle}
+                        blogBody={postData.content.text}
+                      />
+                    ) : null}
                     <ShareButton />
                   </>
                 ) : null
