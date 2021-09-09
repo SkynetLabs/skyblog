@@ -22,7 +22,7 @@ export default function ErrorDisplay(props) {
         <Typography align={"center"} variant={"h4"} gutterBottom={true}>
           {title}
         </Typography>
-        <Typography align={"center"} variant={"subtitle"} gutterBottom={true}>
+        <Typography align={"center"} variant={"subtitle1"} gutterBottom={true}>
           {subtitle}
         </Typography>
       </Paper>
