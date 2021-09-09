@@ -16,6 +16,7 @@ import { makeStyles } from "@material-ui/core/styles";
 import ErrorDisplay from "../components/ErrorDisplay";
 import ShareButton from "../components/ShareButton";
 import EditButton from "../components/EditButton";
+import DeleteButton from "../components/DeleteButton";
 
 //style for removing hover shading
 const useStyles = makeStyles((theme) => ({
@@ -172,6 +173,9 @@ export default function Blog(props) {
                         subtitle={postData.content.ext.subtitle}
                         blogBody={postData.content.text}
                       />
+                    ) : null}
+                    {userID === ref.substring(8) ? (
+                      <DeleteButton postRef={fullRef} feedDAC={feedDAC} />
                     ) : null}
                     <ShareButton />
                   </>

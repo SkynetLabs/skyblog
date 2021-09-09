@@ -74,6 +74,17 @@ export async function editBlogPost(
 }
 
 /**
+ * deleteBlogPost() deletes a feedDAC blog post
+ * @param {string} ref blog post id
+ * @param feedDAC feedDAC as initialized in SkynetContext
+ * @return {object} success or failure response
+ */
+export async function deleteBlogPost(postRef, feedDAC) {
+  const res = await feedDAC.deletePost(postRef);
+  return res;
+}
+
+/**
  * loadBlogPost() retrieves a post using the feedDAC
  * @param {string} ref blog post id
  * @param feedDAC feedDAC as initialized in SkynetContext
@@ -82,7 +93,9 @@ export async function editBlogPost(
  */
 export async function loadBlogPost(ref, feedDAC, client) {
   let res = await feedDAC.loadPost(ref);
-  if (res.content.ext.resolverSkylink) {
+  if (res.isDeleted) {
+    return false;
+  } else if (res.content.ext.resolverSkylink) {
     res = await getLatest(res, client);
   }
   return res;

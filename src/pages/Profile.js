@@ -35,6 +35,7 @@ export default function Profile(props) {
 
   //execute this effect on entry and when the feedDAC connection status is valid
   useEffect(() => {
+    setLoading(true);
     if (!isMySkyLoading && feedDAC.connector) {
       //handle retrieval of profile DAC data and feed array
       const getProfileData = async () => {
@@ -139,9 +140,11 @@ export default function Profile(props) {
           <Divider variant="middle" style={{ marginTop: 30 }} />
           <Container>
             {!isLoading && postFeed.length !== 0 ? (
-              postFeed.map((item, index) => (
-                <BlogPreviewProfile key={item.id} post={item} />
-              ))
+              postFeed.map((item, index) =>
+                !item.isDeleted ? (
+                  <BlogPreviewProfile key={item.id} post={item} />
+                ) : null
+              )
             ) : !isLoading ? (
               <Typography
                 variant={"h6"}
