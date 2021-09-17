@@ -22,9 +22,10 @@ export default function DeleteButton(props) {
       openSuccess -> state to handle opening of success message
       history -> react router hook
        */
-  const { postRef, feedDAC } = props;
+  const { postRef, feedDAC, hidden, setShowDeleteAlert, handleRemovePost } =
+    props;
   const [open, setOpen] = useState(false);
-  const [openAlert, setOpenAlert] = useState(false);
+  const [openAlert, setOpenAlert] = useState(hidden);
   const [openBackdrop, setOpenBackdrop] = useState(false);
   const [openSuccess, setOpenSuccess] = useState(false);
   const history = useHistory();
@@ -43,13 +44,18 @@ export default function DeleteButton(props) {
     const res = await deleteBlogPost(postRef, feedDAC);
     if (res.success) {
       setOpenSuccess(true);
-      setTimeout(() => {
-        history.push("/");
-      }, 2000);
+      if (hidden) {
+        handleRemovePost(postRef);
+      } else {
+        setTimeout(() => {
+          history.push("/");
+        }, 2000);
+      }
     } else {
       setOpen(true);
       setOpenAlert(false);
       setOpenBackdrop(false);
+      if (hidden) setShowDeleteAlert(false);
     }
   };
 
@@ -57,6 +63,7 @@ export default function DeleteButton(props) {
   const handleCloseAlert = (event) => {
     event.stopPropagation();
     setOpenAlert(false);
+    if (hidden) setShowDeleteAlert(false);
   };
   //handle close of the error message
   const handleClose = () => {
@@ -68,13 +75,17 @@ export default function DeleteButton(props) {
   };
 
   return (
-    <IconButton
-      onMouseDown={(event) => event.stopPropagation()}
-      onClick={handleClick}
-      disabled={openBackdrop || openAlert}
-      aria-label="delete"
-    >
-      <DeleteIcon />
+    <>
+      {!hidden ? (
+        <IconButton
+          onMouseDown={(event) => event.stopPropagation()}
+          onClick={handleClick}
+          disabled={openBackdrop || openAlert}
+          aria-label="delete"
+        >
+          <DeleteIcon />
+        </IconButton>
+      ) : null}
       <Dialog
         open={openAlert}
         onClose={handleCloseAlert}
@@ -132,6 +143,6 @@ export default function DeleteButton(props) {
       <Backdrop style={{ zIndex: 10 }} open={openBackdrop}>
         <CircularProgress color={"inherit"} />
       </Backdrop>
-    </IconButton>
+    </>
   );
 }

@@ -74,6 +74,23 @@ export async function editBlogPost(
 }
 
 /**
+ * togglePinPost() pin/unpin a blog post
+ * @param {object} newJSON updated json to set at the post path
+ * @param {string} postPath path for storing JSON
+ * @param mySky mySky instance
+ * @return {object} success or failure response
+ */
+export async function togglePinPost(newJSON, postPath, mySky) {
+  try {
+    await mySky.setJSON(postPath, newJSON);
+    return { success: true };
+  } catch (e) {
+    console.log("ERROR", e);
+    return { success: false };
+  }
+}
+
+/**
  * deleteBlogPost() deletes a feedDAC blog post
  * @param {string} ref blog post id
  * @param feedDAC feedDAC as initialized in SkynetContext
@@ -122,9 +139,10 @@ export async function loadBlogProfile(userID, feedDAC, client) {
  * getLatest() use resolver link to return latest version of given post
  * @param {postObject} post a blogPost object
  * @param client skynet client instance
+ * @param getFirstImage tells whether or not to add a previewImage key to returned object
  * @return {object} blogPost object
  */
-export async function getLatest(post, client) {
+export async function getLatest(post, client, getFirstImage = false) {
   try {
     let updatedPost = post;
     const skylink = post.content.ext.resolverSkylink;
@@ -133,6 +151,16 @@ export async function getLatest(post, client) {
     updatedPost.content.ext.subtitle = data._data.subtitle;
     updatedPost.content.text = data._data.blogBody;
     updatedPost.ts = data._data.ts;
+    updatedPost.isPinned = data._data.isPinned;
+    if (getFirstImage) {
+      const startIndex = data._data.blogBody.indexOf("![](https://");
+      if (startIndex === -1) {
+        return updatedPost;
+      }
+      const endIndex = data._data.blogBody.indexOf(")", startIndex);
+      const imageLink = data._data.blogBody.substring(startIndex + 4, endIndex);
+      updatedPost.content.previewImage = imageLink;
+    }
     return updatedPost;
   } catch (e) {
     console.log("ERROR", e);

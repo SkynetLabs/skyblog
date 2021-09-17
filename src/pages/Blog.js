@@ -4,7 +4,6 @@ import { useParams } from "react-router-dom";
 import { loadBlogPost } from "../data/feedLibrary";
 import { SkynetContext } from "../state/SkynetContext";
 import ReactMarkdown from "react-markdown";
-import Grid from "@material-ui/core/Grid";
 import Typography from "@material-ui/core/Typography";
 import CardHeader from "@material-ui/core/CardHeader";
 import Avatar from "@material-ui/core/Avatar";
@@ -17,6 +16,7 @@ import ErrorDisplay from "../components/ErrorDisplay";
 import ShareButton from "../components/ShareButton";
 import EditButton from "../components/EditButton";
 import DeleteButton from "../components/DeleteButton";
+import CardMedia from "@material-ui/core/CardMedia";
 
 //style for removing hover shading
 const useStyles = makeStyles((theme) => ({
@@ -197,11 +197,7 @@ export default function Blog(props) {
               children={postData.content.text}
               components={{
                 img({ node, inline, className, children, ...props }) {
-                  return (
-                    <Grid container justify={"center"}>
-                      <img alt="" src={props.src} />
-                    </Grid>
-                  );
+                  return <CardMedia component={"img"} image={props.src} />;
                 },
               }}
             />

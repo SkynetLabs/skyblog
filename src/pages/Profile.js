@@ -14,6 +14,12 @@ import ErrorDisplay from "../components/ErrorDisplay";
 import OpenInNewIcon from "@material-ui/icons/OpenInNew";
 import Button from "@material-ui/core/Button";
 import SocialIcons from "../components/SocialIcons";
+import { getLatest, togglePinPost } from "../data/feedLibrary";
+import PinnedBlogPreview from "../components/PinnedBlogPreview";
+import IconButton from "@material-ui/core/IconButton";
+import SortIcon from "@material-ui/icons/Sort";
+import Menu from "@material-ui/core/Menu";
+import MenuItem from "@material-ui/core/MenuItem";
 
 //Profile page component, used to view a users blogs in a feed
 export default function Profile(props) {
@@ -23,24 +29,85 @@ export default function Profile(props) {
   profile -> user profile object state
   isLoading -> loading state
   showError -> handles showing error if user doesn't exist
-  feedDAC, getUserProfile, isMySkyLoading, cliet -> values from Skynet context used
+  isMoreLoading -> state for showing post loading at bottom of already loaded feed posts
+  pinnedPosts -> boolean to track if there are any pinned posts
+  menuAnchor -> state to handle anchor of sorting menu
+  feedDAC, getUserProfile, isMySkyLoading, client, userID, mySky -> values from Skynet context used
    */
   const { id } = useParams();
   const [postFeed, setPostFeed] = useState([]);
   const [profile, setProfile] = useState();
   const [isLoading, setLoading] = useState(true);
   const [showError, setShowError] = useState(false);
-  const { feedDAC, getUserProfile, isMySkyLoading, client, userID } =
+  const [isMine, setMine] = useState(false);
+  const [isMoreLoading, setMoreLoading] = useState(true);
+  const [pinnedPosts, setPinnedPosts] = useState(false);
+  const [menuAnchor, setMenuAnchor] = useState(null);
+  const [allLoaded, setAllLoaded] = useState(false);
+  const [postLoader, setPostLoader] = useState(null);
+  const { feedDAC, getUserProfile, isMySkyLoading, client, userID, mySky } =
     useContext(SkynetContext);
+
+  //process the postArr loaded from the feedDAC
+  //retrieve most recent version of post using resolver link and insert each post when each response is received
+  const processPosts = (postArr) => {
+    let updatedPosts = postFeed;
+    let countStart = 0;
+    let countFinish = 0;
+    postArr.forEach((item, index) => {
+      if (!item.isDeleted) {
+        countStart += 1;
+        getLatest(item, client, true).then((response) => {
+          postArr[index] = response;
+          if (response.isPinned) {
+            setPinnedPosts(true);
+          }
+          updatedPosts.push(response);
+          updatedPosts.sort((a, b) => {
+            if (a.ts >= b.ts) return -1;
+            return 1;
+          });
+          setPostFeed([...updatedPosts]);
+          setLoading(false);
+          countFinish += 1;
+          if (countFinish === countStart) {
+            setMoreLoading(false);
+          }
+        });
+      }
+    });
+  };
+
+  useEffect(() => {
+    if (postLoader) {
+      const loadNext = async () => {
+        if (
+          window.innerHeight + document.documentElement.scrollTop ===
+            document.scrollingElement.scrollHeight &&
+          !allLoaded
+        ) {
+          const nextPage = await postLoader.next();
+          if (nextPage.done) {
+            setAllLoaded(true);
+          } else {
+            processPosts(nextPage.value);
+          }
+        }
+      };
+      window.addEventListener("scroll", loadNext);
+    }
+  }, [postLoader, allLoaded]);
 
   //execute this effect on entry and when the feedDAC connection status is valid
   useEffect(() => {
     setLoading(true);
+    setProfile(null);
     if (!isMySkyLoading && feedDAC.connector) {
       //handle retrieval of profile DAC data and feed array
       const getProfileData = async () => {
         setShowError(false);
         const profile = await getUserProfile(id.substring(8));
+        setMine(id.substring(8) === userID);
         if (!profile.error) {
           setProfile(profile);
           const postsLoader = await loadBlogProfile(
@@ -49,15 +116,68 @@ export default function Profile(props) {
             client
           );
           const page0 = await postsLoader.next();
-          setPostFeed(page0.value);
-          setLoading(false);
+          setPostLoader(postsLoader);
+          console.log("FEED: ", page0);
+          //loop and variables for loading in resolver links in parallel
+          if (page0.done) setAllLoaded(true);
+          let postArr = page0.value;
+          processPosts(postArr);
         } else {
           setShowError(true);
         }
       };
       getProfileData();
     }
-  }, [isMySkyLoading, feedDAC, getUserProfile, id, client]);
+  }, [isMySkyLoading, feedDAC, getUserProfile, id, client, userID]);
+
+  //handle the pinning and unpinning of a post
+  const handlePin = (postRef) => {
+    const updatedFeed = postFeed;
+    let result = updatedFeed.find((obj) => {
+      return obj.ref === postRef;
+    });
+    result.isPinned = !result.isPinned;
+    const resolverJSON = {
+      isPinned: result.isPinned,
+      blogBody: result.content.text,
+      title: result.content.title,
+      subtitle: result.content.ext.subtitle,
+      ts: result.ts,
+    };
+    togglePinPost(resolverJSON, result.content.ext.postPath, mySky);
+    let newFeed = postFeed.filter((obj) => {
+      return obj.ref !== postRef;
+    });
+    newFeed.push(result);
+    newFeed.sort((a, b) => {
+      if (a.ts >= b.ts) return -1;
+      return 1;
+    });
+    setPostFeed(newFeed);
+    setPinnedPosts(false);
+
+    newFeed.forEach((item) => {
+      if (item.isPinned) setPinnedPosts(true);
+    });
+  };
+
+  //handle opening of sort menu
+  const handleSortClick = (event) => {
+    setMenuAnchor(event.currentTarget);
+  };
+
+  //handle close of sort menu
+  const handleSortClose = () => {
+    setMenuAnchor(null);
+  };
+
+  //handle removal of post upon deletion
+  const handleRemovePost = (ref) => {
+    let updatedFeed = postFeed.filter((e) => {
+      return e.ref !== ref;
+    });
+    setPostFeed([...updatedFeed]);
+  };
 
   return (
     <Container maxWidth={false}>
@@ -66,7 +186,7 @@ export default function Profile(props) {
           <Container style={{ marginTop: 40 }}>
             <Grid container spacing={2}>
               <Grid item>
-                {!isLoading ? (
+                {profile ? (
                   <Avatar
                     style={{ height: 175, width: 175 }}
                     aria-label={"Author"}
@@ -100,7 +220,7 @@ export default function Profile(props) {
               >
                 <Container>
                   <Typography variant={"h3"}>
-                    {!isLoading ? (
+                    {profile ? (
                       displayName(profile, id.substring(8))
                     ) : (
                       <Skeleton animation={"wave"} />
@@ -111,7 +231,7 @@ export default function Profile(props) {
                     gutterBottom={true}
                     color={"textSecondary"}
                   >
-                    {!isLoading ? (
+                    {profile ? (
                       profile.aboutMe
                     ) : (
                       <Skeleton animation={"wave"} />
@@ -119,9 +239,9 @@ export default function Profile(props) {
                   </Typography>
                 </Container>
 
-                {!isLoading && profile.connections.length > 0 ? (
+                {profile && profile.connections.length > 0 ? (
                   <SocialIcons connectionsArr={profile.connections} />
-                ) : !isLoading && userID === id.substring(8) ? (
+                ) : profile && userID === id.substring(8) ? (
                   <Container>
                     <Button
                       variant="contained"
@@ -138,11 +258,74 @@ export default function Profile(props) {
             </Grid>
           </Container>
           <Divider variant="middle" style={{ marginTop: 30 }} />
-          <Container>
+          {!isLoading && pinnedPosts ? (
+            <>
+              <Grid
+                container
+                maxWidth={false}
+                justifyContent={"space-between"}
+                alignItems={"center"}
+              >
+                <Typography color={"textSecondary"}>Pinned Posts</Typography>
+                <IconButton onClick={handleSortClick}>
+                  <SortIcon />
+                </IconButton>
+              </Grid>
+              <Grid
+                container
+                spacing={3}
+                justifyContent={"center"}
+                alignItems={"center"}
+              >
+                {postFeed.map((item, index) =>
+                  !item.isDeleted && item.isPinned ? (
+                    <Grid item xs={"auto"}>
+                      <PinnedBlogPreview
+                        post={item}
+                        feedDAC={feedDAC}
+                        isMine={isMine}
+                        handleRemovePost={handleRemovePost}
+                        handlePin={handlePin}
+                      />
+                    </Grid>
+                  ) : null
+                )}
+              </Grid>
+              <Divider variant="middle" style={{ marginTop: 10 }} />
+            </>
+          ) : null}
+
+          {!pinnedPosts && postFeed.length !== 0 ? (
+            <Grid
+              container
+              maxWidth={false}
+              justifyContent={"flex-end"}
+              style={{ paddingTop: 0, paddingBottom: 0 }}
+            >
+              <IconButton onClick={handleSortClick}>
+                <SortIcon />
+              </IconButton>
+            </Grid>
+          ) : null}
+          <Grid
+            container
+            maxWidth={"md"}
+            justifyContent={"center"}
+            alignItems={"center"}
+          >
             {!isLoading && postFeed.length !== 0 ? (
               postFeed.map((item, index) =>
-                !item.isDeleted ? (
-                  <BlogPreviewProfile key={item.id} post={item} />
+                !item.isDeleted && !item.isPinned ? (
+                  <Grid item md={6}>
+                    <BlogPreviewProfile
+                      key={item.id}
+                      post={item}
+                      feedDAC={feedDAC}
+                      isMine={isMine}
+                      handleRemovePost={handleRemovePost}
+                      handlePin={handlePin}
+                    />
+                  </Grid>
                 ) : null
               )
             ) : !isLoading ? (
@@ -156,13 +339,39 @@ export default function Profile(props) {
                 No posts to show.
               </Typography>
             ) : (
-              <Skeleton height={window.innerHeight * 0.75} animation={"wave"} />
+              <Grid item md={6}>
+                <Skeleton
+                  height={window.innerHeight * 0.75}
+                  animation={"wave"}
+                />
+              </Grid>
             )}
-          </Container>
+            {isMoreLoading && !isLoading ? (
+              <Grid item md={6} style={{ marginTop: 20 }}>
+                <Typography variant={"caption"}>
+                  <Skeleton animation={"wave"} />
+                </Typography>
+                <Typography variant={"h1"}>
+                  <Skeleton animation={"wave"} />
+                </Typography>
+                <Typography variant={"h5"} gutterBottom={true}>
+                  <Skeleton animation={"wave"} />
+                </Typography>
+              </Grid>
+            ) : null}
+          </Grid>
         </>
       ) : (
         <ErrorDisplay title={"This user does not exist."} />
       )}
+      <Menu
+        id={"sort-menu"}
+        anchorEl={menuAnchor}
+        open={Boolean(menuAnchor)}
+        onClose={handleSortClose}
+      >
+        <MenuItem onClick={handleSortClose}>Coming Soon!</MenuItem>
+      </Menu>
     </Container>
   );
 }
