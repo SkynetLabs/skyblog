@@ -1,6 +1,4 @@
 import React, { useState } from "react";
-import DeleteIcon from "@material-ui/icons/Delete";
-import IconButton from "@material-ui/core/IconButton";
 import { useHistory } from "react-router-dom";
 import { deleteBlogPost } from "../data/feedLibrary";
 import Snackbar from "@material-ui/core/Snackbar";
@@ -9,54 +7,66 @@ import Dialog from "@material-ui/core/Dialog";
 import DialogActions from "@material-ui/core/DialogActions";
 import Button from "@material-ui/core/Button";
 import DialogTitle from "@material-ui/core/DialogTitle";
-import Backdrop from "@material-ui/core/Backdrop";
-import CircularProgress from "@material-ui/core/CircularProgress";
+import LinearProgress from "@material-ui/core/LinearProgress";
 
 //DeleteButton component is the component that allows for post deletion
 export default function DeleteButton(props) {
   /*
-      props -> postRef, feedDAC instance
+      props -> postRef, feedDAC instance, showDeleteAlert, setShowDeleteAlert,
+        handleRemovePost, setSpeedOpen, deletingPost, setDeletingPost  <- states and functions from parent
       open -> state to handle opening of error message
-      openAlert -> state to handle delete confirmation modal
-      openBackdrop -> state to handle loading backdrop
       openSuccess -> state to handle opening of success message
       history -> react router hook
        */
-  const { postRef, feedDAC } = props;
+  const {
+    postRef,
+    feedDAC,
+    showDeleteAlert,
+    setShowDeleteAlert,
+    handleRemovePost,
+    setSpeedOpen,
+    deletingPost,
+    setDeletingPost,
+  } = props;
   const [open, setOpen] = useState(false);
-  const [openAlert, setOpenAlert] = useState(false);
-  const [openBackdrop, setOpenBackdrop] = useState(false);
   const [openSuccess, setOpenSuccess] = useState(false);
   const history = useHistory();
-
-  //handle edit button click, route to post editor
-  const handleClick = async (event) => {
-    event.stopPropagation();
-    setOpenAlert(true);
-  };
 
   //handles the execution of deleting a post following the user confirmation
   const handleConfirm = async (event) => {
     event.stopPropagation();
-    setOpenAlert(false);
-    setOpenBackdrop(true);
+    setDeletingPost(true);
+    setShowDeleteAlert(false);
+    setTimeout(() => {
+      setSpeedOpen(false);
+    }, 50);
     const res = await deleteBlogPost(postRef, feedDAC);
     if (res.success) {
+      setDeletingPost(false);
       setOpenSuccess(true);
-      setTimeout(() => {
-        history.push("/");
-      }, 2000);
+      if (handleRemovePost) {
+        setTimeout(() => {
+          handleRemovePost(postRef);
+        }, 1000);
+      } else {
+        setTimeout(() => {
+          history.push("/");
+        }, 2000);
+      }
     } else {
+      setDeletingPost(false);
       setOpen(true);
-      setOpenAlert(false);
-      setOpenBackdrop(false);
+      setShowDeleteAlert(false);
     }
   };
 
   //handles close of alert when user does not proceed with deletion
   const handleCloseAlert = (event) => {
     event.stopPropagation();
-    setOpenAlert(false);
+    setShowDeleteAlert(false);
+    setTimeout(() => {
+      setSpeedOpen(false);
+    }, 50);
   };
   //handle close of the error message
   const handleClose = () => {
@@ -68,16 +78,11 @@ export default function DeleteButton(props) {
   };
 
   return (
-    <IconButton
-      onMouseDown={(event) => event.stopPropagation()}
-      onClick={handleClick}
-      disabled={openBackdrop || openAlert}
-      aria-label="delete"
-    >
-      <DeleteIcon />
+    <>
       <Dialog
-        open={openAlert}
+        open={showDeleteAlert}
         onClose={handleCloseAlert}
+        onClick={(event) => event.stopPropagation()}
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
       >
@@ -85,10 +90,19 @@ export default function DeleteButton(props) {
           {"Are you sure you want to delete this blog post?"}
         </DialogTitle>
         <DialogActions>
-          <Button onClick={handleCloseAlert} color="primary">
+          <Button
+            onClick={handleCloseAlert}
+            onMouseDown={(event) => event.stopPropagation()}
+            color="primary"
+          >
             No
           </Button>
-          <Button onClick={handleConfirm} color="primary" autoFocus>
+          <Button
+            onClick={handleConfirm}
+            onMouseDown={(event) => event.stopPropagation()}
+            color="primary"
+            autoFocus
+          >
             Yes
           </Button>
         </DialogActions>
@@ -129,9 +143,25 @@ export default function DeleteButton(props) {
           Successfully deleted post.
         </MuiAlert>
       </Snackbar>
-      <Backdrop style={{ zIndex: 10 }} open={openBackdrop}>
-        <CircularProgress color={"inherit"} />
-      </Backdrop>
-    </IconButton>
+
+      <Snackbar
+        anchorOrigin={{
+          vertical: "bottom",
+          horizontal: "left",
+        }}
+        open={deletingPost}
+        autoHideDuration={1900}
+      >
+        <div>
+          <MuiAlert elevation={6} variant={"filled"} severity={"info"}>
+            Deleting Post...
+          </MuiAlert>
+          <LinearProgress
+            color={"secondary"}
+            style={{ bottom: 4, backgroundColor: "#4C8BF5" }}
+          />
+        </div>
+      </Snackbar>
+    </>
   );
 }
