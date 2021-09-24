@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useContext } from "react";
 import Container from "@material-ui/core/Container";
 import { useParams } from "react-router-dom";
-import { loadBlogPost } from "../data/feedLibrary";
+import { loadBlogPost, togglePinPost } from "../data/feedLibrary";
 import { SkynetContext } from "../state/SkynetContext";
-import ReactMarkdown from "react-markdown";
+import ReactMarkdown from "markdown-to-jsx";
 import Typography from "@material-ui/core/Typography";
 import CardHeader from "@material-ui/core/CardHeader";
 import Avatar from "@material-ui/core/Avatar";
@@ -14,9 +14,11 @@ import CardActionArea from "@material-ui/core/CardActionArea";
 import { makeStyles } from "@material-ui/core/styles";
 import ErrorDisplay from "../components/ErrorDisplay";
 import ShareButton from "../components/ShareButton";
-import EditButton from "../components/EditButton";
-import DeleteButton from "../components/DeleteButton";
 import CardMedia from "@material-ui/core/CardMedia";
+import Box from "@material-ui/core/Box";
+import Link from "@material-ui/core/Link";
+import PreviewMenu from "../components/PreviewMenu";
+import PinningAlerts from "../components/PinningAlerts";
 
 //style for removing hover shading
 const useStyles = makeStyles((theme) => ({
@@ -26,6 +28,71 @@ const useStyles = makeStyles((theme) => ({
     },
   },
 }));
+
+function MarkdownListItem(props) {
+  return <Box component="li" sx={{ mt: 1, typography: "body1" }} {...props} />;
+}
+
+const options = {
+  overrides: {
+    h1: {
+      component: Typography,
+      props: {
+        gutterBottom: true,
+        variant: "h1",
+      },
+    },
+    h2: {
+      component: Typography,
+      props: {
+        gutterBottom: true,
+        variant: "h2",
+      },
+    },
+    h3: {
+      component: Typography,
+      props: {
+        gutterBottom: true,
+        variant: "h3",
+      },
+    },
+    h4: {
+      component: Typography,
+      props: {
+        gutterBottom: true,
+        variant: "h4",
+      },
+    },
+    h5: {
+      component: Typography,
+      props: {
+        gutterBottom: true,
+        variant: "h5",
+      },
+    },
+    h6: {
+      component: Typography,
+      props: {
+        gutterBottom: true,
+        variant: "h6",
+      },
+    },
+    p: {
+      component: Typography,
+      props: { paragraph: true },
+    },
+    a: { component: Link },
+    li: {
+      component: MarkdownListItem,
+    },
+    img: {
+      component: CardMedia,
+      props: {
+        component: "img",
+      },
+    },
+  },
+};
 
 //Blog page component, used to create view blog posts, returns JSX layout for rendering blogs
 export default function Blog(props) {
@@ -37,18 +104,21 @@ export default function Blog(props) {
   date -> display date
   author -> author of the blog, userProfile DAC profile object
   showError -> show error if the post cannot be loaded or doesn't exist
-  fullRef -> full post reference from route
+  pinStatus -> whether or not the post is currently pinned
+  deletingPost -> state to indicate if the post is currently being deleted
   history -> react router hook
   classes -> const to useStyles in JSX
    */
-  const { getUserProfile, feedDAC, client, userID } = useContext(SkynetContext);
+  const { getUserProfile, feedDAC, client, userID, mySky } =
+    useContext(SkynetContext);
   let { ref, dac, domain, posts, file, id } = useParams();
   const [postData, setPostData] = useState();
   const [isLoading, setLoading] = useState(true);
   const [date, setDate] = useState(null);
   const [author, setAuthor] = useState(null);
   const [showError, setShowError] = useState(false);
-  const [fullRef, setFullRef] = useState(null);
+  const [pinStatus, setPinStatus] = useState(null);
+  const [deletingPost, setDeletingPost] = useState(false);
   const history = useHistory();
   const classes = useStyles();
 
@@ -70,13 +140,13 @@ export default function Blog(props) {
           file +
           "#" +
           id;
-        setFullRef(val);
-        const res = await loadBlogPost(val, feedDAC, client);
+        let res = await loadBlogPost(val, feedDAC, client);
         if (res) {
           setPostData(res);
           const profile = await getUserProfile(ref.substring(8));
           setAuthor(profile);
           const d = new Date(res.ts);
+          console.log("postData", res);
           setDate(d.toDateString());
           setLoading(false);
         } else {
@@ -107,6 +177,31 @@ export default function Blog(props) {
   const profileRoute = () => {
     const newRoute = "/profile/" + ref;
     history.push(newRoute);
+  };
+
+  //toggle pin of post
+  const handlePin = async () => {
+    if (postData.isPinned) {
+      setPinStatus("unpinning");
+    } else {
+      setPinStatus("pinning");
+    }
+    let newPostData = postData;
+    newPostData.isPinned = !newPostData.isPinned;
+    const resolverJSON = {
+      isPinned: newPostData.isPinned,
+      blogBody: newPostData.content.text,
+      title: newPostData.content.title,
+      subtitle: newPostData.content.ext.subtitle,
+      ts: newPostData.ts,
+    };
+    const res = await togglePinPost(
+      resolverJSON,
+      postData.content.ext.postPath,
+      mySky
+    );
+    setPinStatus(res.success ? "success" : "error");
+    setPostData(newPostData);
   };
 
   return (
@@ -166,18 +261,18 @@ export default function Blog(props) {
                     {!isLoading &&
                     userID === ref.substring(8) &&
                     postData.content.ext.postPath ? (
-                      <EditButton
-                        postRef={fullRef}
-                        title={postData.content.title}
-                        postPath={postData.content.ext.postPath}
-                        subtitle={postData.content.ext.subtitle}
-                        blogBody={postData.content.text}
+                      <PreviewMenu
+                        post={postData}
+                        feedDAC={feedDAC}
+                        history={history}
+                        handlePin={handlePin}
+                        blogView={true}
+                        deletingPost={deletingPost}
+                        setDeletingPost={setDeletingPost}
                       />
-                    ) : null}
-                    {userID === ref.substring(8) ? (
-                      <DeleteButton postRef={fullRef} feedDAC={feedDAC} />
-                    ) : null}
-                    <ShareButton />
+                    ) : (
+                      <ShareButton />
+                    )}
                   </>
                 ) : null
               }
@@ -194,13 +289,12 @@ export default function Blog(props) {
 
           {!isLoading ? (
             <ReactMarkdown
-              children={postData.content.text}
-              components={{
-                img({ node, inline, className, children, ...props }) {
-                  return <CardMedia component={"img"} image={props.src} />;
-                },
-              }}
-            />
+              options={options}
+              {...props}
+              style={{ marginTop: 26 }}
+            >
+              {postData.content.text}
+            </ReactMarkdown>
           ) : (
             <Skeleton height={window.innerHeight * 0.75} animation={"wave"} />
           )}
@@ -213,6 +307,7 @@ export default function Blog(props) {
           }
         />
       )}
+      <PinningAlerts pinStatus={pinStatus} setPinStatus={setPinStatus} />
     </Container>
   );
 }

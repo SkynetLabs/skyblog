@@ -8,6 +8,8 @@ import Create from "./pages/Create";
 import Blog from "./pages/Blog";
 import Profile from "./pages/Profile";
 import { ThemeProvider, createTheme } from "@material-ui/core/styles";
+import "@fontsource/sora";
+import ScrollToTop from "./components/ScrollToTop";
 
 //app theme colors for default light theme
 const theme = createTheme({
@@ -19,6 +21,9 @@ const theme = createTheme({
       dark: "#0D0D0D",
       main: "#EBEFEE",
     },
+  },
+  typography: {
+    fontFamily: "Sora",
   },
 });
 
@@ -43,6 +48,7 @@ function App() {
     <SkynetProvider>
       <ThemeProvider theme={currentTheme}>
         <Router>
+          <ScrollToTop />
           <NavigationBar />
           <Switch>
             <Route path={"/create"}>

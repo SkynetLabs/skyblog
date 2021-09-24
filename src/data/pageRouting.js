@@ -15,6 +15,7 @@ export function editRoute(
   blogBody,
   postPath,
   postRef,
+  isPinned,
   history
 ) {
   history.push({
@@ -25,6 +26,7 @@ export function editRoute(
       blogBody: blogBody,
       postPath: postPath,
       postRef: postRef,
+      isPinned: isPinned,
     },
   });
 }

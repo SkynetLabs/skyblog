@@ -15,7 +15,6 @@ import OpenInNewIcon from "@material-ui/icons/OpenInNew";
 import Button from "@material-ui/core/Button";
 import SocialIcons from "../components/SocialIcons";
 import { getLatest, togglePinPost } from "../data/feedLibrary";
-import PinnedBlogPreview from "../components/PinnedBlogPreview";
 import IconButton from "@material-ui/core/IconButton";
 import SortIcon from "@material-ui/icons/Sort";
 import Menu from "@material-ui/core/Menu";
@@ -29,9 +28,12 @@ export default function Profile(props) {
   profile -> user profile object state
   isLoading -> loading state
   showError -> handles showing error if user doesn't exist
+  isMine -> state to indicate to the app if this is the current user's profile
   isMoreLoading -> state for showing post loading at bottom of already loaded feed posts
   pinnedPosts -> boolean to track if there are any pinned posts
   menuAnchor -> state to handle anchor of sorting menu
+  allLoaded -> state to track whether or not the end of pagination has been reached
+  postLoader -> state to store asyncGenerator function for pagination
   feedDAC, getUserProfile, isMySkyLoading, client, userID, mySky -> values from Skynet context used
    */
   const { id } = useParams();
@@ -52,7 +54,7 @@ export default function Profile(props) {
   //retrieve most recent version of post using resolver link and insert each post when each response is received
   const processPosts = (postArr) => {
     let updatedPosts = postFeed;
-    let countStart = 0;
+    let countStart = 0; //counts to track whether or not the resolver loading is complete for all posts
     let countFinish = 0;
     postArr.forEach((item, index) => {
       if (!item.isDeleted) {
@@ -78,6 +80,7 @@ export default function Profile(props) {
     });
   };
 
+  //use effect for handling the pagination
   useEffect(() => {
     if (postLoader) {
       const loadNext = async () => {
@@ -262,7 +265,6 @@ export default function Profile(props) {
             <>
               <Grid
                 container
-                maxWidth={false}
                 justifyContent={"space-between"}
                 alignItems={"center"}
               >
@@ -273,14 +275,13 @@ export default function Profile(props) {
               </Grid>
               <Grid
                 container
-                spacing={3}
-                justifyContent={"center"}
+                justifyContent={"space-around"}
                 alignItems={"center"}
               >
                 {postFeed.map((item, index) =>
                   !item.isDeleted && item.isPinned ? (
-                    <Grid item xs={"auto"}>
-                      <PinnedBlogPreview
+                    <Grid key={item.id} item xs={"auto"}>
+                      <BlogPreviewProfile
                         post={item}
                         feedDAC={feedDAC}
                         isMine={isMine}
@@ -291,14 +292,16 @@ export default function Profile(props) {
                   ) : null
                 )}
               </Grid>
-              <Divider variant="middle" style={{ marginTop: 10 }} />
+              <Divider
+                variant="middle"
+                style={{ marginTop: 10, marginBottom: 30 }}
+              />
             </>
           ) : null}
 
           {!pinnedPosts && postFeed.length !== 0 ? (
             <Grid
               container
-              maxWidth={false}
               justifyContent={"flex-end"}
               style={{ paddingTop: 0, paddingBottom: 0 }}
             >
@@ -307,18 +310,12 @@ export default function Profile(props) {
               </IconButton>
             </Grid>
           ) : null}
-          <Grid
-            container
-            maxWidth={"md"}
-            justifyContent={"center"}
-            alignItems={"center"}
-          >
+          <Grid container justifyContent={"space-around"} alignItems={"center"}>
             {!isLoading && postFeed.length !== 0 ? (
               postFeed.map((item, index) =>
                 !item.isDeleted && !item.isPinned ? (
-                  <Grid item md={6}>
+                  <Grid key={item.id} item md={"auto"}>
                     <BlogPreviewProfile
-                      key={item.id}
                       post={item}
                       feedDAC={feedDAC}
                       isMine={isMine}

@@ -55,6 +55,7 @@ export async function editBlogPost(
   title,
   subtitle,
   blogMD,
+  isPinned,
   postPath,
   ref,
   mySky
@@ -65,6 +66,7 @@ export async function editBlogPost(
       subtitle: subtitle,
       blogBody: blogMD,
       ts: Date.now(),
+      isPinned: isPinned,
     });
     return { success: true, ref: ref };
   } catch (e) {
@@ -110,6 +112,7 @@ export async function deleteBlogPost(postRef, feedDAC) {
  */
 export async function loadBlogPost(ref, feedDAC, client) {
   let res = await feedDAC.loadPost(ref);
+  res.ref = ref;
   if (res.isDeleted) {
     return false;
   } else if (res.content.ext.resolverSkylink) {

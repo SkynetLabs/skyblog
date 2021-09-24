@@ -40,6 +40,7 @@ export default function Create(props) {
   let history = useHistory();
   let location = useLocation();
 
+  //get route params into states
   useEffect(() => {
     if (location.state) {
       setEditing(true);
@@ -68,6 +69,7 @@ export default function Create(props) {
         title,
         subtitle,
         blogMD,
+        location.state.isPinned,
         location.state.postPath,
         location.state.postRef,
         mySky
@@ -94,7 +96,7 @@ export default function Create(props) {
     <Container
       id={"create-container"}
       maxWidth={"md"}
-      style={{ marginTop: 14 }}
+      style={{ marginTop: 14, marginBottom: 30 }}
     >
       {isMySkyLoading ? (
         <Backdrop style={{ zIndex: 10 }} open={true}>
