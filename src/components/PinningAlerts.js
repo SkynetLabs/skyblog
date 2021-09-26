@@ -7,31 +7,59 @@ import LinearProgress from "@material-ui/core/LinearProgress";
 export default function PinningAlerts(props) {
   /*
         props -> pinStatus, setPinStatus
-        showPinning -> state for handling pinning notif
-        showUnpinning -> state for handling unpinning notif
-        showSuccess -> state for handling success notif
-        showError -> state for handling error notif
+        showNotifs -> state for handling which notifications to show
          */
   const { pinStatus, setPinStatus } = props;
-  const [showPinning, setShowPinning] = useState(false);
-  const [showUnpinning, setShowUnpinning] = useState(false);
-  const [showSuccess, setShowSuccess] = useState(false);
-  const [showError, setShowError] = useState(false);
+  const [showNotifs, setShowNotifs] = useState({
+    showPinning: false,
+    showUnpinning: false,
+    showSuccess: false,
+    showError: false,
+  });
 
   //effect that updates states when pinstatus changes
   useEffect(() => {
-    setShowPinning(false);
-    setShowUnpinning(false);
-    setShowSuccess(false);
-    setShowError(false);
-    if (pinStatus === "pinning") {
-      setShowPinning(true);
-    } else if (pinStatus === "unpinning") {
-      setShowUnpinning(true);
-    } else if (pinStatus === "success") {
-      setShowSuccess(true);
-    } else if (pinStatus === "error") {
-      setShowError(true);
+    switch (pinStatus) {
+      case "pinning":
+        setShowNotifs({
+          showPinning: true,
+          showUnpinning: false,
+          showSuccess: false,
+          showError: false,
+        });
+        break;
+      case "unpinning":
+        setShowNotifs({
+          showPinning: false,
+          showUnpinning: true,
+          showSuccess: false,
+          showError: false,
+        });
+        break;
+      case "success":
+        setShowNotifs({
+          showPinning: false,
+          showUnpinning: false,
+          showSuccess: true,
+          showError: false,
+        });
+        break;
+      case "error":
+        setShowNotifs({
+          showPinning: false,
+          showUnpinning: false,
+          showSuccess: false,
+          showError: true,
+        });
+        break;
+      default:
+        setShowNotifs({
+          showPinning: false,
+          showUnpinning: false,
+          showSuccess: false,
+          showError: false,
+        });
+        break;
     }
   }, [pinStatus]);
 
@@ -47,7 +75,7 @@ export default function PinningAlerts(props) {
           vertical: "bottom",
           horizontal: "left",
         }}
-        open={showPinning || showUnpinning}
+        open={showNotifs.showPinning || showNotifs.showUnpinning}
         autoHideDuration={1900}
         onClose={handleClose}
       >
@@ -58,7 +86,9 @@ export default function PinningAlerts(props) {
             onClose={handleClose}
             severity={"info"}
           >
-            {showPinning ? "Bookmarking Post..." : "Removing Bookmark"}
+            {showNotifs.showPinning
+              ? "Bookmarking Post..."
+              : "Removing Bookmark"}
           </MuiAlert>
           <LinearProgress
             color={"secondary"}
@@ -71,7 +101,7 @@ export default function PinningAlerts(props) {
           vertical: "bottom",
           horizontal: "left",
         }}
-        open={showSuccess}
+        open={showNotifs.showSuccess}
         autoHideDuration={1900}
         onClose={handleClose}
       >
@@ -89,7 +119,7 @@ export default function PinningAlerts(props) {
           vertical: "bottom",
           horizontal: "left",
         }}
-        open={showError}
+        open={showNotifs.showError}
         autoHideDuration={1900}
         onClose={handleClose}
       >
