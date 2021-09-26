@@ -44,7 +44,6 @@ export default function Home(props) {
             size={"large"}
             color={"primary"}
             variant={"contained"}
-            style={{ width: "30%" }}
             component={Link}
             to={"/create"}
           >
@@ -55,7 +54,6 @@ export default function Home(props) {
             size={"large"}
             color={"primary"}
             variant={"contained"}
-            style={{ width: "30%" }}
             onClick={initiateLogin}
           >
             Login with MySky
@@ -63,9 +61,8 @@ export default function Home(props) {
         ) : null}
         <Button
           size={"large"}
-          color={"secondary"}
           variant={"contained"}
-          style={{ width: "30%", marginLeft: "10px" }}
+          style={{ marginLeft: "10px" }}
           target={"_blank"}
           href={"https://siasky.net/"}
         >

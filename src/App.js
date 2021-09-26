@@ -7,12 +7,16 @@ import Home from "./pages/Home";
 import Create from "./pages/Create";
 import Blog from "./pages/Blog";
 import Profile from "./pages/Profile";
-import { ThemeProvider, createTheme } from "@material-ui/core/styles";
+import {
+  ThemeProvider,
+  createTheme,
+  responsiveFontSizes,
+} from "@material-ui/core/styles";
 import "@fontsource/sora";
 import ScrollToTop from "./components/ScrollToTop";
 
 //app theme colors for default light theme
-const theme = createTheme({
+let theme = createTheme({
   palette: {
     primary: {
       main: "#00C65E",
@@ -26,6 +30,7 @@ const theme = createTheme({
     fontFamily: "Sora",
   },
 });
+theme = responsiveFontSizes(theme);
 
 //app theme colors for dark mode
 // const themeDark = createTheme({

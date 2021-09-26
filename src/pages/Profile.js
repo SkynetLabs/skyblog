@@ -19,6 +19,7 @@ import IconButton from "@material-ui/core/IconButton";
 import SortIcon from "@material-ui/icons/Sort";
 import Menu from "@material-ui/core/Menu";
 import MenuItem from "@material-ui/core/MenuItem";
+import PinningAlerts from "../components/PinningAlerts";
 
 //Profile page component, used to view a users blogs in a feed
 export default function Profile(props) {
@@ -47,6 +48,7 @@ export default function Profile(props) {
   const [menuAnchor, setMenuAnchor] = useState(null);
   const [allLoaded, setAllLoaded] = useState(false);
   const [postLoader, setPostLoader] = useState(null);
+  const [pinStatus, setPinStatus] = useState(null);
   const { feedDAC, getUserProfile, isMySkyLoading, client, userID, mySky } =
     useContext(SkynetContext);
 
@@ -134,11 +136,16 @@ export default function Profile(props) {
   }, [isMySkyLoading, feedDAC, getUserProfile, id, client, userID]);
 
   //handle the pinning and unpinning of a post
-  const handlePin = (postRef) => {
+  const handlePin = async (postRef) => {
     const updatedFeed = postFeed;
     let result = updatedFeed.find((obj) => {
       return obj.ref === postRef;
     });
+    if (result.isPinned) {
+      setPinStatus("unpinning");
+    } else {
+      setPinStatus("pinning");
+    }
     result.isPinned = !result.isPinned;
     const resolverJSON = {
       isPinned: result.isPinned,
@@ -147,7 +154,12 @@ export default function Profile(props) {
       subtitle: result.content.ext.subtitle,
       ts: result.ts,
     };
-    togglePinPost(resolverJSON, result.content.ext.postPath, mySky);
+    const res = await togglePinPost(
+      resolverJSON,
+      result.content.ext.postPath,
+      mySky
+    );
+    setPinStatus(res.success ? "success" : "error");
     let newFeed = postFeed.filter((obj) => {
       return obj.ref !== postRef;
     });
@@ -187,7 +199,7 @@ export default function Profile(props) {
       {!showError ? (
         <>
           <Container style={{ marginTop: 40 }}>
-            <Grid container spacing={2}>
+            <Grid container spacing={2} wrap={"nowrap"}>
               <Grid item>
                 {profile ? (
                   <Avatar
@@ -212,7 +224,6 @@ export default function Profile(props) {
               </Grid>
               <Grid
                 item
-                xs={12}
                 sm
                 container
                 style={{
@@ -339,6 +350,7 @@ export default function Profile(props) {
               <Grid item md={6}>
                 <Skeleton
                   height={window.innerHeight * 0.75}
+                  style={{ minWidth: 300 }}
                   animation={"wave"}
                 />
               </Grid>
@@ -369,6 +381,7 @@ export default function Profile(props) {
       >
         <MenuItem onClick={handleSortClose}>Coming Soon!</MenuItem>
       </Menu>
+      <PinningAlerts pinStatus={pinStatus} setPinStatus={setPinStatus} />
     </Container>
   );
 }
