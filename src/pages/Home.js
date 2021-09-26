@@ -62,7 +62,7 @@ export default function Home(props) {
         <Button
           size={"large"}
           variant={"contained"}
-          style={{ marginLeft: "10px" }}
+          style={{ marginLeft: "10px", textAlign: "center" }}
           target={"_blank"}
           href={"https://siasky.net/"}
         >
