@@ -12,6 +12,7 @@ import AccountCircle from "@material-ui/icons/AccountCircle";
 import Add from "@material-ui/icons/Add";
 import { Link, useHistory } from "react-router-dom";
 import ButtonBase from "@material-ui/core/ButtonBase";
+import { UserCircleIcon } from "@heroicons/react/outline";
 
 //style values for material-ui JSX components
 const useStyles = makeStyles(() => ({
@@ -47,6 +48,8 @@ export default function NavigationBar(props) {
       history.push("/");
     }
   };
+  const className =
+    "inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-palette-600 bg bg-primary-test hover:bg-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors";
 
   //JSX components to render navigation bar
   return (
@@ -62,9 +65,13 @@ export default function NavigationBar(props) {
           </div>
           <div>
             {!isMySkyLoading && !userID ? (
-              <Button variant={"contained"} onClick={initiateLogin}>
-                Login
-              </Button>
+              <button className={className} onClick={initiateLogin}>
+                <UserCircleIcon
+                  className="-ml-1 mr-2 h-5 w-5"
+                  aria-hidden="true"
+                />{" "}
+                Login with MySky
+              </button>
             ) : !isMySkyLoading ? (
               <>
                 <IconButton
