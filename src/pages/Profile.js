@@ -74,10 +74,17 @@ export default function Profile(props) {
           setPostFeed([...updatedPosts]);
           setLoading(false);
           countFinish += 1;
-          if (countFinish === countStart) {
+          if (countFinish === postArr.length) {
             setMoreLoading(false);
           }
         });
+      } else {
+        //accounting for deleted posts
+        countFinish += 1;
+        if (countFinish === postArr.length) {
+          setLoading(false);
+          setMoreLoading(false);
+        }
       }
     });
   };
