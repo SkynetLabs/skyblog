@@ -160,20 +160,24 @@ export default function Profile(props) {
       mySky
     );
     setPinStatus(res.success ? "success" : "error");
-    let newFeed = postFeed.filter((obj) => {
-      return obj.ref !== postRef;
-    });
-    newFeed.push(result);
-    newFeed.sort((a, b) => {
-      if (a.ts >= b.ts) return -1;
-      return 1;
-    });
-    setPostFeed(newFeed);
-    setPinnedPosts(false);
+    if (res.success) {
+      let newFeed = postFeed.filter((obj) => {
+        return obj.ref !== postRef;
+      });
+      newFeed.push(result);
+      newFeed.sort((a, b) => {
+        if (a.ts >= b.ts) return -1;
+        return 1;
+      });
+      setPostFeed(newFeed);
+      setPinnedPosts(false);
 
-    newFeed.forEach((item) => {
-      if (item.isPinned) setPinnedPosts(true);
-    });
+      newFeed.forEach((item) => {
+        if (item.isPinned) setPinnedPosts(true);
+      });
+    } else {
+      result.isPinned = !result.isPinned;
+    }
   };
 
   //handle opening of sort menu
