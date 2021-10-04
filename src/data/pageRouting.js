@@ -9,6 +9,16 @@ export const postRoute = (post, history) => {
   history.push(newRoute);
 };
 
+/**
+ * postRoute() route to blog view page
+ * @param {string} title title of the post to be edited
+ * @param {string} subtitle subtitle of post to be edited
+ * @param {string} blogBody body of post to be edited
+ * @param {string} postPath path of dynamic json, used with mySky.setJSON()
+ * @param {string} postRef feedDAC post reference
+ * @param {boolean} isPinned boolean indicating if post is pinned or not
+ * @param history react-router-dom useHistory instance
+ */
 export function editRoute(
   title,
   subtitle,
