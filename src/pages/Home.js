@@ -1,105 +1,89 @@
-import React, { useContext } from "react";
-import Container from "@material-ui/core/Container";
-import Card from "@material-ui/core/Card";
-import CardActions from "@material-ui/core/CardActions";
-import CardContent from "@material-ui/core/CardContent";
-import Typography from "@material-ui/core/Typography";
-import Button from "@material-ui/core/Button";
-import Divider from "@material-ui/core/Divider";
-import Box from "@material-ui/core/Box";
+import React, { useContext, useEffect, useState } from "react";
 import { SkynetContext } from "../state/SkynetContext";
-import { Link } from "react-router-dom";
+import BlogPreviewProfile from "../components/BlogPreviewProfile";
+import { loadBlogPost } from "../data/feedLibrary";
+import Spinner from "../components/Spinner";
+
+const features = [
+  "sky://ed25519-f5cdd930247372dca7b757ee63c9702f8a2eeaf4c519eb75551dadd129424e8e/feed-dac.hns/localhost/posts/page_0.json#26",
+];
 
 //Home page component, returns JSX to display
 export default function Home(props) {
-  const { userID, initiateLogin, isMySkyLoading } = useContext(SkynetContext); //use SkynetContext to determine Login status
+  const { isMySkyLoading, feedDAC, client } = useContext(SkynetContext); //use isMySkyLoading, feedDAC and client to get featured
+  const [featureFeed, setFeatureFeed] = useState([]);
+  useEffect(() => {
+    if (!isMySkyLoading && feedDAC.connector) {
+      const getFeatured = async () => {
+        let feed = [];
+        features.forEach((item) => {
+          loadBlogPost(item, feedDAC, client, true, true).then((res) => {
+            feed.push(res);
+            if (feed.length === features.length) {
+              setFeatureFeed(feed);
+            }
+          });
+        });
+      };
+      getFeatured();
+    }
+  }, [isMySkyLoading, feedDAC, client]);
 
   //Render basic information for user on homepage
   return (
-    <Container
-      maxWidth={false}
-      style={{ width: "80%", margin: "0px auto", paddingTop: "50px" }}
-    >
-      <Box
-        display={"flex"}
-        justifyContent={"center"}
-        style={{
-          margin: "20px",
-          padding: "50px",
-          border: "solid rgba(0, 0, 0, 0.12)",
-          borderRadius: "3px",
-        }}
-      >
-        <Typography
-          variant={"h2"}
-          gutterBottom={true}
-          style={{ textAlign: "center" }}
-        >
-          Share Your Story Using the New Decentralized Internet.
-        </Typography>
-      </Box>
-      <Box display={"flex"} justifyContent={"center"}>
-        {userID ? (
-          <Button
-            size={"large"}
-            color={"primary"}
-            variant={"contained"}
-            component={Link}
-            to={"/create"}
-          >
-            Get started
-          </Button>
-        ) : !isMySkyLoading ? (
-          <Button
-            size={"large"}
-            color={"primary"}
-            variant={"contained"}
-            onClick={initiateLogin}
-          >
-            Login with MySky
-          </Button>
-        ) : null}
-        <Button
-          size={"large"}
-          variant={"contained"}
-          style={{ marginLeft: "10px", textAlign: "center" }}
-          target={"_blank"}
-          href={"https://siasky.net/"}
-        >
-          ... or Learn More
-        </Button>
-      </Box>
-      <Divider style={{ margin: 28 }} />
-      <Box display={"flex"} justifyContent={"center"}>
-        <Typography variant={"h3"} gutterBottom={true}>
-          Featured
-        </Typography>
-      </Box>
-      <Box display={"flex"} justifyContent={"center"}>
-        <Card>
-          <CardContent>
-            <Typography variant={"h5"} gutterBottom={true}>
-              Manasi's Blog
-            </Typography>
-            <Typography color="textSecondary" gutterBottom>
-              As Web3 gains traction, we need more resources for onboarding Web2
-              to Web3. There are a ton of projects providing different pieces of
-              the Web3 stack but it is sometimes hard to find a clear place to
-              start. Additionally, Web3 projects can benefit from more easily
-              accessible guides to decentralizing different pieces of their
-              stack. Often, Web3 projects or “dapps” retain certain points of
-              centralization that can be resolved if provided a streamlined
-              solution.
-            </Typography>
-          </CardContent>
-          <CardActions>
-            <Button size="small">Read More</Button>
-          </CardActions>
-        </Card>
-      </Box>
-      <br />
-      <br />
-      <br />
-    </Container>
+    <div className="py-10 flex-1">
+      <header>
+        <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
+          <div className="max-w-7xl mx-auto py-16 px-4 sm:py-24 sm:px-6 lg:px-8">
+            <div className="text-center">
+              <h2 className="text-sm sm:text-base font-semibold text-primary tracking-wide uppercase">
+                Own Your Web
+              </h2>
+              <p className="mt-1 text-3xl font-extrabold text-palette-600 sm:text-4xl sm:tracking-tight lg:text-5xl">
+                Share your story using the new decentralized internet.
+              </p>
+              <div className="max-w-xl mt-5 mx-auto text-base sm:text-xl text-palette-400 space-y-1 md:space-y-2 font-content">
+                <p>Create and manage your blogs in one place.</p>
+              </div>
+              <a
+                target={"_blank"}
+                rel={"noreferrer"}
+                href={
+                  "https://homescreen.hns.siasky.net/#/skylink/CADxN4mCw3QWbJGdjfatMdo4R4Hsyi6jBHQ21b54y1mBhA"
+                }
+              >
+                <img
+                  className={"mx-auto mt-4"}
+                  src="/logo/homescreen.svg"
+                  alt="Add to Homescreen"
+                />
+              </a>
+            </div>
+          </div>
+        </div>
+      </header>
+      <main>
+        <div className="py-12 bg-white">
+          <div className="md:max-w-xl mx-auto px-4 sm:px-6 lg:max-w-7xl lg:px-8">
+            <h1 className={"mb-4"}>Featured Stories</h1>
+            {featureFeed.length > 0 ? (
+              <ul className="space-y-12 sm:grid sm:grid-cols-2 sm:gap-x-6 sm:gap-y-12 sm:space-y-0 md:grid-cols-2 lg:grid-cols-4 lg:gap-x-8">
+                {featureFeed.map((item) => (
+                  <li key={item.ref}>
+                    <BlogPreviewProfile
+                      post={item}
+                      feedDAC={feedDAC}
+                      isMine={false}
+                    />
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <Spinner text={"Loading Featured"} />
+            )}
+          </div>
+        </div>
+      </main>
+    </div>
   );
 }

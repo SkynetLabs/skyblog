@@ -1,18 +1,13 @@
 import React, { useState, useRef, useContext, useEffect } from "react";
 import { SkynetContext } from "../state/SkynetContext";
-import Container from "@material-ui/core/Container";
 import TextField from "@material-ui/core/TextField";
-import Grid from "@material-ui/core/Grid";
 import MarkdownEditor from "../components/MarkdownEditor";
-import Button from "@material-ui/core/Button";
 import { createBlogPost, editBlogPost } from "../data/feedLibrary";
 import { useHistory, useLocation } from "react-router-dom";
 import Backdrop from "@material-ui/core/Backdrop";
-import CircularProgress from "@material-ui/core/CircularProgress";
-import Paper from "@material-ui/core/Paper";
-import Typography from "@material-ui/core/Typography";
 import Snackbar from "@material-ui/core/Snackbar";
 import MuiAlert from "@material-ui/lab/Alert";
+import Spinner from "../components/Spinner";
 
 //Create page component, used to create MD blog posts, returns JSX layout
 export default function Create(props) {
@@ -93,83 +88,64 @@ export default function Create(props) {
 
   //return JSX for create page
   return (
-    <Container
-      id={"create-container"}
-      maxWidth={"md"}
-      style={{ marginTop: 14, marginBottom: 30 }}
-    >
+    <div className={"flex justify-center"}>
       {isMySkyLoading ? (
         <Backdrop style={{ zIndex: 10 }} open={true}>
-          <CircularProgress color={"inherit"} />
+          <Spinner />
         </Backdrop>
       ) : !userID ? (
-        <Container maxWidth={"sm"}>
-          <Paper
-            elevation={2}
-            style={{
-              padding: 20,
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "center",
-            }}
-          >
-            <Typography align={"center"} variant={"h4"} gutterBottom={true}>
+        <div className={"py-16 max-w-md"}>
+          <div className={"text-center"}>
+            <p className="mt-1 mb-3 text-xl font-bold text-palette-600 sm:text-2xl sm:tracking-tight lg:text-3xl">
               Login using MySky to tell your story on SkyBlog.
-            </Typography>
-            <Button
-              variant={"contained"}
-              color={"primary"}
-              onClick={initiateLogin}
-            >
-              Login with MySky
-            </Button>
-          </Paper>
-        </Container>
+            </p>
+          </div>
+          <button
+            onClick={initiateLogin}
+            className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-palette-600 bg-primary hover:bg-primary-light transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+          >
+            Login with MySky
+          </button>
+        </div>
       ) : (
-        <>
-          <Grid container direction={"row"} alignItems={"center"}>
-            <TextField
-              label={"Title"}
-              fullWidth={true}
-              autoFocus={true}
-              multiline={true}
-              maxRows={3}
-              value={title}
-              onChange={handleTitleChange}
-              InputProps={{ style: { fontSize: 40, marginBottom: 12 } }}
-            />
-          </Grid>
-          <Grid container direction={"row"} alignItems={"center"}>
-            <TextField
-              label={"Subtitle"}
-              fullWidth={true}
-              multiline={true}
-              maxRows={4}
-              value={subtitle}
-              onChange={handleSubtitleChange}
-              InputProps={{ style: { fontSize: 30, marginBottom: 12 } }}
-            />
-          </Grid>
+        <div className={"flex-col max-w-7xl mx-auto mt-4 px-4 sm:px-6 lg:px-8"}>
+          <TextField
+            label={"Title"}
+            fullWidth={true}
+            autoFocus={true}
+            multiline={true}
+            maxRows={3}
+            value={title}
+            onChange={handleTitleChange}
+            InputProps={{ style: { fontSize: 40, marginBottom: 12 } }}
+          />
+          <TextField
+            label={"Subtitle"}
+            fullWidth={true}
+            multiline={true}
+            maxRows={4}
+            value={subtitle}
+            onChange={handleSubtitleChange}
+            InputProps={{ style: { fontSize: 30, marginBottom: 12 } }}
+          />
           <MarkdownEditor
             mdEditor={mdEditor}
             setBlogMD={setBlogMD}
             blogMD={blogMD}
           />
           {title && blogMD ? (
-            <Button
+            <button
               onClick={handlePublish}
               disabled={isPublishLoading}
-              fullWidth={true}
-              variant="contained"
-              color="primary"
+              className="flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-palette-600 bg-primary hover:bg-primary-light transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
             >
               {isEditing ? "Save Changes" : "Publish"}
-            </Button>
+            </button>
           ) : null}
-        </>
+        </div>
       )}
       <Backdrop style={{ zIndex: 10 }} open={isPublishLoading}>
-        <CircularProgress color={"inherit"} />
+        <Spinner text={isEditing ? "Saving Changes" : "Creating Post"} />
       </Backdrop>
       <Snackbar
         anchorOrigin={{
@@ -189,6 +165,6 @@ export default function Create(props) {
           Failed to {isEditing ? "edit" : "create"} post.
         </MuiAlert>
       </Snackbar>
-    </Container>
+    </div>
   );
 }

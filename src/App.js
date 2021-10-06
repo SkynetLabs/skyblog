@@ -7,6 +7,7 @@ import Home from "./pages/Home";
 import Create from "./pages/Create";
 import Blog from "./pages/Blog";
 import Profile from "./pages/Profile";
+import Footer from "./components/Footer";
 import {
   ThemeProvider,
   createTheme,
@@ -69,6 +70,7 @@ function App() {
               <Home />
             </Route>
           </Switch>
+          <Footer />
         </Router>
       </ThemeProvider>
     </SkynetProvider>

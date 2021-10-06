@@ -2,7 +2,7 @@ const defaultTheme = require("tailwindcss/defaultTheme");
 const { orange } = require("tailwindcss/colors");
 
 const colors = {
-  primary: { light: "#33D17E", DEFAULT: "#00c65e", test: "#555555" },
+  primary: { light: "#33D17E", DEFAULT: "#00c65e" },
   warning: "#ffd567",
   error: "#ED5454",
   palette: {
@@ -35,5 +35,8 @@ module.exports = {
     },
   },
   variants: {},
-  plugins: [],
+  plugins: [
+    require("@tailwindcss/line-clamp"),
+    require("@tailwindcss/aspect-ratio"),
+  ],
 };
