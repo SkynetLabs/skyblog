@@ -59,10 +59,10 @@ export default function NavigationBar(props) {
                 <Link to={"/create"}>
                   <PlusIcon className="-ml-1 mr-2 h-6 w-6" aria-hidden="true" />
                 </Link>
-                <Menu as="div" className="relative inline-block text-left mt-1">
+                <Menu as="div" className="relative inline-block text-left">
                   {({ open }) => (
                     <>
-                      <div>
+                      <div className={"flex items-center"}>
                         <Menu.Button>
                           <UserCircleIcon
                             className="h-6 w-6"
