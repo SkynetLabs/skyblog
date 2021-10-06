@@ -10,7 +10,7 @@ export default function Footer() {
           rel="noopener noreferrer"
         >
           <img
-            class="h-3 w-auto mr-1 fill-current"
+            className="h-3 w-auto mr-1 fill-current"
             src="/logo/github.svg"
             alt="Workflow"
           />{" "}
