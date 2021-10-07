@@ -114,9 +114,9 @@ export default function PreviewMenu(props) {
       <Backdrop open={open && !blogView} className={classes.backdrop} />
       <SpeedDial
         ariaLabel="SpeedDial tooltip example"
-        onClose={handleClose}
-        onOpen={handleOpen}
         onMouseDown={(event) => event.stopPropagation()}
+        onClick={handleOpen}
+        onClose={handleClose}
         direction={"left"}
         icon={
           <SpeedDialIcon icon={<MoreVertIcon />} openIcon={<CloseIcon />} />

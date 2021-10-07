@@ -45,6 +45,7 @@ export async function createBlogPost(title, subtitle, blogMD, feedDAC, mySky) {
  * @param {string} title Title string
  * @param {string} subtitle Subtitle string
  * @param {string} blogMD markdown string of blog body
+ * @param {boolean} isPinned whether the post is pinned or not
  * @param {string} postPath path of post JSON
  * @param {string} ref feedDAC post reference
  * @param mySky mySky instance
@@ -108,15 +109,23 @@ export async function deleteBlogPost(postRef, feedDAC) {
  * @param {string} ref blog post id
  * @param feedDAC feedDAC as initialized in SkynetContext
  * @param client skynet client from SkynetContext
+ * @param {boolean} getFirstImage tells whether or not to add a previewImage key to returned object
+ * @param {boolean} featured indicates whether post is featured on home page
  * @return {object} post object data in SkyStandards format
  */
-export async function loadBlogPost(ref, feedDAC, client) {
+export async function loadBlogPost(
+  ref,
+  feedDAC,
+  client,
+  getFirstImage = false,
+  featured = false
+) {
   let res = await feedDAC.loadPost(ref);
   res.ref = ref;
   if (res.isDeleted) {
     return false;
   } else if (res.content.ext.resolverSkylink) {
-    res = await getLatest(res, client);
+    res = await getLatest(res, client, getFirstImage, featured);
   }
   return res;
 }
@@ -142,10 +151,16 @@ export async function loadBlogProfile(userID, feedDAC, client) {
  * getLatest() use resolver link to return latest version of given post
  * @param {postObject} post a blogPost object
  * @param client skynet client instance
- * @param getFirstImage tells whether or not to add a previewImage key to returned object
+ * @param {boolean} getFirstImage tells whether or not to add a previewImage key to returned object
+ * @param {boolean} featured indicates whether post is featured on home page
  * @return {object} blogPost object
  */
-export async function getLatest(post, client, getFirstImage = false) {
+export async function getLatest(
+  post,
+  client,
+  getFirstImage = false,
+  featured = false
+) {
   try {
     let updatedPost = post;
     const skylink = post.content.ext.resolverSkylink;
@@ -154,7 +169,7 @@ export async function getLatest(post, client, getFirstImage = false) {
     updatedPost.content.ext.subtitle = data._data.subtitle;
     updatedPost.content.text = data._data.blogBody;
     updatedPost.ts = data._data.ts;
-    updatedPost.isPinned = data._data.isPinned;
+    updatedPost.isPinned = featured ? true : data._data.isPinned;
     if (getFirstImage) {
       const startIndex = data._data.blogBody.indexOf("![](https://");
       if (startIndex === -1) {

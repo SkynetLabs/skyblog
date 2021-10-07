@@ -15,11 +15,9 @@ import OpenInNewIcon from "@material-ui/icons/OpenInNew";
 import Button from "@material-ui/core/Button";
 import SocialIcons from "../components/SocialIcons";
 import { getLatest, togglePinPost } from "../data/feedLibrary";
-import IconButton from "@material-ui/core/IconButton";
-import SortIcon from "@material-ui/icons/Sort";
-import Menu from "@material-ui/core/Menu";
-import MenuItem from "@material-ui/core/MenuItem";
 import PinningAlerts from "../components/PinningAlerts";
+import SortAscending from "@heroicons/react/outline/SortAscendingIcon";
+import SortDescending from "@heroicons/react/outline/SortDescendingIcon";
 
 //Profile page component, used to view a users blogs in a feed
 export default function Profile(props) {
@@ -45,10 +43,10 @@ export default function Profile(props) {
   const [isMine, setMine] = useState(false);
   const [isMoreLoading, setMoreLoading] = useState(true);
   const [pinnedPosts, setPinnedPosts] = useState(false);
-  const [menuAnchor, setMenuAnchor] = useState(null);
   const [allLoaded, setAllLoaded] = useState(false);
   const [postLoader, setPostLoader] = useState(null);
   const [pinStatus, setPinStatus] = useState(null);
+  const [isAscending, setAscending] = useState(true);
   const { feedDAC, getUserProfile, isMySkyLoading, client, userID, mySky } =
     useContext(SkynetContext);
 
@@ -56,11 +54,9 @@ export default function Profile(props) {
   //retrieve most recent version of post using resolver link and insert each post when each response is received
   const processPosts = (postArr) => {
     let updatedPosts = postFeed;
-    let countStart = 0; //counts to track whether or not the resolver loading is complete for all posts
     let countFinish = 0;
     postArr.forEach((item, index) => {
       if (!item.isDeleted) {
-        countStart += 1;
         getLatest(item, client, true).then((response) => {
           postArr[index] = response;
           if (response.isPinned) {
@@ -112,8 +108,8 @@ export default function Profile(props) {
 
   //execute this effect on entry and when the feedDAC connection status is valid
   useEffect(() => {
-    setLoading(true);
-    setProfile(null);
+    //setLoading(true);
+    //setProfile(null);
     if (!isMySkyLoading && feedDAC.connector) {
       //handle retrieval of profile DAC data and feed array
       const getProfileData = async () => {
@@ -188,13 +184,22 @@ export default function Profile(props) {
   };
 
   //handle opening of sort menu
-  const handleSortClick = (event) => {
-    setMenuAnchor(event.currentTarget);
-  };
-
-  //handle close of sort menu
-  const handleSortClose = () => {
-    setMenuAnchor(null);
+  const handleSortClick = () => {
+    let updatedFeed = postFeed;
+    if (isAscending) {
+      setAscending(false);
+      updatedFeed.sort((a, b) => {
+        if (a.ts <= b.ts) return -1;
+        return 1;
+      });
+    } else {
+      setAscending(true);
+      updatedFeed.sort((a, b) => {
+        if (a.ts >= b.ts) return -1;
+        return 1;
+      });
+    }
+    setPostFeed(updatedFeed);
   };
 
   //handle removal of post upon deletion
@@ -206,10 +211,14 @@ export default function Profile(props) {
   };
 
   return (
-    <Container maxWidth={false}>
+    <div
+      className={
+        "mx-auto pb-12 pt-4 px-4 max-w-full sm:px-6 lg:px-8 lg:pb-24 pt-8"
+      }
+    >
       {!showError ? (
         <>
-          <Container style={{ marginTop: 40 }}>
+          <div className={"max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"}>
             <Grid container spacing={2} wrap={"nowrap"}>
               <Grid item>
                 {profile ? (
@@ -244,24 +253,20 @@ export default function Profile(props) {
                 }}
               >
                 <Container>
-                  <Typography variant={"h3"}>
+                  <p className="mt-1 text-3xl font-extrabold text-palette-600 sm:text-4xl sm:tracking-tight lg:text-5xl">
                     {profile ? (
                       displayName(profile, id.substring(8))
                     ) : (
                       <Skeleton animation={"wave"} />
                     )}
-                  </Typography>
-                  <Typography
-                    variant={"h6"}
-                    gutterBottom={true}
-                    color={"textSecondary"}
-                  >
+                  </p>
+                  <div className="max-w-xl mt-1 text-base sm:text-xl text-palette-400 space-y-1 md:space-y-2 font-content">
                     {profile ? (
-                      profile.aboutMe
+                      <p>{profile.aboutMe}</p>
                     ) : (
                       <Skeleton animation={"wave"} />
                     )}
-                  </Typography>
+                  </div>
                 </Container>
 
                 {profile && profile.connections.length > 0 ? (
@@ -281,7 +286,7 @@ export default function Profile(props) {
                 ) : null}
               </Grid>
             </Grid>
-          </Container>
+          </div>
           <Divider variant="middle" style={{ marginTop: 30 }} />
           {!isLoading && pinnedPosts ? (
             <>
@@ -291,18 +296,20 @@ export default function Profile(props) {
                 alignItems={"center"}
               >
                 <Typography color={"textSecondary"}>Pinned Posts</Typography>
-                <IconButton onClick={handleSortClick}>
-                  <SortIcon />
-                </IconButton>
+                <button onClick={handleSortClick}>
+                  {isAscending ? (
+                    <SortAscending className={"h-6 w-6 m-2 text-palette-400"} />
+                  ) : (
+                    <SortDescending
+                      className={"h-6 w-6 m-2 text-palette-400"}
+                    />
+                  )}
+                </button>
               </Grid>
-              <Grid
-                container
-                justifyContent={"space-around"}
-                alignItems={"center"}
-              >
+              <ul className="space-y-12 sm:grid sm:grid-cols-2 sm:gap-x-6 sm:gap-y-12 sm:space-y-0 md:grid-cols-3 lg:grid-cols-4 lg:gap-x-8">
                 {postFeed.map((item, index) =>
                   !item.isDeleted && item.isPinned ? (
-                    <Grid key={item.id} item xs={"auto"}>
+                    <li key={item.ref}>
                       <BlogPreviewProfile
                         post={item}
                         feedDAC={feedDAC}
@@ -310,33 +317,33 @@ export default function Profile(props) {
                         handleRemovePost={handleRemovePost}
                         handlePin={handlePin}
                       />
-                    </Grid>
+                    </li>
                   ) : null
                 )}
-              </Grid>
+              </ul>
               <Divider
                 variant="middle"
                 style={{ marginTop: 10, marginBottom: 30 }}
               />
             </>
           ) : null}
-
           {!pinnedPosts && postFeed.length !== 0 ? (
-            <Grid
-              container
-              justifyContent={"flex-end"}
-              style={{ paddingTop: 0, paddingBottom: 0 }}
-            >
-              <IconButton onClick={handleSortClick}>
-                <SortIcon />
-              </IconButton>
-            </Grid>
+            <div className={"flex justify-end w-full"}>
+              <button onClick={handleSortClick}>
+                {isAscending ? (
+                  <SortAscending className={"h-6 w-6 m-2 text-palette-400"} />
+                ) : (
+                  <SortDescending className={"h-6 w-6 m-2 text-palette-400"} />
+                )}
+              </button>
+            </div>
           ) : null}
-          <Grid container justifyContent={"space-around"} alignItems={"center"}>
-            {!isLoading && postFeed.length !== 0 ? (
-              postFeed.map((item, index) =>
+
+          {!isLoading && postFeed.length !== 0 ? (
+            <ul className="space-y-12 sm:grid sm:grid-cols-2 sm:gap-x-6 sm:gap-y-12 sm:space-y-0 md:grid-cols-3 lg:grid-cols-4 lg:gap-x-8">
+              {postFeed.map((item, index) =>
                 !item.isDeleted && !item.isPinned ? (
-                  <Grid key={item.id} item md={"auto"}>
+                  <li key={item.ref}>
                     <BlogPreviewProfile
                       post={item}
                       feedDAC={feedDAC}
@@ -344,55 +351,53 @@ export default function Profile(props) {
                       handleRemovePost={handleRemovePost}
                       handlePin={handlePin}
                     />
-                  </Grid>
+                  </li>
                 ) : null
-              )
-            ) : !isLoading ? (
-              <Typography
-                variant={"h6"}
-                align={"center"}
-                style={{ margin: 30 }}
-                gutterBottom={true}
-                color={"textSecondary"}
-              >
-                No posts to show.
+              )}
+            </ul>
+          ) : !isLoading ? (
+            <Typography
+              variant={"h6"}
+              align={"center"}
+              style={{ margin: 30 }}
+              gutterBottom={true}
+              color={"textSecondary"}
+            >
+              No posts to show.
+            </Typography>
+          ) : (
+            <ul className="space-y-12 sm:grid sm:grid-cols-2 sm:gap-x-6 sm:gap-y-12 sm:space-y-0 md:grid-cols-2 lg:grid-cols-4 lg:gap-x-8">
+              {["0", "1", "2", "3"].map((item) => (
+                <li key={item}>
+                  <div className="space-y-4">
+                    <Skeleton
+                      height={window.innerHeight * 0.5}
+                      style={{ minWidth: 300 }}
+                      animation={"wave"}
+                    />
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+          {isMoreLoading && !isLoading ? (
+            <Grid item md={6} style={{ marginTop: 20 }}>
+              <Typography variant={"caption"}>
+                <Skeleton animation={"wave"} />
               </Typography>
-            ) : (
-              <Grid item md={6}>
-                <Skeleton
-                  height={window.innerHeight * 0.75}
-                  style={{ minWidth: 300 }}
-                  animation={"wave"}
-                />
-              </Grid>
-            )}
-            {isMoreLoading && !isLoading ? (
-              <Grid item md={6} style={{ marginTop: 20 }}>
-                <Typography variant={"caption"}>
-                  <Skeleton animation={"wave"} />
-                </Typography>
-                <Typography variant={"h1"}>
-                  <Skeleton animation={"wave"} />
-                </Typography>
-                <Typography variant={"h5"} gutterBottom={true}>
-                  <Skeleton animation={"wave"} />
-                </Typography>
-              </Grid>
-            ) : null}
-          </Grid>
+              <Typography variant={"h1"}>
+                <Skeleton animation={"wave"} />
+              </Typography>
+              <Typography variant={"h5"} gutterBottom={true}>
+                <Skeleton animation={"wave"} />
+              </Typography>
+            </Grid>
+          ) : null}
         </>
       ) : (
         <ErrorDisplay title={"This user does not exist."} />
       )}
-      <Menu
-        id={"sort-menu"}
-        anchorEl={menuAnchor}
-        open={Boolean(menuAnchor)}
-        onClose={handleSortClose}
-      >
-        <MenuItem onClick={handleSortClose}>Coming Soon!</MenuItem>
-      </Menu>
       <PinningAlerts pinStatus={pinStatus} setPinStatus={setPinStatus} />
-    </Container>
+    </div>
   );
 }
