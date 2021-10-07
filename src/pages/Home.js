@@ -49,7 +49,7 @@ export default function Home(props) {
                 target={"_blank"}
                 rel={"noreferrer"}
                 href={
-                  "https://homescreen.hns.siasky.net/#/skylink/CADxN4mCw3QWbJGdjfatMdo4R4Hsyi6jBHQ21b54y1mBhA"
+                  "https://homescreen.hns.siasky.net/#/skylink/AQB5KpKxX_5Yr6VM5gihAnOcA6JnPf1JQLkkYCexLW-LSA"
                 }
               >
                 <img
