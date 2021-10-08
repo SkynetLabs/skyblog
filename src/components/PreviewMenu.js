@@ -64,12 +64,14 @@ export default function PreviewMenu(props) {
 
   //handle the click opening of the speeddial
   const handleOpen = (event) => {
+    event.preventDefault();
     event.stopPropagation();
     setOpen(true);
   };
 
   //handle edit button click
   const handleEditClick = (event) => {
+    event.preventDefault();
     event.stopPropagation();
     editRoute(
       post.content.title,
@@ -84,6 +86,7 @@ export default function PreviewMenu(props) {
 
   //handle delete button click
   const handleDeleteClick = (event) => {
+    event.preventDefault();
     event.stopPropagation();
     setShowDeleteAlert(true);
     setOpen(false);
@@ -91,12 +94,14 @@ export default function PreviewMenu(props) {
 
   //handle pin button click
   const handlePinClick = (event) => {
+    event.preventDefault();
     event.stopPropagation();
     handlePin(post.ref);
   };
 
   //handle click of the share button
   const handleShareClick = (event) => {
+    event.preventDefault();
     event.stopPropagation();
     navigator.clipboard.writeText(window.location.href).then(() => {
       setShowShareSnackbar(true);
@@ -114,7 +119,10 @@ export default function PreviewMenu(props) {
       <Backdrop open={open && !blogView} className={classes.backdrop} />
       <SpeedDial
         ariaLabel="SpeedDial tooltip example"
-        onMouseDown={(event) => event.stopPropagation()}
+        onMouseDown={(event) => {
+          event.preventDefault();
+          event.stopPropagation();
+        }}
         onClick={handleOpen}
         onClose={handleClose}
         direction={"left"}

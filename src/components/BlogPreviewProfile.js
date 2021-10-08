@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { getDateDisplay } from "../data/dateDisplay";
-import { postRoute } from "../data/pageRouting";
 import { useHistory } from "react-router-dom";
 import PreviewMenu from "../components/PreviewMenu";
 
@@ -16,10 +15,11 @@ export default function BlogPreviewProfile(props) {
   const history = useHistory();
 
   return (
-    <div
-      onClick={() => postRoute(post, history)}
-      disabled={deletingPost}
-      className="space-y-4 cursor-pointer"
+    <a
+      href={
+        deletingPost ? false : "/#" + post.ref.replace("#", "/").substring(5)
+      }
+      className={deletingPost ? "space-y-4 cursor-default" : "space-y-4"}
     >
       <div className="aspect-w-3 aspect-h-2 bg-palette-100 rounded-lg">
         {post.content.previewImage ? (
@@ -53,6 +53,6 @@ export default function BlogPreviewProfile(props) {
           {post.content.ext.subtitle}
         </p>
       </div>
-    </div>
+    </a>
   );
 }

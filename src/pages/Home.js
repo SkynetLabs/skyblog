@@ -5,13 +5,14 @@ import { loadBlogPost } from "../data/feedLibrary";
 import Spinner from "../components/Spinner";
 
 const features = [
-  "sky://ed25519-f5cdd930247372dca7b757ee63c9702f8a2eeaf4c519eb75551dadd129424e8e/feed-dac.hns/localhost/posts/page_0.json#26",
+  "sky://ed25519-fed72531c20cb5795a13e4cab4fe026e8d69dfc0397424a208330122c36b864a/feed-dac.hns/100dcbhbr4ogv1rucfecaud33lq2da6d2ot4jhnfmag8aqf2irh44tg/posts/page_0.json#0",
 ];
 
 //Home page component, returns JSX to display
 export default function Home(props) {
   const { isMySkyLoading, feedDAC, client } = useContext(SkynetContext); //use isMySkyLoading, feedDAC and client to get featured
-  const [featureFeed, setFeatureFeed] = useState([]);
+  const [featureFeed, setFeatureFeed] = useState([]); //featured stories array
+  const [isLoading, setLoading] = useState(true); //loading state
   useEffect(() => {
     if (!isMySkyLoading && feedDAC.connector) {
       const getFeatured = async () => {
@@ -21,6 +22,7 @@ export default function Home(props) {
             feed.push(res);
             if (feed.length === features.length) {
               setFeatureFeed(feed);
+              setLoading(false);
             }
           });
         });
@@ -45,19 +47,17 @@ export default function Home(props) {
               <div className="max-w-xl mt-5 mx-auto text-base sm:text-xl text-palette-400 space-y-1 md:space-y-2 font-content">
                 <p>Create and manage your blogs in one place.</p>
               </div>
-              <a
-                target={"_blank"}
-                rel={"noreferrer"}
-                href={
-                  "https://homescreen.hns.siasky.net/#/skylink/AQB5KpKxX_5Yr6VM5gihAnOcA6JnPf1JQLkkYCexLW-LSA"
-                }
-              >
-                <img
-                  className={"mx-auto mt-4"}
-                  src="/logo/homescreen.svg"
-                  alt="Add to Homescreen"
-                />
-              </a>
+              <div className={"flex items-center justify-center mt-4"}>
+                <a
+                  target={"_blank"}
+                  rel={"noreferrer"}
+                  href={
+                    "https://homescreen.hns.siasky.net/#/skylink/AQB5KpKxX_5Yr6VM5gihAnOcA6JnPf1JQLkkYCexLW-LSA"
+                  }
+                >
+                  <img src="/logo/homescreen.svg" alt="Add to Homescreen" />
+                </a>
+              </div>
             </div>
           </div>
         </div>
@@ -66,7 +66,7 @@ export default function Home(props) {
         <div className="py-12 bg-white">
           <div className="md:max-w-xl mx-auto px-4 sm:px-6 lg:max-w-7xl lg:px-8">
             <h1 className={"mb-4"}>Featured Stories</h1>
-            {featureFeed.length > 0 ? (
+            {!isLoading ? (
               <ul className="space-y-12 sm:grid sm:grid-cols-2 sm:gap-x-6 sm:gap-y-12 sm:space-y-0 md:grid-cols-2 lg:grid-cols-4 lg:gap-x-8">
                 {featureFeed.map((item) => (
                   <li key={item.ref}>
