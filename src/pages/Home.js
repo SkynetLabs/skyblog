@@ -33,7 +33,7 @@ export default function Home(props) {
 
   //Render basic information for user on homepage
   return (
-    <div className="py-10 flex-1">
+    <div className="py-10 flex-1 bg-white">
       <header>
         <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
           <div className="max-w-7xl mx-auto py-16 px-4 sm:py-24 sm:px-6 lg:px-8">
@@ -55,7 +55,11 @@ export default function Home(props) {
                     "https://homescreen.hns.siasky.net/#/skylink/AQB5KpKxX_5Yr6VM5gihAnOcA6JnPf1JQLkkYCexLW-LSA"
                   }
                 >
-                  <img src="/logo/homescreen.svg" alt="Add to Homescreen" />
+                  <img
+                    src="/logo/homescreen.svg"
+                    alt="Add to Homescreen"
+                    className={"rounded-2xl"}
+                  />
                 </a>
               </div>
             </div>

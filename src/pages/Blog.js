@@ -1,7 +1,10 @@
 import React, { useState, useEffect, useContext } from "react";
-import Container from "@material-ui/core/Container";
 import { useParams } from "react-router-dom";
-import { loadBlogPost, togglePinPost } from "../data/feedLibrary";
+import {
+  loadBlogPost,
+  togglePinPost,
+  createLocalStorage,
+} from "../data/feedLibrary";
 import { SkynetContext } from "../state/SkynetContext";
 import ReactMarkdown from "markdown-to-jsx";
 import Typography from "@material-ui/core/Typography";
@@ -19,6 +22,7 @@ import Box from "@material-ui/core/Box";
 import Link from "@material-ui/core/Link";
 import PreviewMenu from "../components/PreviewMenu";
 import PinningAlerts from "../components/PinningAlerts";
+import UpdatingIndicator from "../components/UpdatingIndicator";
 
 //style for removing hover shading
 const useStyles = makeStyles((theme) => ({
@@ -119,6 +123,8 @@ export default function Blog(props) {
   const [showError, setShowError] = useState(false);
   const [pinStatus, setPinStatus] = useState(null);
   const [deletingPost, setDeletingPost] = useState(false);
+  const [fullRef, setFullRef] = useState(null);
+  const [isUpdating, setUpdating] = useState(false);
   const history = useHistory();
   const classes = useStyles();
 
@@ -140,17 +146,39 @@ export default function Blog(props) {
           file +
           "#" +
           id;
-        let res = await loadBlogPost(val, feedDAC, client);
+        setFullRef(val);
+        let res;
+        if (userID === ref.substring(8)) {
+          //use local storage if it is current user's post
+          const postLocal = JSON.parse(localStorage.getItem(val));
+          const profLocal = JSON.parse(localStorage.getItem(ref.substring(8)));
+          if (postLocal) {
+            setUpdating(true);
+            setPostData(postLocal);
+            setAuthor(profLocal);
+            const localDate = new Date(postLocal.ts);
+            setDate(localDate.toDateString());
+            setLoading(false);
+            res = await loadBlogPost(val, feedDAC, client); //fetch remote to check for updates
+          } else {
+            res = await loadBlogPost(val, feedDAC, client);
+            createLocalStorage(res, val);
+          }
+        } else {
+          //if not current user's post, fetch remote
+          res = await loadBlogPost(val, feedDAC, client);
+        }
         if (res) {
           setPostData(res);
-          const profile = await getUserProfile(ref.substring(8));
+          const profile = await getUserProfile(ref.substring(8)); //fetch latest profile
           setAuthor(profile);
           const d = new Date(res.ts);
-          console.log("postData", res);
           setDate(d.toDateString());
           setLoading(false);
+          setUpdating(false);
         } else {
           setShowError(true);
+          setUpdating(false);
         }
       };
       getPostData();
@@ -166,6 +194,7 @@ export default function Blog(props) {
     id,
     posts,
     client,
+    userID,
   ]);
 
   //return first letter of display name
@@ -196,6 +225,7 @@ export default function Blog(props) {
       ts: newPostData.ts,
     };
     const res = await togglePinPost(
+      fullRef,
       resolverJSON,
       postData.content.ext.postPath,
       mySky
@@ -205,7 +235,7 @@ export default function Blog(props) {
   };
 
   return (
-    <Container maxWidth={"sm"}>
+    <div className={"md:max-w-xl mx-auto px-4 sm:px-6 lg:max-w-2xl lg:px-8"}>
       {!showError ? (
         <>
           <Typography variant={"h3"} style={{ marginTop: 10 }}>
@@ -308,6 +338,7 @@ export default function Blog(props) {
         />
       )}
       <PinningAlerts pinStatus={pinStatus} setPinStatus={setPinStatus} />
-    </Container>
+      <UpdatingIndicator isUpdating={isUpdating} setUpdating={setUpdating} />
+    </div>
   );
 }

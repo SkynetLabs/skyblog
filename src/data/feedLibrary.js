@@ -32,13 +32,53 @@ export async function createBlogPost(title, subtitle, blogMD, feedDAC, mySky) {
     const res = await feedDAC.createPost(postJSON);
     if (res.success) {
       await mySky.setJSON(`${dataDomain}/postPaths.json`, { postNum: postNum });
+      updateLocalFeed(res.ref);
     }
+    console.log("RESPONSE", res);
     return res;
   } catch (e) {
     console.log("ERROR: ", e);
     return { success: false };
   }
 }
+
+/**
+ * updateLocalFeed() updates the local storage feed item when post created
+ * @param {string} ref post ref to be added to local storage
+ */
+export const updateLocalFeed = (ref) => {
+  let currentLocalFeed = JSON.parse(localStorage.getItem("myFeed"));
+  if (currentLocalFeed) {
+    currentLocalFeed.unshift(ref);
+  } else {
+    currentLocalFeed = [ref];
+  }
+  localStorage.setItem("myFeed", JSON.stringify(currentLocalFeed));
+};
+
+/**
+ * createLocalStorage() add a post's data to local storage
+ * @param {object} postJSON post data
+ * @param {string} ref post ref
+ */
+export const createLocalStorage = (postJSON, ref) => {
+  let storageJSON = {
+    ts: postJSON.ts,
+    isPinned: false,
+    ref: ref,
+    content: {
+      title: postJSON.content.title,
+      text: postJSON.content.text,
+      previewImage: getPreviewImage(postJSON.content.text),
+      ext: {
+        subtitle: postJSON.content.ext.subtitle,
+        resolverSkylink: postJSON.content.ext.resolverSkylink,
+        postPath: postJSON.content.ext.postPath,
+      },
+    },
+  };
+  localStorage.setItem(ref, JSON.stringify(storageJSON));
+};
 
 /**
  * editBlogPost() edit your blog post using the mySky registry
@@ -62,13 +102,15 @@ export async function editBlogPost(
   mySky
 ) {
   try {
-    await mySky.setJSON(postPath, {
+    let postJSON = {
       title: title,
       subtitle: subtitle,
       blogBody: blogMD,
       ts: Date.now(),
       isPinned: isPinned,
-    });
+    };
+    await mySky.setJSON(postPath, postJSON);
+    editLocalStorage(title, subtitle, blogMD, isPinned, Date.now(), ref);
     return { success: true, ref: ref };
   } catch (e) {
     console.log("ERROR", e);
@@ -77,15 +119,44 @@ export async function editBlogPost(
 }
 
 /**
+ * createLocalStorage() add a post's data to local storage
+ * @param {string} title updated title
+ * @param {string} subtitle updated subtitle
+ * @param {string} blogMD updated blog body
+ * @param {boolean} isPinned updated pinned val
+ * @param {string} ts updated timestamp
+ * @param {string} ref post ref
+ */
+const editLocalStorage = (title, subtitle, blogMD, isPinned, ts, ref) => {
+  let postJSON = JSON.parse(localStorage.getItem(ref));
+  postJSON.ts = ts;
+  postJSON.isPinned = isPinned;
+  postJSON.content.title = title;
+  postJSON.content.text = blogMD;
+  postJSON.content.ext.subtitle = subtitle;
+  postJSON.content.previewImage = getPreviewImage(blogMD);
+  localStorage.setItem(ref, JSON.stringify(postJSON));
+};
+
+/**
  * togglePinPost() pin/unpin a blog post
+ * @param {string} ref feedDAC post ref
  * @param {object} newJSON updated json to set at the post path
  * @param {string} postPath path for storing JSON
  * @param mySky mySky instance
  * @return {object} success or failure response
  */
-export async function togglePinPost(newJSON, postPath, mySky) {
+export async function togglePinPost(ref, newJSON, postPath, mySky) {
   try {
     await mySky.setJSON(postPath, newJSON);
+    editLocalStorage(
+      newJSON.title,
+      newJSON.subtitle,
+      newJSON.blogBody,
+      newJSON.isPinned,
+      newJSON.ts,
+      ref
+    );
     return { success: true };
   } catch (e) {
     console.log("ERROR", e);
@@ -95,12 +166,24 @@ export async function togglePinPost(newJSON, postPath, mySky) {
 
 /**
  * deleteBlogPost() deletes a feedDAC blog post
- * @param {string} ref blog post id
+ * @param {string} postRef blog post id
  * @param feedDAC feedDAC as initialized in SkynetContext
  * @return {object} success or failure response
  */
 export async function deleteBlogPost(postRef, feedDAC) {
   const res = await feedDAC.deletePost(postRef);
+  if (res.success) {
+    try {
+      localStorage.removeItem(postRef);
+      //remove post from myFeed local storage
+      let myFeed = JSON.parse(localStorage.getItem("myFeed"));
+      const i = myFeed.indexOf(postRef);
+      if (i > -1) myFeed.splice(i, 1);
+      localStorage.setItem("myFeed", JSON.stringify(myFeed));
+    } catch (e) {
+      console.log(e);
+    }
+  }
   return res;
 }
 
@@ -171,13 +254,7 @@ export async function getLatest(
     updatedPost.ts = data._data.ts;
     updatedPost.isPinned = featured ? true : data._data.isPinned;
     if (getFirstImage) {
-      const startIndex = data._data.blogBody.indexOf("![](https://");
-      if (startIndex === -1) {
-        return updatedPost;
-      }
-      const endIndex = data._data.blogBody.indexOf(")", startIndex);
-      const imageLink = data._data.blogBody.substring(startIndex + 4, endIndex);
-      updatedPost.content.previewImage = imageLink;
+      updatedPost.content.previewImage = getPreviewImage(data._data.blogBody);
     }
     return updatedPost;
   } catch (e) {
@@ -185,3 +262,13 @@ export async function getLatest(
     return post;
   }
 }
+
+const getPreviewImage = (blogText) => {
+  const startIndex = blogText.indexOf("![](https://");
+  if (startIndex === -1) {
+    return null;
+  }
+  const endIndex = blogText.indexOf(")", startIndex);
+  const imageLink = blogText.substring(startIndex + 4, endIndex);
+  return imageLink;
+};

@@ -107,6 +107,7 @@ const SkynetProvider = ({ children }) => {
       await mySky.logout();
       setUserID("");
       setProfile(null);
+      localStorage.setItem("myFeed", null);
       return true;
     } catch (e) {
       console.log(e);
