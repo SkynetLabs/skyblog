@@ -19,6 +19,13 @@ import SortAscending from "@heroicons/react/outline/SortAscendingIcon";
 import SortDescending from "@heroicons/react/outline/SortDescendingIcon";
 import isEqual from "lodash/isEqual";
 import UpdatingIndicator from "../components/UpdatingIndicator";
+import {
+  getLocalStorageProfile,
+  setLocalStorageProfile,
+  getLocalStorageFeed,
+  setLocalStoragePost,
+  setLocalStorageFeed,
+} from "../data/localStorage";
 
 //Profile page component, used to view a users blogs in a feed
 export default function Profile(props) {
@@ -105,7 +112,7 @@ export default function Profile(props) {
       const i = currentFeed.findIndex((el) => el.ref === item.ref); //check if fetched post already in feed from local storage
       if (i >= 0) {
         currentFeed[i] = item; //update current feed with latest of the item
-        localStorage.setItem(item.ref, JSON.stringify(item)); //update local storage with latest
+        setLocalStoragePost(item.ref, item);
       } else if (!item.isDeleted) {
         //insert any unaccounted for posts
         currentFeed.unshift(item);
@@ -119,7 +126,7 @@ export default function Profile(props) {
     const newLocalFeed = currentFeed.map((item) => {
       return item.ref;
     }); //create new feed array of refs for local storage
-    localStorage.setItem("myFeed", JSON.stringify(newLocalFeed));
+    setLocalStorageFeed(newLocalFeed);
     setPostFeed([...currentFeed]); //update state
     setUpdating(false);
     setLoading(false);
@@ -156,7 +163,7 @@ export default function Profile(props) {
           feedDAC,
           client
         );
-        const page0 = await postsLoader.next();
+        const page0 = await postsLoader.next(); //initial p
         setPostLoader(postsLoader);
         console.log("FEED: ", page0);
         //loop and variables for loading in resolver links in parallel
@@ -166,17 +173,11 @@ export default function Profile(props) {
       };
       //if it is current user's profile, use local storage
       const getMyInitFeed = async () => {
-        const localFeed = JSON.parse(localStorage.getItem("myFeed"));
+        const localFeed = getLocalStorageFeed();
         if (localFeed) {
           setUpdating(true);
           setInitLocal(true);
-          let dataFeed = [];
-          localFeed.forEach((item) => {
-            const localPost = JSON.parse(localStorage.getItem(item));
-            if (localPost.isPinned) setPinnedPosts(true);
-            dataFeed.push(localPost);
-          });
-          setPostFeed(dataFeed);
+          setPostFeed(localFeed);
           setLoading(false);
           setMoreLoading(false);
           getInitFeed(true);
@@ -188,25 +189,24 @@ export default function Profile(props) {
       //handle retrieval of profile DAC data and feed array
       const getProfileData = async () => {
         setMine(id.substring(8) === userID);
-        setShowError(false);
-        const prof = JSON.parse(localStorage.getItem(id.substring(8)));
-        if (prof) {
-          setProfile(prof);
+        const localProfile = getLocalStorageProfile(id.substring(8));
+        if (localProfile) {
+          setProfile(localProfile);
           if (id.substring(8) === userID) {
             getMyInitFeed();
           } else {
             getInitFeed();
           }
           const profile = await getUserProfile(id.substring(8));
-          if (!isEqual(profile, prof)) {
+          if (!isEqual(profile, localProfile) && !profile.error) {
             setProfile(profile);
-            localStorage.setItem(id.substring(8), JSON.stringify(profile));
+            setLocalStorageProfile(id.substring(8), profile);
           }
         } else {
           const profile = await getUserProfile(id.substring(8));
           if (!profile.error) {
             setProfile(profile);
-            localStorage.setItem(id.substring(8), JSON.stringify(profile));
+            setLocalStorageProfile(id.substring(8), profile);
             if (id.substring(8) === userID) {
               getMyInitFeed();
             } else {

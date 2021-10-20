@@ -4,6 +4,7 @@ import { SkynetClient, Permission, PermCategory, PermType } from "skynet-js";
 import { UserProfileDAC } from "@skynethub/userprofile-library";
 import { FeedDAC } from "feed-dac-library";
 import { dataDomain } from "../data/consts";
+import { clearLocalStorageFeed } from "../data/localStorage";
 
 const SkynetContext = createContext(undefined);
 
@@ -107,7 +108,7 @@ const SkynetProvider = ({ children }) => {
       await mySky.logout();
       setUserID("");
       setProfile(null);
-      localStorage.setItem("myFeed", null);
+      clearLocalStorageFeed();
       return true;
     } catch (e) {
       console.log(e);

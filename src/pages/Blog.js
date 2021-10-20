@@ -1,10 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
 import { useParams } from "react-router-dom";
-import {
-  loadBlogPost,
-  togglePinPost,
-  createLocalStorage,
-} from "../data/feedLibrary";
+import { loadBlogPost, togglePinPost } from "../data/feedLibrary";
 import { SkynetContext } from "../state/SkynetContext";
 import ReactMarkdown from "markdown-to-jsx";
 import Typography from "@material-ui/core/Typography";
@@ -23,6 +19,7 @@ import Link from "@material-ui/core/Link";
 import PreviewMenu from "../components/PreviewMenu";
 import PinningAlerts from "../components/PinningAlerts";
 import UpdatingIndicator from "../components/UpdatingIndicator";
+import { setLocalStoragePost } from "../data/localStorage";
 
 //style for removing hover shading
 const useStyles = makeStyles((theme) => ({
@@ -162,7 +159,7 @@ export default function Blog(props) {
             res = await loadBlogPost(val, feedDAC, client); //fetch remote to check for updates
           } else {
             res = await loadBlogPost(val, feedDAC, client);
-            createLocalStorage(res, val);
+            setLocalStoragePost(val, res);
           }
         } else {
           //if not current user's post, fetch remote
