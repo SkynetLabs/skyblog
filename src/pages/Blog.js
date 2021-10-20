@@ -19,7 +19,11 @@ import Link from "@material-ui/core/Link";
 import PreviewMenu from "../components/PreviewMenu";
 import PinningAlerts from "../components/PinningAlerts";
 import UpdatingIndicator from "../components/UpdatingIndicator";
-import { setLocalStoragePost } from "../data/localStorage";
+import {
+  setLocalStoragePost,
+  getLocalStoragePost,
+  getLocalStorageProfile,
+} from "../data/localStorage";
 
 //style for removing hover shading
 const useStyles = makeStyles((theme) => ({
@@ -147,13 +151,13 @@ export default function Blog(props) {
         let res;
         if (userID === ref.substring(8)) {
           //use local storage if it is current user's post
-          const postLocal = JSON.parse(localStorage.getItem(val));
-          const profLocal = JSON.parse(localStorage.getItem(ref.substring(8)));
-          if (postLocal) {
+          const localPost = getLocalStoragePost(val);
+          const localProfile = getLocalStorageProfile(ref.substring(8));
+          if (localPost) {
             setUpdating(true);
-            setPostData(postLocal);
-            setAuthor(profLocal);
-            const localDate = new Date(postLocal.ts);
+            setPostData(localPost);
+            setAuthor(localProfile);
+            const localDate = new Date(localPost.ts);
             setDate(localDate.toDateString());
             setLoading(false);
             res = await loadBlogPost(val, feedDAC, client); //fetch remote to check for updates

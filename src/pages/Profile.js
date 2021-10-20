@@ -177,7 +177,8 @@ export default function Profile(props) {
         if (localFeed) {
           setUpdating(true);
           setInitLocal(true);
-          setPostFeed(localFeed);
+          setPinnedPosts(localFeed.pinStatus);
+          setPostFeed(localFeed.feed);
           setLoading(false);
           setMoreLoading(false);
           getInitFeed(true);

@@ -2,17 +2,19 @@ import { getPreviewImage } from "./feedLibrary";
 import { localStorageFeedKey } from "./consts";
 /**
  * getLocalStorageFeed() get the locally stored feed
- * @return {array} array of post objects
+ * @return {object} array of post objects
  */
 export const getLocalStorageFeed = () => {
   const localFeed = JSON.parse(localStorage.getItem(localStorageFeedKey));
+  let pinStatus = false;
   if (localFeed) {
     let dataFeed = [];
     localFeed.forEach((item) => {
       const localPost = JSON.parse(localStorage.getItem(item));
+      if (localPost.isPinned) pinStatus = true;
       dataFeed.push(localPost);
     });
-    return dataFeed;
+    return { feed: dataFeed, pinStatus: pinStatus };
   }
   return null;
 };
@@ -64,7 +66,7 @@ export const getLocalStoragePost = (ref) => {
 export const setLocalStoragePost = (ref, postJSON) => {
   let storageJSON = {
     ts: postJSON.ts,
-    isPinned: false,
+    isPinned: postJSON.isPinned,
     ref: ref,
     content: {
       title: postJSON.content.title,
