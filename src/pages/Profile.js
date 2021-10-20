@@ -26,6 +26,9 @@ import {
   setLocalStoragePost,
   setLocalStorageFeed,
 } from "../data/localStorage";
+import FollowIndicator from "../components/FollowIndicator";
+import FollowingList from "../components/FollowingList";
+import { followUser } from "../data/socialLibrary";
 
 //Profile page component, used to view a users blogs in a feed
 export default function Profile(props) {
@@ -41,7 +44,11 @@ export default function Profile(props) {
   menuAnchor -> state to handle anchor of sorting menu
   allLoaded -> state to track whether or not the end of pagination has been reached
   postLoader -> state to store asyncGenerator function for pagination
-  feedDAC, getUserProfile, isMySkyLoading, client, userID, mySky -> values from Skynet context used
+  pinStatus -> status of current pinning operation
+  isAscending -> order of posts
+  initLocal -> if used local storage to initialize
+  isUpdating -> indicates if checking for updates to local storage
+  feedDAC, socialDAC, getUserProfile, isMySkyLoading, client, userID, mySky -> values from Skynet context used
    */
   const { id } = useParams();
   const [postFeed, setPostFeed] = useState([]);
@@ -57,8 +64,22 @@ export default function Profile(props) {
   const [isAscending, setAscending] = useState(true);
   const [initLocal, setInitLocal] = useState(false);
   const [isUpdating, setUpdating] = useState(false);
-  const { feedDAC, getUserProfile, isMySkyLoading, client, userID, mySky } =
-    useContext(SkynetContext);
+  const [followingList, setFollowingList] = useState(null);
+  const [isFollowing, setFollowing] = useState(false);
+  const [followStatus, setFollowStatus] = useState(null);
+  const [showFollowing, setShowFollowing] = useState(false);
+  const [socialLoading, setSocialLoading] = useState(true);
+  const {
+    feedDAC,
+    socialDAC,
+    myFollowing,
+    setMyFollowing,
+    getUserProfile,
+    isMySkyLoading,
+    client,
+    userID,
+    mySky,
+  } = useContext(SkynetContext);
 
   //process the postArr loaded from the feedDAC
   //retrieve most recent version of post using resolver link and insert each post when each response is received
@@ -108,6 +129,10 @@ export default function Profile(props) {
         }
       }
     });
+    if (postArr.length === 0) {
+      setLoading(false);
+      setMoreLoading(false);
+    }
   };
 
   //process the local storage if this is the current user's profile
@@ -144,7 +169,8 @@ export default function Profile(props) {
         if (
           window.innerHeight + document.documentElement.scrollTop ===
             document.scrollingElement.scrollHeight &&
-          !allLoaded
+          !allLoaded &&
+          !showFollowing
         ) {
           const nextPage = await postLoader.next();
           if (nextPage.done) {
@@ -160,7 +186,17 @@ export default function Profile(props) {
 
   //execute this effect on entry and when the feedDAC connection status is valid
   useEffect(() => {
-    if (!isMySkyLoading && feedDAC.connector) {
+    if (!isMySkyLoading && feedDAC.connector && !profile) {
+      //retrieve following list for the profile
+      const getSocialInfo = async () => {
+        if (userID === id.substring(8)) {
+          setFollowingList(myFollowing);
+          setSocialLoading(false);
+        }
+        const following = await socialDAC.getFollowingForUser(id.substring(8));
+        setFollowingList(following);
+        setSocialLoading(false);
+      };
       //get feed using only remote means
       const getInitFeed = async (usedLocal = false) => {
         const postsLoader = await loadBlogProfile(
@@ -224,8 +260,29 @@ export default function Profile(props) {
         }
       };
       getProfileData();
+      getSocialInfo();
     }
-  }, [isMySkyLoading, feedDAC, getUserProfile, id, client, userID]);
+  }, [
+    id,
+    isMySkyLoading,
+    feedDAC,
+    getUserProfile,
+    client,
+    userID,
+    profile,
+    socialDAC,
+    myFollowing,
+  ]);
+
+  useEffect(() => {
+    if (!isMySkyLoading && socialDAC.connector && myFollowing) {
+      if (!isMine && myFollowing.includes(id.substring(8))) {
+        setFollowing(true);
+      } else {
+        setFollowing(false);
+      }
+    }
+  }, [isMySkyLoading, socialDAC, id, myFollowing, isMine]);
 
   //handle the pinning and unpinning of a post
   const handlePin = async (postRef) => {
@@ -321,9 +378,13 @@ export default function Profile(props) {
                     aria-label={"Author"}
                     src={
                       profile.avatar.length >= 1
-                        ? `https://siasky.net${profile.avatar[0].url.substring(
-                            5
-                          )}`
+                        ? profile.avatar[0].url.startsWith("sia://")
+                          ? `https://siasky.net${profile.avatar[0].url.substring(
+                              5
+                            )}`
+                          : `https://siasky.net/${profile.avatar[0].url.substring(
+                              4
+                            )}`
                         : null
                     }
                   />
@@ -361,10 +422,47 @@ export default function Profile(props) {
                       <Skeleton animation={"wave"} />
                     )}
                   </div>
+                  <div
+                    onClick={() => setShowFollowing(!showFollowing)}
+                    className="max-w-xl mt-1 text-sm sm:text-sm text-palette-300 space-y-1 md:space-y-2 font-content cursor-pointer"
+                  >
+                    {followingList && !socialLoading ? (
+                      <p>
+                        Following{" "}
+                        {isMine
+                          ? myFollowing.length.toString()
+                          : followingList.length.toString()}
+                      </p>
+                    ) : null}
+                  </div>
                 </Container>
 
                 {profile && profile.connections.length > 0 ? (
-                  <SocialIcons connectionsArr={profile.connections} />
+                  <div
+                    className={
+                      !isMine ? "flex flex-row align-center ml-5" : null
+                    }
+                  >
+                    {!isMine ? (
+                      <button
+                        onClick={() =>
+                          followUser(
+                            isFollowing,
+                            setFollowing,
+                            myFollowing,
+                            setMyFollowing,
+                            setFollowStatus,
+                            socialDAC,
+                            id.substring(8)
+                          )
+                        }
+                        className="justify-center my-2 px-5 border border-transparent rounded-2xl shadow-sm text-sm font-medium text-palette-600 bg-primary hover:bg-primary-light transition-colors duration-200"
+                      >
+                        {isFollowing ? "Unfollow" : "Follow"}
+                      </button>
+                    ) : null}
+                    <SocialIcons connectionsArr={profile.connections} />
+                  </div>
                 ) : profile && userID === id.substring(8) ? (
                   <Container>
                     <Button
@@ -382,7 +480,7 @@ export default function Profile(props) {
             </Grid>
           </div>
           <Divider variant="middle" style={{ marginTop: 30 }} />
-          {!isLoading && pinnedPosts ? (
+          {!isLoading && pinnedPosts && !showFollowing ? (
             <>
               <Grid
                 container
@@ -421,7 +519,7 @@ export default function Profile(props) {
               />
             </>
           ) : null}
-          {!pinnedPosts && postFeed.length !== 0 ? (
+          {!pinnedPosts && postFeed.length !== 0 && !showFollowing ? (
             <div className={"flex justify-end w-full"}>
               <button onClick={handleSortClick}>
                 {isAscending ? (
@@ -433,7 +531,7 @@ export default function Profile(props) {
             </div>
           ) : null}
 
-          {!isLoading && postFeed.length !== 0 ? (
+          {!isLoading && postFeed.length !== 0 && !showFollowing ? (
             <ul className="space-y-12 sm:grid sm:grid-cols-2 sm:gap-x-6 sm:gap-y-12 sm:space-y-0 md:grid-cols-3 lg:grid-cols-4 lg:gap-x-8">
               {postFeed.map((item, index) =>
                 !item.isDeleted && !item.isPinned ? (
@@ -449,7 +547,7 @@ export default function Profile(props) {
                 ) : null
               )}
             </ul>
-          ) : !isLoading ? (
+          ) : !isLoading && !showFollowing ? (
             <Typography
               variant={"h6"}
               align={"center"}
@@ -459,7 +557,7 @@ export default function Profile(props) {
             >
               No posts to show.
             </Typography>
-          ) : (
+          ) : !showFollowing ? (
             <ul className="space-y-12 sm:grid sm:grid-cols-2 sm:gap-x-6 sm:gap-y-12 sm:space-y-0 md:grid-cols-2 lg:grid-cols-4 lg:gap-x-8">
               {["0", "1", "2", "3"].map((item) => (
                 <li key={item}>
@@ -473,7 +571,12 @@ export default function Profile(props) {
                 </li>
               ))}
             </ul>
-          )}
+          ) : !isLoading ? (
+            <FollowingList
+              followingList={followingList}
+              setShowFollowing={setShowFollowing}
+            />
+          ) : null}
           {isMoreLoading && !isLoading ? (
             <Grid item md={6} style={{ marginTop: 20 }}>
               <Typography variant={"caption"}>
@@ -493,6 +596,10 @@ export default function Profile(props) {
       )}
       <PinningAlerts pinStatus={pinStatus} setPinStatus={setPinStatus} />
       <UpdatingIndicator isUpdating={isUpdating} setUpdating={setUpdating} />
+      <FollowIndicator
+        followStatus={followStatus}
+        setFollowStatus={setFollowStatus}
+      />
     </div>
   );
 }

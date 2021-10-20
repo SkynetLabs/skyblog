@@ -58,7 +58,7 @@ export default function Home(props) {
                   <img
                     src="/logo/homescreen.svg"
                     alt="Add to Homescreen"
-                    className={"rounded-2xl"}
+                    className={"rounded-full"}
                   />
                 </a>
               </div>

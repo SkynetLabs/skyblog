@@ -3,6 +3,7 @@ import { SkynetClient, Permission, PermCategory, PermType } from "skynet-js";
 
 import { UserProfileDAC } from "@skynethub/userprofile-library";
 import { FeedDAC } from "feed-dac-library";
+import { SocialDAC } from "social-dac-library";
 import { dataDomain } from "../data/consts";
 import { clearLocalStorageFeed } from "../data/localStorage";
 
@@ -19,6 +20,7 @@ const client = new SkynetClient(portal);
 // For now, we won't use any DACs -- uncomment to create
 const userProfile = new UserProfileDAC();
 const feedDAC = new FeedDAC();
+const socialDAC = new SocialDAC();
 
 //SkynetProvider handles mySky states and initialization
 const SkynetProvider = ({ children }) => {
@@ -34,7 +36,7 @@ const SkynetProvider = ({ children }) => {
   const [userID, setUserID] = useState(null);
   const [mySky, setMySky] = useState(null);
   const [profile, setProfile] = useState(null);
-  const [userPreferences] = useState(null);
+  const [myFollowing, setMyFollowing] = useState(null);
 
   useEffect(() => {
     //initialization of mySky and DACs, check log in status
@@ -42,7 +44,7 @@ const SkynetProvider = ({ children }) => {
       try {
         const mySky = await client.loadMySky();
         //load in user profile, feed, and social DACs
-        const dacsArray = [userProfile, feedDAC];
+        const dacsArray = [userProfile, feedDAC, socialDAC];
         await mySky.loadDacs(...dacsArray);
         const reqDomain = await client.extractDomain(window.location.hostname);
         await mySky.addPermissions(
@@ -93,6 +95,7 @@ const SkynetProvider = ({ children }) => {
   const loginActions = async (mySky) => {
     const userID = await mySky.userID();
     setUserID(userID);
+    getMyFollowing(userID);
     setMySkyLoading(false); //mySky done loading, change state
   };
 
@@ -102,6 +105,16 @@ const SkynetProvider = ({ children }) => {
     return prof;
   };
 
+  const getMyFollowing = async (userID) => {
+    const localFollowing = JSON.parse(localStorage.getItem("myFollowing"));
+    if (localFollowing) {
+      setMyFollowing(localFollowing);
+    }
+    const following = await socialDAC.getFollowingForUser(userID);
+    console.log("MY FOLLOWING: ", following);
+    setMyFollowing(following);
+    localStorage.setItem("myFollowing", JSON.stringify(following));
+  };
   //handle logout from mySky
   const mySkyLogout = async () => {
     try {
@@ -123,9 +136,11 @@ const SkynetProvider = ({ children }) => {
         userID,
         mySky,
         profile,
-        userPreferences,
         client,
         feedDAC,
+        socialDAC,
+        myFollowing,
+        setMyFollowing,
         getUserProfile,
         initiateLogin,
         mySkyLogout,
