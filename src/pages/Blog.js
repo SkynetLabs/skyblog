@@ -24,7 +24,6 @@ import {
   getLocalStoragePost,
   getLocalStorageProfile,
 } from "../data/localStorage";
-import { setLocalStoragePost } from "../data/localStorage";
 import { followUser } from "../data/socialLibrary";
 import FollowIndicator from "../components/FollowIndicator";
 
