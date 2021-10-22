@@ -63,6 +63,11 @@ export default function Profile(props) {
   //process the postArr loaded from the feedDAC
   //retrieve most recent version of post using resolver link and insert each post when each response is received
   const processPosts = (postArr, usedLocal = false) => {
+    if (postArr.length === 0) {
+      setLoading(false);
+      setMoreLoading(false);
+      return;
+    }
     let updatedPosts = postFeed;
     let countFinish = 0;
     postArr.forEach((item, index) => {
@@ -232,6 +237,7 @@ export default function Profile(props) {
       setPinStatus("unpinning");
     } else {
       setPinStatus("pinning");
+      setPinnedPosts(true);
     }
     result.isPinned = !result.isPinned;
     const resolverJSON = {
@@ -245,6 +251,7 @@ export default function Profile(props) {
       postRef,
       resolverJSON,
       result.content.ext.postPath,
+      result,
       mySky
     );
     setPinStatus(res.success ? "success" : "error");
@@ -258,8 +265,10 @@ export default function Profile(props) {
         return 1;
       });
       setPostFeed(newFeed);
+      if (resolverJSON.isPinned) {
+        return;
+      }
       setPinnedPosts(false);
-
       newFeed.forEach((item) => {
         if (item.isPinned) setPinnedPosts(true);
       });

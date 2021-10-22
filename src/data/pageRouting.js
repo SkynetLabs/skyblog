@@ -17,6 +17,7 @@ export const postRoute = (post, history) => {
  * @param {string} postPath path of dynamic json, used with mySky.setJSON()
  * @param {string} postRef feedDAC post reference
  * @param {boolean} isPinned boolean indicating if post is pinned or not
+ * @param {object} post current post data
  * @param history react-router-dom useHistory instance
  */
 export function editRoute(
@@ -26,6 +27,7 @@ export function editRoute(
   postPath,
   postRef,
   isPinned,
+  post,
   history
 ) {
   history.push({
@@ -37,6 +39,7 @@ export function editRoute(
       postPath: postPath,
       postRef: postRef,
       isPinned: isPinned,
+      post: post,
     },
   });
 }

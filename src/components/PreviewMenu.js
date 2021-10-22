@@ -81,6 +81,7 @@ export default function PreviewMenu(props) {
       post.content.ext.postPath,
       post.ref,
       post.isPinned,
+      post,
       history
     );
   };

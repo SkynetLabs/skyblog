@@ -1,66 +1,92 @@
 import { getPreviewImage } from "./feedLibrary";
 import { localStorageFeedKey } from "./consts";
+
+/**
+ * setLocalStorage() set key value pair in localstorage
+ * @param {string} key to set in localStorage
+ * @param {object} value value to set in localStorage
+ */
+const setLocalStorage = (key, value) => {
+  localStorage.setItem(key, JSON.stringify(value));
+};
+
+/**
+ * getLocalStorage() get key from localStorage
+ * @param {string} key to retrieve in localStorage
+ * @return {object} localStorage value for given key
+ */
+const getLocalStorage = (key) => {
+  return JSON.parse(localStorage.getItem(key));
+};
+
+/**
+ * removeLocalStorage() remove key value pair in localstorage
+ * @param {string} key to clear in localStorage
+ */
+const removeLocalStorage = (key) => {
+  localStorage.removeItem(key);
+};
+
 /**
  * getLocalStorageFeed() get the locally stored feed
  * @return {object} array of post objects
  */
 export const getLocalStorageFeed = () => {
-  const localFeed = JSON.parse(localStorage.getItem(localStorageFeedKey));
+  const localFeed = getLocalStorage(localStorageFeedKey);
   let pinStatus = false;
-  if (localFeed) {
-    let dataFeed = [];
-    localFeed.forEach((item) => {
-      const localPost = JSON.parse(localStorage.getItem(item));
-      if (localPost.isPinned) pinStatus = true;
-      dataFeed.push(localPost);
-    });
-    return { feed: dataFeed, pinStatus: pinStatus };
+  if (!localFeed) {
+    return null;
   }
-  return null;
+  let dataFeed = [];
+  localFeed.forEach((item) => {
+    const localPost = getLocalStorage(item);
+    if (localPost.isPinned) pinStatus = true;
+    dataFeed.push(localPost);
+  });
+  return { feed: dataFeed, pinStatus: pinStatus };
 };
 
 /**
  * setLocalStorageFeed() persists the given array to localStorage at localStorageFeedKey
- * @param {array} localFeed array of post ref strings
+ * @param {array} localFeed array of post reference ID strings
  */
 export const setLocalStorageFeed = (localFeed) => {
-  localStorage.setItem(localStorageFeedKey, JSON.stringify(localFeed));
+  setLocalStorage(localStorageFeedKey, localFeed);
 };
 
 /**
  * insertLocalStorageFeed() updates the local storage feed item when post created
- * @param {string} ref post ref to be added to local storage
+ * @param {string} ref post reference id to be added to local storage
  */
 export const insertLocalStorageFeed = (ref) => {
-  let currentLocalFeed = JSON.parse(localStorage.getItem(localStorageFeedKey));
+  let currentLocalFeed = getLocalStorage(localStorageFeedKey);
   if (currentLocalFeed) {
     currentLocalFeed.unshift(ref);
   } else {
     currentLocalFeed = [ref];
   }
-  localStorage.setItem(localStorageFeedKey, JSON.stringify(currentLocalFeed));
+  setLocalStorageFeed(currentLocalFeed);
 };
 
 /**
  * clearLocalStorageFeed() updates the local storage feed with item when post created
  */
 export const clearLocalStorageFeed = () => {
-  localStorage.setItem(localStorageFeedKey, null);
+  removeLocalStorage(localStorageFeedKey);
 };
 
 /**
  * getLocalStoragePost() get a post from local storage
- * @param {string} ref post ref to retrieve
+ * @param {string} ref post reference id to retrieve
  * @return {object} post from local storage
  */
 export const getLocalStoragePost = (ref) => {
-  const localPost = JSON.parse(localStorage.getItem(ref));
-  return localPost;
+  return getLocalStorage(ref);
 };
 
 /**
  * setLocalStoragePost() persist a post's data to local storage
- * @param {string} ref post ref
+ * @param {string} ref post reference id
  * @param {object} postJSON post data
  */
 export const setLocalStoragePost = (ref, postJSON) => {
@@ -79,34 +105,39 @@ export const setLocalStoragePost = (ref, postJSON) => {
       },
     },
   };
-  localStorage.setItem(ref, JSON.stringify(storageJSON));
+  setLocalStorage(ref, storageJSON);
 };
 
 /**
  * editLocalStoragePost() add a post's data to local storage
- * @param {string} title updated title
- * @param {string} subtitle updated subtitle
- * @param {string} blogMD updated blog body
- * @param {boolean} isPinned updated pinned val
- * @param {string} ts updated timestamp
- * @param {string} ref post ref
+ * @param {object} postEdits object containing updated fields
+ * @param {object} postData object containing original post data
+ * @param {string} ref post reference id
  */
-export const editLocalStoragePost = (
-  title,
-  subtitle,
-  blogMD,
-  isPinned,
-  ts,
-  ref
-) => {
-  let postJSON = JSON.parse(localStorage.getItem(ref));
-  postJSON.ts = ts;
-  postJSON.isPinned = isPinned;
-  postJSON.content.title = title;
-  postJSON.content.text = blogMD;
-  postJSON.content.ext.subtitle = subtitle;
-  postJSON.content.previewImage = getPreviewImage(blogMD);
-  localStorage.setItem(ref, JSON.stringify(postJSON));
+export const editLocalStoragePost = (postEdits, postData, ref) => {
+  let updatedPost = postData;
+  console.log("POST DATA", postData);
+  updatedPost.ts = postEdits.ts;
+  updatedPost.isPinned = postEdits.isPinned;
+  updatedPost.content.title = postEdits.title;
+  updatedPost.content.text = postEdits.blogBody;
+  updatedPost.content.ext.subtitle = postEdits.subtitle;
+  updatedPost.content.previewImage = getPreviewImage(postEdits.blogBody);
+  setLocalStorage(ref, updatedPost);
+};
+
+/**
+ * deleteLocalStoragePost() remove post from local storage
+ * @param {string} ref post reference id to remove
+ */
+export const deleteLocalStoragePost = (ref) => {
+  removeLocalStorage(ref);
+  let localFeed = getLocalStorage(localStorageFeedKey);
+  if (localFeed) {
+    const i = localFeed.indexOf(ref);
+    if (i > -1) localFeed.splice(i, 1);
+    setLocalStorage(localStorageFeedKey, localFeed);
+  }
 };
 
 /**
@@ -115,8 +146,7 @@ export const editLocalStoragePost = (
  * @return {object} profile in UserProfileDAC format
  */
 export const getLocalStorageProfile = (userID) => {
-  const localProfile = JSON.parse(localStorage.getItem(userID));
-  return localProfile;
+  return getLocalStorage(userID);
 };
 
 /**
@@ -125,5 +155,5 @@ export const getLocalStorageProfile = (userID) => {
  * @param {object} profile profile as returned from UserProfileDAC
  */
 export const setLocalStorageProfile = (userID, profile) => {
-  localStorage.setItem(userID, JSON.stringify(profile));
+  setLocalStorage(userID, profile);
 };
