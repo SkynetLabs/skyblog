@@ -114,7 +114,7 @@ export async function togglePinPost(ref, newJSON, postPath, postData, mySky) {
  * @return {object} success or failure response
  */
 export async function deleteBlogPost(ref, feedDAC) {
-  const res = await feedDAC.deletePost(postRef);
+  const res = await feedDAC.deletePost(ref);
   if (res.success) {
     deleteLocalStoragePost(ref);
   }
