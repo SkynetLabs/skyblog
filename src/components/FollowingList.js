@@ -4,6 +4,10 @@ import { SkynetContext } from "../state/SkynetContext";
 import isEqual from "lodash/isEqual";
 import XIcon from "@heroicons/react/outline/XIcon";
 import Spinner from "./Spinner";
+import {
+  getLocalStorageProfile,
+  setLocalStorageProfile,
+} from "../data/localStorage";
 
 export default function FollowingList(props) {
   /*
@@ -22,7 +26,7 @@ export default function FollowingList(props) {
     const getProfiles = async () => {
       let profiles = [];
       followingList.forEach((item) => {
-        const localProfile = JSON.parse(localStorage.getItem(item));
+        const localProfile = getLocalStorageProfile(item);
         if (localProfile) {
           profiles.push(localProfile);
           setProfileList([...profiles]);
@@ -32,7 +36,7 @@ export default function FollowingList(props) {
               const i = profiles.indexOf(localProfile);
               profiles[i] = res;
               setProfileList([...profiles]);
-              localStorage.setItem(item, JSON.stringify(res));
+              setLocalStorageProfile(item, res);
             }
           });
         } else {
@@ -41,7 +45,7 @@ export default function FollowingList(props) {
             profiles.push(res);
             setProfileList([...profiles]);
             setLoading(false);
-            localStorage.setItem(item, JSON.stringify(res));
+            setLocalStorageProfile(item, res);
           });
         }
       });

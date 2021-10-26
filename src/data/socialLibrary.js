@@ -1,3 +1,5 @@
+import { setLocalStorage } from "./localStorage";
+
 /**
  * followUser() follow/unfollow a user using the socialDAC
  * @param {boolean} isFollowing is the user currently being followed
@@ -29,7 +31,7 @@ export const followUser = async (
       const i = newFollowing.indexOf(id);
       if (i > -1) newFollowing.splice(i, 1);
       setMyFollowing([...newFollowing]);
-      localStorage.setItem("myFollowing", JSON.stringify(newFollowing));
+      setLocalStorage("myFollowing", newFollowing);
     } else {
       setFollowStatus("errorUnfollow");
       setFollowing(true);
@@ -43,7 +45,7 @@ export const followUser = async (
       setFollowStatus("successFollow");
       newFollowing.push(id);
       setMyFollowing([...newFollowing]);
-      localStorage.setItem("myFollowing", JSON.stringify(newFollowing));
+      setLocalStorage("myFollowing", newFollowing);
     } else {
       setFollowStatus("errorFollow");
       setFollowing(false);

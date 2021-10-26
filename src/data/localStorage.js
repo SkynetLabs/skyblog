@@ -6,7 +6,7 @@ import { localStorageFeedKey } from "./consts";
  * @param {string} key to set in localStorage
  * @param {object} value value to set in localStorage
  */
-const setLocalStorage = (key, value) => {
+export const setLocalStorage = (key, value) => {
   localStorage.setItem(key, JSON.stringify(value));
 };
 
