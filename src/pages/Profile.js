@@ -3,7 +3,6 @@ import { SkynetContext } from "../state/SkynetContext";
 import Container from "@material-ui/core/Container";
 import BlogPreviewProfile from "../components/BlogPreviewProfile";
 import { useParams } from "react-router-dom";
-import { loadBlogProfile } from "../data/feedLibrary";
 import Typography from "@material-ui/core/Typography";
 import Skeleton from "@material-ui/lab/Skeleton";
 import { displayName } from "../data/displayName";
@@ -14,10 +13,19 @@ import ErrorDisplay from "../components/ErrorDisplay";
 import OpenInNewIcon from "@material-ui/icons/OpenInNew";
 import Button from "@material-ui/core/Button";
 import SocialIcons from "../components/SocialIcons";
-import { getLatest, togglePinPost } from "../data/feedLibrary";
+import { getLatest, togglePinPost, loadBlogProfile } from "../data/feedLibrary";
 import PinningAlerts from "../components/PinningAlerts";
 import SortAscending from "@heroicons/react/outline/SortAscendingIcon";
 import SortDescending from "@heroicons/react/outline/SortDescendingIcon";
+import isEqual from "lodash/isEqual";
+import UpdatingIndicator from "../components/UpdatingIndicator";
+import {
+  getLocalStorageProfile,
+  setLocalStorageProfile,
+  getLocalStorageFeed,
+  setLocalStoragePost,
+  setLocalStorageFeed,
+} from "../data/localStorage";
 
 //Profile page component, used to view a users blogs in a feed
 export default function Profile(props) {
@@ -47,12 +55,19 @@ export default function Profile(props) {
   const [postLoader, setPostLoader] = useState(null);
   const [pinStatus, setPinStatus] = useState(null);
   const [isAscending, setAscending] = useState(true);
+  const [initLocal, setInitLocal] = useState(false);
+  const [isUpdating, setUpdating] = useState(false);
   const { feedDAC, getUserProfile, isMySkyLoading, client, userID, mySky } =
     useContext(SkynetContext);
 
   //process the postArr loaded from the feedDAC
   //retrieve most recent version of post using resolver link and insert each post when each response is received
-  const processPosts = (postArr) => {
+  const processPosts = (postArr, usedLocal = false) => {
+    if (postArr.length === 0) {
+      setLoading(false);
+      setMoreLoading(false);
+      return;
+    }
     let updatedPosts = postFeed;
     let countFinish = 0;
     postArr.forEach((item, index) => {
@@ -67,11 +82,18 @@ export default function Profile(props) {
             if (a.ts >= b.ts) return -1;
             return 1;
           });
-          setPostFeed([...updatedPosts]);
-          setLoading(false);
+          if (!usedLocal) {
+            //did not pull local initially, so dynamically update
+            //dont want to do this if using local bc paging would mess up the feed
+            setPostFeed([...updatedPosts]);
+            setLoading(false);
+          }
           countFinish += 1;
           if (countFinish === postArr.length) {
             setMoreLoading(false);
+            if (id.substring(8) === userID) {
+              localProcess(updatedPosts);
+            }
           }
         });
       } else {
@@ -80,9 +102,39 @@ export default function Profile(props) {
         if (countFinish === postArr.length) {
           setLoading(false);
           setMoreLoading(false);
+          if (id.substring(8) === userID) {
+            localProcess(updatedPosts);
+          }
         }
       }
     });
+  };
+
+  //process the local storage if this is the current user's profile
+  const localProcess = (updatedPosts) => {
+    let currentFeed = postFeed;
+    updatedPosts.forEach((item) => {
+      const i = currentFeed.findIndex((el) => el.ref === item.ref); //check if fetched post already in feed from local storage
+      if (i >= 0) {
+        currentFeed[i] = item; //update current feed with latest of the item
+        setLocalStoragePost(item.ref, item);
+      } else if (!item.isDeleted) {
+        //insert any unaccounted for posts
+        currentFeed.unshift(item);
+      }
+    });
+    //sort posts to ensure order
+    currentFeed.sort((a, b) => {
+      if (a.ts >= b.ts) return -1;
+      return 1;
+    });
+    const newLocalFeed = currentFeed.map((item) => {
+      return item.ref;
+    }); //create new feed array of refs for local storage
+    setLocalStorageFeed(newLocalFeed);
+    setPostFeed([...currentFeed]); //update state
+    setUpdating(false);
+    setLoading(false);
   };
 
   //use effect for handling the pagination
@@ -98,40 +150,77 @@ export default function Profile(props) {
           if (nextPage.done) {
             setAllLoaded(true);
           } else {
-            processPosts(nextPage.value);
+            processPosts(nextPage.value, initLocal);
           }
         }
       };
       window.addEventListener("scroll", loadNext);
     }
-  }, [postLoader, allLoaded]);
+  }, [postLoader, allLoaded, initLocal]);
 
   //execute this effect on entry and when the feedDAC connection status is valid
   useEffect(() => {
-    //setLoading(true);
-    //setProfile(null);
     if (!isMySkyLoading && feedDAC.connector) {
+      //get feed using only remote means
+      const getInitFeed = async (usedLocal = false) => {
+        const postsLoader = await loadBlogProfile(
+          id.substring(8),
+          feedDAC,
+          client
+        );
+        const page0 = await postsLoader.next(); //initial p
+        setPostLoader(postsLoader);
+        console.log("FEED: ", page0);
+        //loop and variables for loading in resolver links in parallel
+        if (page0.done) setAllLoaded(true);
+        let postArr = page0.value;
+        processPosts(postArr, usedLocal);
+      };
+      //if it is current user's profile, use local storage
+      const getMyInitFeed = async () => {
+        const localFeed = getLocalStorageFeed();
+        if (localFeed) {
+          setUpdating(true);
+          setInitLocal(true);
+          setPinnedPosts(localFeed.pinStatus);
+          setPostFeed(localFeed.feed);
+          setLoading(false);
+          setMoreLoading(false);
+          getInitFeed(true);
+        } else {
+          getInitFeed();
+        }
+      };
+
       //handle retrieval of profile DAC data and feed array
       const getProfileData = async () => {
-        setShowError(false);
-        const profile = await getUserProfile(id.substring(8));
         setMine(id.substring(8) === userID);
-        if (!profile.error) {
-          setProfile(profile);
-          const postsLoader = await loadBlogProfile(
-            id.substring(8),
-            feedDAC,
-            client
-          );
-          const page0 = await postsLoader.next();
-          setPostLoader(postsLoader);
-          console.log("FEED: ", page0);
-          //loop and variables for loading in resolver links in parallel
-          if (page0.done) setAllLoaded(true);
-          let postArr = page0.value;
-          processPosts(postArr);
+        const localProfile = getLocalStorageProfile(id.substring(8));
+        if (localProfile) {
+          setProfile(localProfile);
+          if (id.substring(8) === userID) {
+            getMyInitFeed();
+          } else {
+            getInitFeed();
+          }
+          const profile = await getUserProfile(id.substring(8));
+          if (!isEqual(profile, localProfile) && !profile.error) {
+            setProfile(profile);
+            setLocalStorageProfile(id.substring(8), profile);
+          }
         } else {
-          setShowError(true);
+          const profile = await getUserProfile(id.substring(8));
+          if (!profile.error) {
+            setProfile(profile);
+            setLocalStorageProfile(id.substring(8), profile);
+            if (id.substring(8) === userID) {
+              getMyInitFeed();
+            } else {
+              getInitFeed();
+            }
+          } else {
+            setShowError(true);
+          }
         }
       };
       getProfileData();
@@ -148,6 +237,7 @@ export default function Profile(props) {
       setPinStatus("unpinning");
     } else {
       setPinStatus("pinning");
+      setPinnedPosts(true);
     }
     result.isPinned = !result.isPinned;
     const resolverJSON = {
@@ -158,8 +248,10 @@ export default function Profile(props) {
       ts: result.ts,
     };
     const res = await togglePinPost(
+      postRef,
       resolverJSON,
       result.content.ext.postPath,
+      result,
       mySky
     );
     setPinStatus(res.success ? "success" : "error");
@@ -173,8 +265,10 @@ export default function Profile(props) {
         return 1;
       });
       setPostFeed(newFeed);
+      if (resolverJSON.isPinned) {
+        return;
+      }
       setPinnedPosts(false);
-
       newFeed.forEach((item) => {
         if (item.isPinned) setPinnedPosts(true);
       });
@@ -213,7 +307,7 @@ export default function Profile(props) {
   return (
     <div
       className={
-        "mx-auto pb-12 pt-4 px-4 max-w-full sm:px-6 lg:px-8 lg:pb-24 pt-8"
+        "mx-auto bg-white pb-12 pt-4 px-4 max-w-full sm:px-6 lg:px-8 lg:pb-24 pt-8"
       }
     >
       {!showError ? (
@@ -398,6 +492,7 @@ export default function Profile(props) {
         <ErrorDisplay title={"This user does not exist."} />
       )}
       <PinningAlerts pinStatus={pinStatus} setPinStatus={setPinStatus} />
+      <UpdatingIndicator isUpdating={isUpdating} setUpdating={setUpdating} />
     </div>
   );
 }

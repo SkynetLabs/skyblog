@@ -58,6 +58,7 @@ export default function PreviewMenu(props) {
 
   //close the Snackbar message
   const handleClose = (event) => {
+    event.preventDefault();
     event.stopPropagation();
     setOpen(false);
   };
@@ -80,6 +81,7 @@ export default function PreviewMenu(props) {
       post.content.ext.postPath,
       post.ref,
       post.isPinned,
+      post,
       history
     );
   };

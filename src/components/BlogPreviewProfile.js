@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { getDateDisplay } from "../data/dateDisplay";
-import { useHistory } from "react-router-dom";
+import { useHistory, Link } from "react-router-dom";
 import PreviewMenu from "../components/PreviewMenu";
 
 //BlogPreviewProfile component is a preview of blog posts for display in a feed
@@ -15,10 +15,8 @@ export default function BlogPreviewProfile(props) {
   const history = useHistory();
 
   return (
-    <a
-      href={
-        deletingPost ? false : "/#" + post.ref.replace("#", "/").substring(5)
-      }
+    <Link
+      to={deletingPost ? false : post.ref.replace("#", "/").substring(5)}
       className={deletingPost ? "space-y-4 cursor-default" : "space-y-4"}
     >
       <div className="aspect-w-3 aspect-h-2 bg-palette-100 rounded-lg">
@@ -53,6 +51,6 @@ export default function BlogPreviewProfile(props) {
           {post.content.ext.subtitle}
         </p>
       </div>
-    </a>
+    </Link>
   );
 }

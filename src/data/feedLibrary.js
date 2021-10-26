@@ -1,4 +1,9 @@
 import { dataDomain } from "./consts";
+import {
+  insertLocalStorageFeed,
+  editLocalStoragePost,
+  deleteLocalStoragePost,
+} from "./localStorage";
 /**
  * createBlogPost() uses the feed DAC to publish a post in the correct format
  * @param {string} title Title string
@@ -32,7 +37,9 @@ export async function createBlogPost(title, subtitle, blogMD, feedDAC, mySky) {
     const res = await feedDAC.createPost(postJSON);
     if (res.success) {
       await mySky.setJSON(`${dataDomain}/postPaths.json`, { postNum: postNum });
+      insertLocalStorageFeed(res.ref);
     }
+    console.log("RESPONSE", res);
     return res;
   } catch (e) {
     console.log("ERROR: ", e);
@@ -47,8 +54,9 @@ export async function createBlogPost(title, subtitle, blogMD, feedDAC, mySky) {
  * @param {string} blogMD markdown string of blog body
  * @param {boolean} isPinned whether the post is pinned or not
  * @param {string} postPath path of post JSON
- * @param {string} ref feedDAC post reference
+ * @param {string} ref feedDAC post reference id
  * @param mySky mySky instance
+ * @param {object} postData original post data
  * @return {object} response object containing success key and ref key with blog
  * reference id
  */
@@ -59,16 +67,19 @@ export async function editBlogPost(
   isPinned,
   postPath,
   ref,
+  postData,
   mySky
 ) {
   try {
-    await mySky.setJSON(postPath, {
+    let postJSON = {
       title: title,
       subtitle: subtitle,
       blogBody: blogMD,
       ts: Date.now(),
       isPinned: isPinned,
-    });
+    };
+    await mySky.setJSON(postPath, postJSON);
+    editLocalStoragePost(postJSON, postData, ref);
     return { success: true, ref: ref };
   } catch (e) {
     console.log("ERROR", e);
@@ -78,14 +89,17 @@ export async function editBlogPost(
 
 /**
  * togglePinPost() pin/unpin a blog post
+ * @param {string} ref feedDAC post reference id
  * @param {object} newJSON updated json to set at the post path
  * @param {string} postPath path for storing JSON
  * @param mySky mySky instance
+ * @param {object} postData original post data
  * @return {object} success or failure response
  */
-export async function togglePinPost(newJSON, postPath, mySky) {
+export async function togglePinPost(ref, newJSON, postPath, postData, mySky) {
   try {
     await mySky.setJSON(postPath, newJSON);
+    editLocalStoragePost(newJSON, postData, ref);
     return { success: true };
   } catch (e) {
     console.log("ERROR", e);
@@ -95,18 +109,21 @@ export async function togglePinPost(newJSON, postPath, mySky) {
 
 /**
  * deleteBlogPost() deletes a feedDAC blog post
- * @param {string} ref blog post id
+ * @param {string} ref blog post reference id
  * @param feedDAC feedDAC as initialized in SkynetContext
  * @return {object} success or failure response
  */
-export async function deleteBlogPost(postRef, feedDAC) {
-  const res = await feedDAC.deletePost(postRef);
+export async function deleteBlogPost(ref, feedDAC) {
+  const res = await feedDAC.deletePost(ref);
+  if (res.success) {
+    deleteLocalStoragePost(ref);
+  }
   return res;
 }
 
 /**
  * loadBlogPost() retrieves a post using the feedDAC
- * @param {string} ref blog post id
+ * @param {string} ref blog post reference id
  * @param feedDAC feedDAC as initialized in SkynetContext
  * @param client skynet client from SkynetContext
  * @param {boolean} getFirstImage tells whether or not to add a previewImage key to returned object
@@ -171,13 +188,7 @@ export async function getLatest(
     updatedPost.ts = data._data.ts;
     updatedPost.isPinned = featured ? true : data._data.isPinned;
     if (getFirstImage) {
-      const startIndex = data._data.blogBody.indexOf("![](https://");
-      if (startIndex === -1) {
-        return updatedPost;
-      }
-      const endIndex = data._data.blogBody.indexOf(")", startIndex);
-      const imageLink = data._data.blogBody.substring(startIndex + 4, endIndex);
-      updatedPost.content.previewImage = imageLink;
+      updatedPost.content.previewImage = getPreviewImage(data._data.blogBody);
     }
     return updatedPost;
   } catch (e) {
@@ -185,3 +196,18 @@ export async function getLatest(
     return post;
   }
 }
+
+/**
+ * getPreviewImage() help function to get the url for the first image present in post body
+ * @param {string} blogText blog post body
+ * @return {string} url of first image present in blog body
+ */
+export const getPreviewImage = (blogText) => {
+  const startIndex = blogText.indexOf("![](https://");
+  if (startIndex === -1) {
+    return null;
+  }
+  const endIndex = blogText.indexOf(")", startIndex);
+  const imageLink = blogText.substring(startIndex + 4, endIndex);
+  return imageLink;
+};

@@ -67,6 +67,7 @@ export default function Create(props) {
         location.state.isPinned,
         location.state.postPath,
         location.state.postRef,
+        location.state.post,
         mySky
       );
     } else {
