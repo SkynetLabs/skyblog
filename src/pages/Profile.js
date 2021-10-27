@@ -443,7 +443,7 @@ export default function Profile(props) {
                       !isMine ? "flex flex-row align-center ml-5" : null
                     }
                   >
-                    {!isMine ? (
+                    {!isMine && userID ? (
                       <button
                         onClick={() =>
                           followUser(

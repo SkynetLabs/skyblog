@@ -21,7 +21,9 @@ export default function ProfileItem(props) {
 
   useEffect(() => {
     //track whether following or not
-    setFollowing(myFollowing.includes(profileID));
+    if (userID && myFollowing) {
+      setFollowing(myFollowing.includes(profileID));
+    }
   }, [myFollowing, profileID]);
 
   return (
@@ -61,7 +63,7 @@ export default function ProfileItem(props) {
             </p>
           </div>
         </div>
-        {userID !== profileID ? (
+        {userID && userID !== profileID ? (
           <div className="flex items-center pr-4">
             <button
               onClick={(event) => {

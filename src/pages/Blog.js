@@ -180,7 +180,9 @@ export default function Blog(props) {
         } else {
           //if not current user's post, fetch remote
           res = await loadBlogPost(val, feedDAC, client);
-          setFollowing(myFollowing.includes(ref.substring(8)));
+          if (userID && myFollowing) {
+            setFollowing(myFollowing.includes(ref.substring(8)));
+          }
         }
         if (res) {
           setPostData(res);
@@ -317,28 +319,30 @@ export default function Blog(props) {
                       />
                     ) : (
                       <div>
-                        <button
-                          onMouseDown={(event) => {
-                            event.preventDefault();
-                            event.stopPropagation();
-                          }}
-                          onClick={(event) => {
-                            event.preventDefault();
-                            event.stopPropagation();
-                            followUser(
-                              isFollowing,
-                              setFollowing,
-                              myFollowing,
-                              setMyFollowing,
-                              setFollowStatus,
-                              socialDAC,
-                              ref.substring(8)
-                            );
-                          }}
-                          className="justify-center my-2 py-1 px-5 border border-transparent rounded-full shadow-sm text-sm font-medium text-palette-600 bg-primary hover:bg-primary-light transition-colors duration-200"
-                        >
-                          {isFollowing ? "Unfollow" : "Follow"}
-                        </button>
+                        {userID ? (
+                          <button
+                            onMouseDown={(event) => {
+                              event.preventDefault();
+                              event.stopPropagation();
+                            }}
+                            onClick={(event) => {
+                              event.preventDefault();
+                              event.stopPropagation();
+                              followUser(
+                                isFollowing,
+                                setFollowing,
+                                myFollowing,
+                                setMyFollowing,
+                                setFollowStatus,
+                                socialDAC,
+                                ref.substring(8)
+                              );
+                            }}
+                            className="justify-center my-2 py-1 px-5 border border-transparent rounded-full shadow-sm text-sm font-medium text-palette-600 bg-primary hover:bg-primary-light transition-colors duration-200"
+                          >
+                            {isFollowing ? "Unfollow" : "Follow"}
+                          </button>
+                        ) : null}
                         <ShareButton />
                       </div>
                     )}
