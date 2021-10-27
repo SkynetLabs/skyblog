@@ -77,7 +77,7 @@ export default function ProfileItem(props) {
                   profileID
                 );
               }}
-              className="justify-center my-2 py-2 px-5 border border-transparent rounded-2xl shadow-sm text-sm font-medium text-palette-600 bg-primary hover:bg-primary-light transition-colors duration-200"
+              className="justify-center my-2 py-2 px-5 border border-transparent rounded-2xl shadow-sm text-sm font-medium text-palette-600 bg-primary hover:bg-primary-light transition-colors duration-200 hidden sm:block"
             >
               {isFollowing ? "Unfollow" : "Follow"}
             </button>

@@ -180,6 +180,7 @@ export default function Blog(props) {
         } else {
           //if not current user's post, fetch remote
           res = await loadBlogPost(val, feedDAC, client);
+          setFollowing(myFollowing.includes(ref.substring(8)));
         }
         if (res) {
           setPostData(res);
@@ -208,6 +209,7 @@ export default function Blog(props) {
     posts,
     client,
     userID,
+    myFollowing,
   ]);
 
   //return first letter of display name
