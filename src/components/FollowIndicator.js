@@ -1,7 +1,4 @@
-import React, { useState, useEffect } from "react";
-import Snackbar from "@material-ui/core/Snackbar";
-import MuiAlert from "@material-ui/lab/Alert";
-import LinearProgress from "@material-ui/core/LinearProgress";
+import React from "react";
 import CustomIndicator from "./CustomIndicator";
 
 //UpdatingIndicator is a component that shows when the application is checking if there are updates needed for local storage

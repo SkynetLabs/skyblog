@@ -1,7 +1,4 @@
-import React, { useState, useEffect } from "react";
-import Snackbar from "@material-ui/core/Snackbar";
-import MuiAlert from "@material-ui/lab/Alert";
-import LinearProgress from "@material-ui/core/LinearProgress";
+import React from "react";
 import CustomIndicator from "./CustomIndicator";
 
 //PinningAlerts component shows alerts when pinning a post from the blog view
