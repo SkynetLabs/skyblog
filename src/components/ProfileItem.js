@@ -30,7 +30,7 @@ export default function ProfileItem(props) {
     <>
       <Link to={"/profile/ed25519-" + profileID} className="col-span-1 flex">
         <div className="flex-shrink-0 flex items-center justify-center w-16 h-16 m-2 text-white text-sm font-medium overflow-hidden rounded-full">
-          {profileData.avatar.length >= 1 ? (
+          {profileData.avatar && profileData.avatar.length >= 1 ? (
             <img
               src={
                 profileData.avatar[0].url.startsWith("sia://")
