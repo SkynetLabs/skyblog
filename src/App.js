@@ -60,9 +60,10 @@ function App() {
             <Route path={"/create"}>
               <Create />
             </Route>
-            <Route path={"/profile/:id"}>
-              <Profile />
-            </Route>
+            <Route
+              path={"/profile/:id"}
+              render={({ match }) => <Profile key={match.params.id} />}
+            />
             <Route path={"/:ref/:dac/:domain/:posts/:file/:id"}>
               <Blog />
             </Route>

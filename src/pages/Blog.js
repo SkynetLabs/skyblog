@@ -24,6 +24,8 @@ import {
   getLocalStoragePost,
   getLocalStorageProfile,
 } from "../data/localStorage";
+import { followUser } from "../data/socialLibrary";
+import FollowIndicator from "../components/FollowIndicator";
 
 //style for removing hover shading
 const useStyles = makeStyles((theme) => ({
@@ -114,8 +116,16 @@ export default function Blog(props) {
   history -> react router hook
   classes -> const to useStyles in JSX
    */
-  const { getUserProfile, feedDAC, client, userID, mySky } =
-    useContext(SkynetContext);
+  const {
+    getUserProfile,
+    feedDAC,
+    client,
+    userID,
+    mySky,
+    myFollowing,
+    setMyFollowing,
+    socialDAC,
+  } = useContext(SkynetContext);
   let { ref, dac, domain, posts, file, id } = useParams();
   const [postData, setPostData] = useState();
   const [isLoading, setLoading] = useState(true);
@@ -126,6 +136,8 @@ export default function Blog(props) {
   const [deletingPost, setDeletingPost] = useState(false);
   const [fullRef, setFullRef] = useState(null);
   const [isUpdating, setUpdating] = useState(false);
+  const [isFollowing, setFollowing] = useState(false);
+  const [followStatus, setFollowStatus] = useState(null);
   const history = useHistory();
   const classes = useStyles();
 
@@ -168,6 +180,9 @@ export default function Blog(props) {
         } else {
           //if not current user's post, fetch remote
           res = await loadBlogPost(val, feedDAC, client);
+          if (userID && myFollowing) {
+            setFollowing(myFollowing.includes(ref.substring(8)));
+          }
         }
         if (res) {
           setPostData(res);
@@ -196,6 +211,7 @@ export default function Blog(props) {
     posts,
     client,
     userID,
+    myFollowing,
   ]);
 
   //return first letter of display name
@@ -302,7 +318,33 @@ export default function Blog(props) {
                         setDeletingPost={setDeletingPost}
                       />
                     ) : (
-                      <ShareButton />
+                      <div>
+                        {userID ? (
+                          <button
+                            onMouseDown={(event) => {
+                              event.preventDefault();
+                              event.stopPropagation();
+                            }}
+                            onClick={(event) => {
+                              event.preventDefault();
+                              event.stopPropagation();
+                              followUser(
+                                isFollowing,
+                                setFollowing,
+                                myFollowing,
+                                setMyFollowing,
+                                setFollowStatus,
+                                socialDAC,
+                                ref.substring(8)
+                              );
+                            }}
+                            className="justify-center my-2 py-1 px-5 border border-transparent rounded-full shadow-sm text-sm font-medium text-palette-600 bg-primary hover:bg-primary-light transition-colors duration-200"
+                          >
+                            {isFollowing ? "Unfollow" : "Follow"}
+                          </button>
+                        ) : null}
+                        <ShareButton />
+                      </div>
                     )}
                   </>
                 ) : null
@@ -340,6 +382,10 @@ export default function Blog(props) {
       )}
       <PinningAlerts pinStatus={pinStatus} setPinStatus={setPinStatus} />
       <UpdatingIndicator isUpdating={isUpdating} setUpdating={setUpdating} />
+      <FollowIndicator
+        followStatus={followStatus}
+        setFollowStatus={setFollowStatus}
+      />
     </div>
   );
 }
