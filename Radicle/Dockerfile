@@ -54,5 +54,6 @@ CMD cargo run -p radicle-seed-node \
     --http-listen 0.0.0.0:80 \
     --public-addr 'services.siasky.tech:12345' \
     --assets-path /radicle-bins/seed/ui/public \
-    --secret-key /radicle-seed/secret.key
+    --secret-key /radicle-seed/secret.key \
+    --bootstrap 'hynkyndc6w3p8urucakobzna7sxwgcqny7xxtw88dtx3pkf7m3nrzc@sprout.radicle.xyz:12345'
 
