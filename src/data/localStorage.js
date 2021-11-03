@@ -15,7 +15,7 @@ export const setLocalStorage = (key, value) => {
  * @param {string} key to retrieve in localStorage
  * @return {object} localStorage value for given key
  */
-const getLocalStorage = (key) => {
+export const getLocalStorage = (key) => {
   return JSON.parse(localStorage.getItem(key));
 };
 

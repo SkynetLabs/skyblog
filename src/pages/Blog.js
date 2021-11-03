@@ -3,19 +3,14 @@ import { useParams } from "react-router-dom";
 import { loadBlogPost, togglePinPost } from "../data/feedLibrary";
 import { SkynetContext } from "../state/SkynetContext";
 import ReactMarkdown from "markdown-to-jsx";
-import Typography from "@material-ui/core/Typography";
-import CardHeader from "@material-ui/core/CardHeader";
 import Avatar from "@material-ui/core/Avatar";
 import Skeleton from "@material-ui/lab/Skeleton";
 import { displayName } from "../data/displayName";
-import { useHistory } from "react-router-dom";
-import CardActionArea from "@material-ui/core/CardActionArea";
+import { useHistory, Link } from "react-router-dom";
 import { makeStyles } from "@material-ui/core/styles";
 import ErrorDisplay from "../components/ErrorDisplay";
 import ShareButton from "../components/ShareButton";
 import CardMedia from "@material-ui/core/CardMedia";
-import Box from "@material-ui/core/Box";
-import Link from "@material-ui/core/Link";
 import PreviewMenu from "../components/PreviewMenu";
 import PinningAlerts from "../components/PinningAlerts";
 import UpdatingIndicator from "../components/UpdatingIndicator";
@@ -37,58 +32,52 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function MarkdownListItem(props) {
-  return <Box component="li" sx={{ mt: 1, typography: "body1" }} {...props} />;
+  return (
+    <li className={"ml-2 font-body font-extralight text-body"}>
+      {props.children.length > 1 ? props.children : "- " + props.children}
+    </li>
+  );
 }
 
 const options = {
   overrides: {
     h1: {
-      component: Typography,
       props: {
-        gutterBottom: true,
-        variant: "h1",
+        className: "text-7xl mt-6",
       },
     },
     h2: {
-      component: Typography,
       props: {
-        gutterBottom: true,
-        variant: "h2",
+        className: "text-6xl mt-6",
       },
     },
     h3: {
-      component: Typography,
       props: {
-        gutterBottom: true,
-        variant: "h3",
+        className: "text-5xl mt-6",
       },
     },
     h4: {
-      component: Typography,
       props: {
-        gutterBottom: true,
-        variant: "h4",
+        className: "text-4xl mt-6",
       },
     },
     h5: {
-      component: Typography,
       props: {
-        gutterBottom: true,
-        variant: "h5",
+        className: "text-3xl mt-6",
       },
     },
     h6: {
-      component: Typography,
       props: {
-        gutterBottom: true,
-        variant: "h6",
+        className: "text-2xl mt-6",
       },
     },
     p: {
-      component: Typography,
-      props: { paragraph: true },
+      props: {
+        paragraph: true,
+        className: "font-body font-extralight leading-1.58 text-body",
+      },
     },
-    a: { component: Link },
+    a: { props: { className: "text-primary hover:underline" } },
     li: {
       component: MarkdownListItem,
     },
@@ -96,7 +85,11 @@ const options = {
       component: CardMedia,
       props: {
         component: "img",
+        className: "my-4",
       },
+    },
+    blockquote: {
+      props: { className: "italic" },
     },
   },
 };
@@ -252,17 +245,18 @@ export default function Blog(props) {
   };
 
   return (
-    <div className={"md:max-w-xl mx-auto px-4 sm:px-6 lg:max-w-2xl lg:px-8"}>
+    <div className={"md:max-w-xl mx-auto px-4 sm:px-6 lg:max-w-3xl lg:px-8"}>
       {!showError ? (
         <>
-          <Typography variant={"h3"} style={{ marginTop: 10 }}>
+          <h3 className={"text-5xl mt-4"}>
             {!isLoading ? (
               postData.content.title
             ) : (
               <Skeleton animation={"wave"} />
             )}
-          </Typography>
-          <Typography
+          </h3>
+          <h5
+            className={"text-3xl mt-1 text-palette-300"}
             variant={"h5"}
             color={"textSecondary"}
             gutterBottom={true}
@@ -272,15 +266,18 @@ export default function Blog(props) {
             ) : (
               <Skeleton animation={"wave"} />
             )}
-          </Typography>
-          <CardActionArea
-            classes={{ focusHighlight: classes.focus }}
-            onClick={profileRoute}
-          >
-            <CardHeader
-              style={{ padding: 0 }}
-              avatar={
-                !isLoading ? (
+          </h5>
+
+          <Link to={"/profile/" + ref}>
+            {!isLoading ? (
+              <div
+                className={
+                  userID === ref.substring(8)
+                    ? "flex flex-col sm:flex-row justify-between my-3 md:items-center"
+                    : "flex flex-row justify-between my-3 items-center"
+                }
+              >
+                <div className={"flex flex-row"}>
                   <Avatar
                     aria-label={"Author"}
                     src={
@@ -293,72 +290,71 @@ export default function Blog(props) {
                   >
                     {author.avatar.length === 0 ? getLetter() : null}
                   </Avatar>
-                ) : (
-                  <Skeleton
-                    variant={"circle"}
-                    animation={"wave"}
-                    height={50}
-                    width={50}
+                  <div className={"ml-4"}>
+                    <p className={"text-sm mb-0"}>
+                      {displayName(author, ref.substring(8))}
+                    </p>
+                    <p className={"text-sm text-palette-300"}>{date}</p>
+                  </div>
+                </div>
+                {userID === ref.substring(8) &&
+                postData.content.ext.postPath ? (
+                  <PreviewMenu
+                    post={postData}
+                    feedDAC={feedDAC}
+                    history={history}
+                    handlePin={handlePin}
+                    blogView={true}
+                    deletingPost={deletingPost}
+                    setDeletingPost={setDeletingPost}
                   />
-                )
-              }
-              action={
-                !isLoading ? (
-                  <>
-                    {!isLoading &&
-                    userID === ref.substring(8) &&
-                    postData.content.ext.postPath ? (
-                      <PreviewMenu
-                        post={postData}
-                        feedDAC={feedDAC}
-                        history={history}
-                        handlePin={handlePin}
-                        blogView={true}
-                        deletingPost={deletingPost}
-                        setDeletingPost={setDeletingPost}
-                      />
-                    ) : (
-                      <div>
-                        {userID ? (
-                          <button
-                            onMouseDown={(event) => {
-                              event.preventDefault();
-                              event.stopPropagation();
-                            }}
-                            onClick={(event) => {
-                              event.preventDefault();
-                              event.stopPropagation();
-                              followUser(
-                                isFollowing,
-                                setFollowing,
-                                myFollowing,
-                                setMyFollowing,
-                                setFollowStatus,
-                                socialDAC,
-                                ref.substring(8)
-                              );
-                            }}
-                            className="justify-center my-2 py-1 px-5 border border-transparent rounded-full shadow-sm text-sm font-medium text-palette-600 bg-primary hover:bg-primary-light transition-colors duration-200"
-                          >
-                            {isFollowing ? "Unfollow" : "Follow"}
-                          </button>
-                        ) : null}
-                        <ShareButton />
-                      </div>
-                    )}
-                  </>
-                ) : null
-              }
-              title={
-                !isLoading ? (
-                  displayName(author, ref.substring(8))
                 ) : (
+                  <div>
+                    {userID ? (
+                      <button
+                        onMouseDown={(event) => {
+                          event.preventDefault();
+                          event.stopPropagation();
+                        }}
+                        onClick={(event) => {
+                          event.preventDefault();
+                          event.stopPropagation();
+                          followUser(
+                            isFollowing,
+                            setFollowing,
+                            myFollowing,
+                            setMyFollowing,
+                            setFollowStatus,
+                            socialDAC,
+                            ref.substring(8)
+                          );
+                        }}
+                        className="justify-center my-2 py-1 px-5 border border-transparent rounded-full shadow-sm text-sm font-medium text-palette-600 bg-primary hover:bg-primary-light transition-colors duration-200"
+                      >
+                        {isFollowing ? "Unfollow" : "Follow"}
+                      </button>
+                    ) : null}
+                    <ShareButton />
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className={"flex flex-row my-3"}>
+                <Skeleton
+                  variant={"circle"}
+                  animation={"wave"}
+                  height={50}
+                  width={50}
+                />
+                <div className={"flex-grow ml-4"}>
+                  <p>
+                    <Skeleton />
+                  </p>
                   <Skeleton />
-                )
-              }
-              subheader={!isLoading ? date : <Skeleton />}
-            />
-          </CardActionArea>
+                </div>
+              </div>
+            )}
+          </Link>
 
           {!isLoading ? (
             <ReactMarkdown

@@ -5,7 +5,11 @@ import { UserProfileDAC } from "@skynethub/userprofile-library";
 import { FeedDAC } from "feed-dac-library";
 import { SocialDAC } from "social-dac-library";
 import { dataDomain } from "../data/consts";
-import { clearLocalStorageFeed } from "../data/localStorage";
+import {
+  clearLocalStorageFeed,
+  setLocalStorage,
+  getLocalStorage,
+} from "../data/localStorage";
 
 const SkynetContext = createContext(undefined);
 
@@ -106,14 +110,13 @@ const SkynetProvider = ({ children }) => {
   };
 
   const getMyFollowing = async (userID) => {
-    const localFollowing = JSON.parse(localStorage.getItem("myFollowing"));
+    const localFollowing = getLocalStorage("myFollowing");
     if (localFollowing) {
       setMyFollowing(localFollowing);
     }
     const following = await socialDAC.getFollowingForUser(userID);
-    console.log("MY FOLLOWING: ", following);
     setMyFollowing(following);
-    localStorage.setItem("myFollowing", JSON.stringify(following));
+    setLocalStorage("myFollowing", following);
   };
   //handle logout from mySky
   const mySkyLogout = async () => {
