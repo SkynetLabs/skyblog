@@ -1,5 +1,4 @@
 import React from "react";
-import Container from "@material-ui/core/Container";
 import IconButton from "@material-ui/core/IconButton";
 import Twitter from "@material-ui/icons/Twitter";
 import GitHub from "@material-ui/icons/GitHub";

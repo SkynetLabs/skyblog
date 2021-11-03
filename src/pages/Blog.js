@@ -7,7 +7,6 @@ import Avatar from "@material-ui/core/Avatar";
 import Skeleton from "@material-ui/lab/Skeleton";
 import { displayName } from "../data/displayName";
 import { useHistory, Link } from "react-router-dom";
-import { makeStyles } from "@material-ui/core/styles";
 import ErrorDisplay from "../components/ErrorDisplay";
 import ShareButton from "../components/ShareButton";
 import CardMedia from "@material-ui/core/CardMedia";
@@ -21,15 +20,6 @@ import {
 } from "../data/localStorage";
 import { followUser } from "../data/socialLibrary";
 import FollowIndicator from "../components/FollowIndicator";
-
-//style for removing hover shading
-const useStyles = makeStyles((theme) => ({
-  focus: {
-    "&&&": {
-      opacity: 0,
-    },
-  },
-}));
 
 function MarkdownListItem(props) {
   return (
@@ -132,8 +122,6 @@ export default function Blog(props) {
   const [isFollowing, setFollowing] = useState(false);
   const [followStatus, setFollowStatus] = useState(null);
   const history = useHistory();
-  const classes = useStyles();
-
   //execute this effect on entry and when the feedDAC connection status is valid
   useEffect(() => {
     if (ref != null && feedDAC.connector) {
@@ -211,11 +199,6 @@ export default function Blog(props) {
   const getLetter = () => {
     const name = displayName(author, ref.substring(8));
     return name.substring(0, 1);
-  };
-  //route to author's profile page
-  const profileRoute = () => {
-    const newRoute = "/profile/" + ref;
-    history.push(newRoute);
   };
 
   //toggle pin of post

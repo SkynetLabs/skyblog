@@ -373,7 +373,7 @@ export default function Profile(props) {
                               4
                             )}`
                       }
-                      alt="Profile Image"
+                      alt="Profile"
                     />
                   ) : (
                     <UserIcon
