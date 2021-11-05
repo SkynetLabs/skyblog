@@ -65,7 +65,7 @@ export default function FollowingList(props) {
         </div>
         <button
           onClick={() => setShowFollowing(false)}
-          className="flex items-center rounded-full p-2 hover:bg-palette-100 transition-colors duration-200"
+          className="flex items-center rounded-full p-2 text-palette-300 hover:bg-palette-100 transition-colors duration-200"
         >
           <XIcon className={"h-6 w-6"} />
         </button>

@@ -26,11 +26,28 @@ module.exports = {
     extend: {
       fontFamily: {
         sans: ["Sora", ...defaultTheme.fontFamily.sans],
+        body: [
+          "ui-sans-serif",
+          "-apple-system",
+          '"Segoe UI"',
+          "Roboto",
+          '"Helvetica Neue"',
+          "Arial",
+          '"Noto Sans"',
+          "sans-serif",
+          '"Apple Color Emoji"',
+          '"Segoe UI Emoji"',
+          '"Segoe UI Symbol"',
+          '"Noto Color Emoji"',
+        ],
         content: ["Source\\ Sans\\ Pro", ...defaultTheme.fontFamily.sans],
         mono: ["Source\\ Code\\ Pro", ...defaultTheme.fontFamily.mono],
       },
       colors: {
         orange,
+      },
+      fontSize: {
+        body: ["21px", { lineHeight: "1.58" }],
       },
     },
   },

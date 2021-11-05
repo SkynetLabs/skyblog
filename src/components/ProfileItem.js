@@ -24,7 +24,7 @@ export default function ProfileItem(props) {
     if (userID && myFollowing) {
       setFollowing(myFollowing.includes(profileID));
     }
-  }, [myFollowing, profileID]);
+  }, [myFollowing, profileID, userID]);
 
   return (
     <>

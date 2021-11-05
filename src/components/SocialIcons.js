@@ -1,5 +1,4 @@
 import React from "react";
-import Container from "@material-ui/core/Container";
 import IconButton from "@material-ui/core/IconButton";
 import Twitter from "@material-ui/icons/Twitter";
 import GitHub from "@material-ui/icons/GitHub";
@@ -13,7 +12,7 @@ export default function SocialIcons(props) {
   const { connectionsArr } = props;
 
   return (
-    <Container>
+    <div className={"flex justify-center md:justify-start"}>
       {connectionsArr[2].github ? (
         <IconButton
           target={"_blank"}
@@ -60,6 +59,6 @@ export default function SocialIcons(props) {
         </IconButton>
       ) : null}
       <ShareButton />
-    </Container>
+    </div>
   );
 }
