@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from "react";
 import { SkynetContext } from "../state/SkynetContext";
 import BlogPreviewProfile from "../components/BlogPreviewProfile";
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import Skeleton from "@material-ui/lab/Skeleton";
 import { displayName } from "../data/displayName";
 import Divider from "@material-ui/core/Divider";
@@ -25,6 +25,7 @@ import FollowingList from "../components/FollowingList";
 import { followUser } from "../data/socialLibrary";
 import UserIcon from "@heroicons/react/solid/UserCircleIcon";
 import ExternalLink from "@heroicons/react/outline/ExternalLinkIcon";
+import Plus from "@heroicons/react/solid/PlusCircleIcon";
 
 //Profile page component, used to view a users blogs in a feed
 export default function Profile(props) {
@@ -535,9 +536,18 @@ export default function Profile(props) {
               )}
             </ul>
           ) : !isLoading && !showFollowing ? (
-            <p className={"text-xl my-20 text-center text-palette-300"}>
-              No posts to show.
-            </p>
+            <div className={"flex flex-col"}>
+              <p className={"text-xl mt-20 mb-8 text-center text-palette-300"}>
+                No posts to show.
+              </p>
+              {userID === id.substring(8) ? (
+                <div className={"flex justify-center"}>
+                  <Link to={"/create"} className={"text-palette-300"}>
+                    <Plus className={"h-40 w-40"} />
+                  </Link>
+                </div>
+              ) : null}
+            </div>
           ) : !showFollowing ? (
             <ul className="space-y-12 sm:grid sm:grid-cols-2 sm:gap-x-6 sm:gap-y-12 sm:space-y-0 md:grid-cols-2 lg:grid-cols-4 lg:gap-x-8">
               {["0", "1", "2", "3"].map((item) => (
