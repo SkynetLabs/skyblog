@@ -19,6 +19,7 @@ import {
   getLocalStorageFeed,
   setLocalStoragePost,
   setLocalStorageFeed,
+  updateLocalStorageUserList,
 } from "../data/localStorage";
 import FollowIndicator from "../components/FollowIndicator";
 import FollowingList from "../components/FollowingList";
@@ -183,6 +184,7 @@ export default function Profile(props) {
           setSocialLoading(false);
         }
         const following = await socialDAC.getFollowingForUser(id.substring(8));
+        updateLocalStorageUserList(following);
         setFollowingList(following);
         setSocialLoading(false);
       };
@@ -543,7 +545,7 @@ export default function Profile(props) {
               {userID === id.substring(8) ? (
                 <div className={"flex justify-center"}>
                   <Link to={"/create"} className={"text-palette-300"}>
-                    <Plus className={"h-40 w-40"} />
+                    <Plus className={"h-36 w-36"} />
                   </Link>
                 </div>
               ) : null}

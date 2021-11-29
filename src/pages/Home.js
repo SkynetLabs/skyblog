@@ -1,33 +1,25 @@
 import React, { useContext, useEffect, useState } from "react";
 import { SkynetContext } from "../state/SkynetContext";
 import BlogPreviewProfile from "../components/BlogPreviewProfile";
-import { loadBlogPost } from "../data/feedLibrary";
+import { getFeatured } from "../data/feedLibrary";
 import Spinner from "../components/Spinner";
-
-const features = [
-  "sky://ed25519-fed72531c20cb5795a13e4cab4fe026e8d69dfc0397424a208330122c36b864a/feed-dac.hns/100dcbhbr4ogv1rucfecaud33lq2da6d2ot4jhnfmag8aqf2irh44tg/posts/page_0.json#0",
-];
 
 //Home page component, returns JSX to display
 export default function Home(props) {
   const { isMySkyLoading, feedDAC, client } = useContext(SkynetContext); //use isMySkyLoading, feedDAC and client to get featured
   const [featureFeed, setFeatureFeed] = useState([]); //featured stories array
   const [isLoading, setLoading] = useState(true); //loading state
+
+  //get the featured blog posts
   useEffect(() => {
     if (!isMySkyLoading && feedDAC.connector) {
-      const getFeatured = async () => {
-        let feed = [];
-        features.forEach((item) => {
-          loadBlogPost(item, feedDAC, client, true, true).then((res) => {
-            feed.push(res);
-            if (feed.length === features.length) {
-              setFeatureFeed(feed);
-              setLoading(false);
-            }
-          });
-        });
+      const getInit = async () => {
+        setLoading(true);
+        const feed = await getFeatured(client, feedDAC);
+        setFeatureFeed(feed);
+        setLoading(false);
       };
-      getFeatured();
+      getInit();
     }
   }, [isMySkyLoading, feedDAC, client]);
 
