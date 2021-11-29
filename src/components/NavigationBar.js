@@ -92,48 +92,52 @@ export default function NavigationBar(props) {
                   Login with MySky
                 </p>
               </button>
-            ) : !isMySkyLoading && userList.length > 0 ? (
+            ) : !isMySkyLoading ? (
               <>
-                <div className={"relative mr-2 hidden md:block"}>
-                  <input
-                    type="text"
-                    name="search"
-                    id="search"
-                    placeholder="Search users..."
-                    className={
-                      "shadow-md block text-sm rounded-md hover:border-palette-600 focus:bg-white pr-20 p-2"
-                    }
-                    onChange={handleSearchChange}
-                    onFocus={() => setSearchOpen(true)}
-                    onBlur={() => {
-                      setTimeout(() => {
-                        document.getElementById("search").value = "";
-                        setSearchOpen(false);
-                      }, 100);
-                    }}
-                  />
-                  {searchOpen ? (
-                    <div
+                {userList.length > 0 ? (
+                  <div className={"relative mr-2 hidden md:block"}>
+                    <input
+                      type="text"
+                      name="search"
+                      id="search"
+                      placeholder="Search users..."
                       className={
-                        "absolute mt-2 p-2 w-full rounded-md overflow-y-auto bg-palette-100"
+                        "shadow-md block text-sm rounded-md hover:border-palette-600 focus:bg-white pr-20 p-2"
                       }
-                    >
-                      <ul className={"max-h-60"}>
-                        {searchList.length > 0 ? (
-                          searchList.map((item) => (
-                            <li>
-                              <SearchProfile profileData={item} />
-                            </li>
-                          ))
-                        ) : (
-                          <p className={"text-center text-palette-300 text-sm"}>
-                            No known users to show.
-                          </p>
-                        )}
-                      </ul>
-                    </div>
-                  ) : null}
-                </div>
+                      onChange={handleSearchChange}
+                      onFocus={() => setSearchOpen(true)}
+                      onBlur={() => {
+                        setTimeout(() => {
+                          document.getElementById("search").value = "";
+                          setSearchOpen(false);
+                        }, 100);
+                      }}
+                    />
+                    {searchOpen ? (
+                      <div
+                        className={
+                          "absolute mt-2 p-2 w-full rounded-md overflow-y-auto bg-palette-100"
+                        }
+                      >
+                        <ul className={"max-h-60"}>
+                          {searchList.length > 0 ? (
+                            searchList.map((item) => (
+                              <li>
+                                <SearchProfile profileData={item} />
+                              </li>
+                            ))
+                          ) : (
+                            <p
+                              className={"text-center text-palette-300 text-sm"}
+                            >
+                              No known users to show.
+                            </p>
+                          )}
+                        </ul>
+                      </div>
+                    ) : null}
+                  </div>
+                ) : null}
                 <Link
                   to={"/create"}
                   className={"p-2 rounded-full hover:bg-palette-100"}

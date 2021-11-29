@@ -175,6 +175,9 @@ export const updateLocalStorageUserList = (userList) => {
 export const getLocalStorageUserProfileList = () => {
   const userList = getLocalStorage(localStorageUserListKey);
   let profileList = [];
+  if (!userList) {
+    return [];
+  }
   userList.forEach((item) => {
     let localProfile = getLocalStorageProfile(item);
     localProfile.userID = item;
