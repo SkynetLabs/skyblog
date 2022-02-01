@@ -1,4 +1,4 @@
-import { dataDomain } from "./consts";
+import { dataDomain, featuredSkylink } from "./consts";
 import {
   insertLocalStorageFeed,
   editLocalStoragePost,
@@ -210,4 +210,31 @@ export const getPreviewImage = (blogText) => {
   const endIndex = blogText.indexOf(")", startIndex);
   const imageLink = blogText.substring(startIndex + 4, endIndex);
   return imageLink;
+};
+
+/**
+ * getFeatured()
+ * @param client instance of client
+ * @param feedDAC instance of feedDAC
+ * @return {array} array of featured blog post objects
+ */
+export const getFeatured = async (client, feedDAC) => {
+  try {
+    const { data } = await client.getFileContent(featuredSkylink);
+    let feed = [];
+    for (let i = 0; i < data.featuredRefs.length; i++) {
+      const res = await loadBlogPost(
+        data.featuredRefs[i],
+        feedDAC,
+        client,
+        true,
+        true
+      );
+      feed.push(res);
+    }
+    return feed;
+  } catch (e) {
+    console.log("error: ", e);
+    return [];
+  }
 };

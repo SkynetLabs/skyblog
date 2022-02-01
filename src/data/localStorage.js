@@ -1,6 +1,6 @@
 import { getPreviewImage } from "./feedLibrary";
-import { localStorageFeedKey } from "./consts";
-
+import { localStorageFeedKey, localStorageUserListKey } from "./consts";
+import union from "lodash/union";
 /**
  * setLocalStorage() set key value pair in localstorage
  * @param {string} key to set in localStorage
@@ -156,4 +156,32 @@ export const getLocalStorageProfile = (userID) => {
  */
 export const setLocalStorageProfile = (userID, profile) => {
   setLocalStorage(userID, profile);
+};
+
+/**
+ * updateLocalStorageUserList() persist array of userID to local storage
+ * @param {array} userList list of users to add to local storage list
+ */
+export const updateLocalStorageUserList = (userList) => {
+  const currentList = getLocalStorage(localStorageUserListKey);
+  const newList = union(userList, currentList);
+  setLocalStorage(localStorageUserListKey, newList);
+};
+
+/**
+ * getLocalStorageUserProfileList() return list of user profile objects persisted in storage
+ * @return {array} array of user profile objects
+ */
+export const getLocalStorageUserProfileList = () => {
+  const userList = getLocalStorage(localStorageUserListKey);
+  let profileList = [];
+  if (!userList) {
+    return [];
+  }
+  userList.forEach((item) => {
+    let localProfile = getLocalStorageProfile(item);
+    localProfile.userID = item;
+    if (localProfile) profileList.push(localProfile);
+  });
+  return profileList;
 };
