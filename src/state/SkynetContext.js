@@ -33,10 +33,9 @@ const SkynetProvider = ({ children }) => {
   userID -> mySky user id
   mySky -> mySky instance
   profile -> userProfile state to store DAC profile
-  userPreferences -> preferences state for DAC profile prefs
+  myFollowing -> array of useIDs that a user is following
    */
   const [isMySkyLoading, setMySkyLoading] = useState(true);
-
   const [userID, setUserID] = useState(null);
   const [mySky, setMySky] = useState(null);
   const [profile, setProfile] = useState(null);
@@ -108,7 +107,7 @@ const SkynetProvider = ({ children }) => {
     const prof = await userProfile.getProfile(userID);
     return prof;
   };
-
+  //get specified user's following list from the socialDAC, persist to localstorage
   const getMyFollowing = async (userID) => {
     const localFollowing = getLocalStorage("myFollowing");
     if (localFollowing) {
